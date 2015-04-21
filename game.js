@@ -34,9 +34,9 @@
     var fullName = this.$activeImg.attr('alt');
     var firstName = fullName.split(' ')[0];
     if (firstName.toLowerCase() === guess.toLowerCase()) {
-      this.print("That's right! It was " + fullName);
+      this.print("That's right! It was " + fullName + '.');
     } else {
-      this.print('Nope, it was ' + fullName);
+      this.print('Nope, it was ' + fullName + '.');
     }
     var game = this;
     this.$answerField.addClass('hidden');
