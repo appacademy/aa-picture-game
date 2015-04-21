@@ -35,6 +35,8 @@
     var firstName = fullName.split(' ')[0];
     if (firstName.toLowerCase() === guess.toLowerCase()) {
       this.print("That's right! It was " + fullName + '.');
+    } else if (firstName.toLowerCase().score(guess.toLowerCase(), 0.8) >= 0.4) {
+      this.print('Almost! It was ' + fullName + '.');
     } else {
       this.print('Nope, it was ' + fullName + '.');
     }
