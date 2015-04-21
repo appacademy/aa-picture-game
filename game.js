@@ -6,11 +6,11 @@
   });
 
   function FlashcardsGame() {
-    this.images = $('img');
+    this.images = $('.game-zone img');
     this.injectTemplate();
     this.$messageDisplay = $('.message-display');
     this.$nextButton = $('.next');
-    this.$answerField = $('.answer')
+    this.$answerField = $('.answer');
     this.bindHandlers();
     this.askQuestion();
   }
