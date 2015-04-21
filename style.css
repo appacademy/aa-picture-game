@@ -497,7 +497,12 @@ h1 {
 
 .game-zone {
   width: 400px;
+  height: 400px;
   margin: 50px auto;
+}
+
+.game-zone img {
+  height: 100%;
 }
 
 .loading {
