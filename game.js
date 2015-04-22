@@ -25,7 +25,6 @@
   FlashcardsGame.prototype.bindHandlers = function () {
     var game = this;
     this.$userInput.submit(function (event) {
-      console.log('yep');
       event.preventDefault();
       game.askingQuestion ? game.checkAnswer() : game.askQuestion();
     });
