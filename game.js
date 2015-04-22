@@ -11,6 +11,8 @@
     this.$messageDisplay = $('.message-display');
     this.$nextButton = $('.next');
     this.$answerField = $('.answer');
+    this.$userInput = $('.user-input');
+    this.askingQuestion = true;
     this.bindHandlers();
     this.askQuestion();
   }
@@ -22,15 +24,16 @@
 
   FlashcardsGame.prototype.bindHandlers = function () {
     var game = this;
-    this.$answerField.keypress(function (event) {
-      if (event.which === 13) {
-        var guess = $(event.currentTarget).val();
-        game.checkAnswer(guess);
-      }
+    this.$userInput.submit(function (event) {
+      console.log('yep');
+      event.preventDefault();
+      game.askingQuestion ? game.checkAnswer() : game.askQuestion();
     });
   };
 
-  FlashcardsGame.prototype.checkAnswer = function (guess) {
+  FlashcardsGame.prototype.checkAnswer = function () {
+    var guess = this.$answerField.val();
+    this.askingQuestion = false;
     var fullName = this.$activeImg.attr('alt');
     var firstName = fullName.split(' ')[0];
     if (firstName.toLowerCase() === guess.toLowerCase()) {
@@ -42,9 +45,7 @@
     }
     var game = this;
     this.$answerField.addClass('hidden');
-    this.$nextButton.removeClass('hidden').focus().keypress(function (event) {
-      game.askQuestion();
-    });
+    this.$nextButton.removeClass('hidden').focus();
   };
 
   FlashcardsGame.prototype.randomImg = function () {
@@ -57,6 +58,7 @@
   };
 
   FlashcardsGame.prototype.askQuestion = function () {
+    this.askingQuestion = true;
     this.$nextButton.addClass('hidden');
     this.$answerField.removeClass('hidden');
     this.$answerField.val('').focus();
