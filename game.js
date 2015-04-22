@@ -13,7 +13,7 @@
     this.$answerField = $('.answer');
     this.$userInput = $('.user-input');
     this.askingQuestion = true;
-    this.correctGuess = true;
+    this.newPicture = true;
     this.bindHandlers();
     this.askQuestion();
   }
@@ -37,13 +37,13 @@
     var fullName = this.$activeImg.attr('alt');
     var firstName = fullName.split(' ')[0];
     if (firstName.toLowerCase() === guess.toLowerCase()) {
-      this.correctGuess = true;
+      this.newPicture = true;
       this.print("That's right! It was " + fullName + '.');
     } else if (firstName.toLowerCase().score(guess.toLowerCase(), 0.8) >= 0.4) {
-      this.correctGuess = false;
+      this.newPicture = false;
       this.print('Almost! It was ' + fullName + '.');
     } else {
-       this.correctGuess = false;
+       this.newPicture = false;
        this.print('Nope, it was ' + fullName + '.');
     }
     var game = this;
@@ -65,7 +65,7 @@
     this.$nextButton.addClass('hidden');
     this.$answerField.removeClass('hidden');
     this.$answerField.val('').focus();
-    if (this.correctGuess) {
+    if (this.newPicture) {
       this.$activeImg && this.$activeImg.removeClass('visible');
       this.$activeImg = this.randomImg();
       this.$activeImg.addClass('visible');
