@@ -36,7 +36,8 @@
     this.askingQuestion = false;
     var fullName = this.$activeImg.attr('alt');
     var firstName = fullName.split(' ')[0];
-    if (firstName.toLowerCase() === guess.toLowerCase()) {
+    if (firstName.toLowerCase() === guess.toLowerCase() ||
+          fullName.toLowerCase() === guess.toLowerCase()) {
       this.newPicture = true;
       this.print("That's right! It was " + fullName + '.');
     } else if (firstName.toLowerCase().score(guess.toLowerCase(), 0.8) >= 0.4) {
