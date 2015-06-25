@@ -34,8 +34,8 @@
   FlashcardsGame.prototype.checkAnswer = function () {
     var fullName = this.$activeImg.attr('alt');
     var occupation = ' (' + this.$activeImg.attr('occup') + ').';
-    var answer = this.$answerField.val();
-    var guess = FuzzySet([fullName]).get(answer);
+    var answer = this.$answerField.val().toLowerCase();
+    var guess = FuzzySet([fullName.toLowerCase()]).get(answer);
     this.askingQuestion = false;
 
     if (guess === null) {
