@@ -32,20 +32,21 @@
   };
 
   FlashcardsGame.prototype.checkAnswer = function () {
-    var guess = this.$answerField.val();
-    this.askingQuestion = false;
     var fullName = this.$activeImg.attr('alt');
-    var firstName = fullName.split(' ')[0];
-    if (firstName.toLowerCase() === guess.toLowerCase() ||
-          fullName.toLowerCase() === guess.toLowerCase()) {
-      this.newPicture = true;
-      this.print("That's right! It was " + fullName + '.');
-    } else if (firstName.toLowerCase().score(guess.toLowerCase(), 0.8) >= 0.4) {
+    var occupation = ' (' + this.$activeImg.attr('occup') + ').';
+    var answer = this.$answerField.val();
+    var guess = FuzzySet([fullName]).get(answer);
+    this.askingQuestion = false;
+
+    if (guess === null) {
       this.newPicture = false;
-      this.print('Almost! It was ' + fullName + '.');
+      this.print('Nope, it was ' + fullName + occupation);
+    } else if (guess[0][1] === answer) {
+      this.newPicture = true;
+      this.print("That's right! It was " + fullName + occupation);
     } else {
-       this.newPicture = false;
-       this.print('Nope, it was ' + fullName + '.');
+      this.newPicture = true;
+      this.print('Almost! It was ' + fullName + occupation);
     }
     var game = this;
     this.$answerField.addClass('hidden');
