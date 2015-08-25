@@ -6,16 +6,32 @@
   });
 
   function FlashcardsGame() {
-    this.images = $('.game-zone img');
+    this.images =this.shuffle($('.game-zone img'));
     this.injectTemplate();
     this.$messageDisplay = $('.message-display');
     this.$nextButton = $('.next');
     this.$answerField = $('.answer');
     this.$userInput = $('.user-input');
+    this.$restartButton = $('.restart-button');
     this.askingQuestion = true;
     this.newPicture = true;
     this.bindHandlers();
     this.askQuestion();
+  }
+
+  FlashcardsGame.prototype.shuffle = function (array) {
+    var currentIndex = array.length, temporaryValue, randomIndex ;
+
+    while (0 !== currentIndex) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex -= 1;
+
+      temporaryValue = array[currentIndex];
+      array[currentIndex] = array[randomIndex];
+      array[randomIndex] = temporaryValue;
+    };
+
+    return array;
   }
 
   FlashcardsGame.prototype.injectTemplate = function () {
@@ -25,13 +41,25 @@
 
   FlashcardsGame.prototype.bindHandlers = function () {
     var game = this;
-    this.$userInput.submit(function (event) {
+    game.$userInput.submit(function (event) {
       event.preventDefault();
-      game.askingQuestion ? game.checkAnswer() : game.askQuestion();
+      if (game.images.length === 0) {
+        game.$answerField.addClass('hidden');
+        $('input.answer').addClass('hidden');
+        game.print("You know everybody!");
+        game.$restartButton.removeClass('hidden').focus();
+      } else {
+          game.askingQuestion ? game.checkAnswer() : game.askQuestion();
+      }
     });
+    game.$restartButton.click(function(event) {
+      event.preventDefault();
+      location.reload();
+    })
   };
 
   FlashcardsGame.prototype.checkAnswer = function () {
+    if (this.images.length === 0) { return; }
     var fullName = this.$activeImg.attr('alt');
     var occupation = ' (' + this.$activeImg.attr('occup') + ').';
     var answer = this.$answerField.val().toLowerCase();
@@ -58,6 +86,13 @@
     return this.images.eq(i);
   };
 
+  FlashcardsGame.prototype.nextImg = function () {
+    if (this.images.length === 0) { return; }
+    var newImage = this.images.eq(0);
+    this.images = this.images.slice(1);
+    return newImage;
+  };
+
   FlashcardsGame.prototype.print = function (message) {
     this.$messageDisplay.text(message);
   };
@@ -69,7 +104,7 @@
     this.$answerField.val('').focus();
     if (this.newPicture) {
       this.$activeImg && this.$activeImg.removeClass('visible');
-      this.$activeImg = this.randomImg();
+      this.$activeImg = this.nextImg();
       this.$activeImg.addClass('visible');
     }
     this.print('Who do you think this is?');
