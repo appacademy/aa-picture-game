@@ -68,13 +68,13 @@
 
     if (guess === null) {
       this.newPicture = false;
-      this.print('Nope, it was ' + fullName + occupation);
+      this.print('Nope, it was ' + fullName + occupation, 'red');
     } else if (guess[0][1] === answer) {
       this.newPicture = true;
-      this.print("That's right! It was " + fullName + occupation);
+      this.print("That's right! It was " + fullName + occupation, 'green');
     } else {
       this.newPicture = true;
-      this.print('Almost! It was ' + fullName + occupation);
+      this.print('Almost! It was ' + fullName + occupation, 'gold');
     }
     var game = this;
     this.$answerField.addClass('hidden');
@@ -93,7 +93,12 @@
     return newImage;
   };
 
-  FlashcardsGame.prototype.print = function (message) {
+  FlashcardsGame.prototype.print = function (message, color) {
+    if (color) {
+      this.$messageDisplay.attr('style', 'color:' + color)
+    } else {
+      this.$messageDisplay.attr('style', '')
+    }
     this.$messageDisplay.text(message);
   };
 
