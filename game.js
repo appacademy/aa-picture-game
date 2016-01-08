@@ -43,13 +43,10 @@
     var game = this;
     game.$userInput.submit(function (event) {
       event.preventDefault();
-      if (game.images.length === 0) {
-        game.$answerField.addClass('hidden');
-        $('input.answer').addClass('hidden');
-        game.print("You know everybody!");
-        game.$restartButton.removeClass('hidden').focus();
-      } else {
-          game.askingQuestion ? game.checkAnswer() : game.askQuestion();
+      if (game.askingQuestion) {
+        game.checkAnswer();
+      } else{
+        game.askQuestion();
       }
     });
     game.$restartButton.click(function(event) {
@@ -59,7 +56,6 @@
   };
 
   FlashcardsGame.prototype.checkAnswer = function () {
-    if (this.images.length === 0) { return; }
     var fullName = this.$activeImg.attr('alt');
     var occupation = ' (' + this.$activeImg.attr('occup') + ').';
     var answer = this.$answerField.val().toLowerCase();
@@ -87,10 +83,22 @@
   };
 
   FlashcardsGame.prototype.nextImg = function () {
-    if (this.images.length === 0) { return; }
+    if (this.images.length === 0) {
+      this.end();
+      return;
+    }
     var newImage = this.images.eq(0);
     this.images = this.images.slice(1);
     return newImage;
+  };
+
+  FlashcardsGame.prototype.end = function () {
+    this.$answerField.addClass('hidden');
+    $('input.answer').addClass('hidden');
+    this.print("You know everybody!");
+    this.$answerField.addClass('hidden');
+    this.$nextButton.addClass('hidden');
+    this.$restartButton.removeClass('hidden').focus();
   };
 
   FlashcardsGame.prototype.print = function (message, color) {
@@ -108,10 +116,14 @@
     this.$answerField.removeClass('hidden');
     this.$answerField.val('').focus();
     if (this.newPicture) {
-      this.$activeImg && this.$activeImg.removeClass('visible');
-      this.$activeImg = this.nextImg();
-      this.$activeImg.addClass('visible');
+      this.swapImg(this.nextImg());
     }
     this.print('Who do you think this is?');
+  };
+
+  FlashcardsGame.prototype.swapImg = function($newImg) {
+    this.$activeImg && this.$activeImg.removeClass('visible');
+    this.$activeImg = $newImg;
+    this.$activeImg && this.$activeImg.addClass('visible');
   };
 })();
