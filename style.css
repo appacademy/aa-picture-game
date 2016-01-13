@@ -508,3 +508,19 @@ h1 {
 .loading {
   margin-top: 40px;
 }
+
+@media only screen and (max-width: 640px) {
+  body {
+    overflow: hidden;
+  }
+
+  .game-zone {
+    width: 100%;
+    height: 100vh;
+    margin-bottom: 0px;
+  }
+
+  .game-zone img {
+    height: 55%;
+  }
+}
