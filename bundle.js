@@ -19684,7 +19684,7 @@
 	    });
 	  },
 	  currentName: function currentName() {
-	    return this.state.person.alt;
+	    return this.state.person.alt + " (" + GameDataStore.currentItem().occup + ")";
 	  },
 	  render: function render() {
 	    return React.createElement(
@@ -19708,7 +19708,9 @@
 	        'div',
 	        { className: 'game-zone' },
 	        React.createElement(Picture, { src: this.state.person.src }),
-	        React.createElement(Message, { status: this.state.status, currentName: this.currentName() }),
+	        React.createElement(Message, { status: this.state.status,
+	          currentName: this.currentName(),
+	          currentOcup: GameDataStore.currentItem().occup }),
 	        React.createElement(Controls, {
 	          status: this.state.status,
 	          nextPicture: this.nextPicture })
@@ -19731,11 +19733,7 @@
 	  displayName: 'Picture',
 	
 	  render: function render() {
-	    return React.createElement(
-	      'div',
-	      null,
-	      React.createElement('img', { src: this.props.src })
-	    );
+	    return React.createElement('img', { src: this.props.src });
 	  }
 	});
 	

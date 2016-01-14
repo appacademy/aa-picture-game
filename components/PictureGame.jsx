@@ -24,7 +24,7 @@ var PictureGame = React.createClass({
     });
   },
   currentName: function () {
-    return this.state.person.alt;
+    return this.state.person.alt + " (" + GameDataStore.currentItem().occup + ")";
   },
   render: function () {
     return (
@@ -38,7 +38,9 @@ var PictureGame = React.createClass({
 
         <div className="game-zone">
           <Picture src={this.state.person.src} />
-          <Message status={this.state.status} currentName={this.currentName()}/>
+          <Message status={this.state.status}
+            currentName={this.currentName()}
+            currentOcup={GameDataStore.currentItem().occup}/>
           <Controls
             status={this.state.status}
             nextPicture={this.nextPicture}/>
