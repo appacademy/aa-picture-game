@@ -444,7 +444,7 @@ canvas {
 }
 
 img {
-  display: none;
+  /* display: none; */
   margin: 0 auto;
 }
 
@@ -507,4 +507,16 @@ h1 {
 
 .loading {
   margin-top: 40px;
+}
+
+.incorrect {
+  color: red;
+}
+
+.close {
+  color: yellow;
+}
+
+.correct {
+  color: green;
 }
