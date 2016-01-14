@@ -503,6 +503,7 @@ h1 {
 
 .game-zone img {
   height: 100%;
+  width: auto;
 }
 
 .loading {
