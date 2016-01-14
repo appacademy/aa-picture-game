@@ -433,7 +433,7 @@ body, html {
 
 body {
   height: 100%;
-  background-color: rgb(221, 255, 255);
+  background-color: #F5F5F5;
   font-size: 20px;
 }
 
@@ -504,6 +504,7 @@ h1 {
 .game-zone img {
   height: 100%;
   width: auto;
+  border: 2px solid #7A8295;
 }
 
 .loading {
