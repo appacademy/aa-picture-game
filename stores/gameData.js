@@ -37,7 +37,7 @@ GameData.status = function () {
 
 
 var addGuess = function (answer) {
-  var guess = FuzzySet([GameData.currentItem().alt.toLowerCase()]).get(answer);
+  var guess = FuzzySet([GameData.currentItem().name.toLowerCase()]).get(answer);
   var guessedItem = currentBuckets[currentBucket].splice(currentItemIdx, 1)[0];
 
   // currentItemIdx = Math.max(currentItemIdx - 1, 0);

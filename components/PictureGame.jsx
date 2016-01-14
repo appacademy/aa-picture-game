@@ -24,7 +24,7 @@ var PictureGame = React.createClass({
     });
   },
   currentName: function () {
-    return this.state.person.alt + " (" + GameDataStore.currentItem().occup + ")";
+    return this.state.person.name + " (" + GameDataStore.currentItem().occup + ")";
   },
   render: function () {
     return (
