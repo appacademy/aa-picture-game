@@ -18,6 +18,7 @@ GameData.__onDispatch = function (payload) {
       break;
     case "NEXT_ITEM":
       advanceItem();
+      GameData.__emitChange();
       break;
   }
 };
@@ -39,6 +40,20 @@ GameData.bucketSizes = function () {
     return bucket.length + buckets[idx].length;
   });
 };
+
+var storeState = function () {
+  let state = {
+    turn,
+    status,
+    buckets,
+    currentBuckets,
+    currentBucket,
+    currentItemIdx,
+    currentItem,
+    cycle: "jan16"
+  };
+  localStorage.faceGameState = JSON.stringify(state);
+}
 
 var addGuess = function (answer) {
   var guess = FuzzySet([GameData.currentItem().name.toLowerCase()]).get(answer);
@@ -65,6 +80,7 @@ var addGuess = function (answer) {
 
   buckets[bucketIdx].push(guessedItem);
 
+  storeState();
   GameData.__emitChange();
 };
 
@@ -77,7 +93,7 @@ var advanceItem = function () {
   status = "guessing";
   currentItem = nextItem();
 
-  GameData.__emitChange();
+  storeState();
 };
 
 var advanceBucket = function () {
@@ -98,6 +114,27 @@ var advanceBucket = function () {
     currentItemIdx = 0;
   }
 };
+
+// Load saved game data
+if (localStorage.faceGameState) {
+  let dehydratedGameState = JSON.parse(localStorage.faceGameState);
+
+  // Clear saved game data from old cycles
+  if (dehydratedGameState.cycle !== "jan16") {
+    localStorage.removeItem("faceGameState");
+  } else {
+    turn = dehydratedGameState.turn;
+    status = dehydratedGameState.status;
+    buckets = dehydratedGameState.buckets;
+    currentBuckets = dehydratedGameState.currentBuckets;
+    currentBucket = dehydratedGameState.currentBucket;
+    currentItemIdx = dehydratedGameState.currentItemIdx;
+    currentItem = dehydratedGameState.currentItem;
+    if (status !== "guessing") {
+      advanceItem();
+    }
+  }
+}
 
 module.exports = GameData;
 

@@ -20488,6 +20488,7 @@
 	      break;
 	    case "NEXT_ITEM":
 	      advanceItem();
+	      GameData.__emitChange();
 	      break;
 	  }
 	};
@@ -20508,6 +20509,20 @@
 	  return currentBuckets.map(function (bucket, idx) {
 	    return bucket.length + buckets[idx].length;
 	  });
+	};
+	
+	var storeState = function storeState() {
+	  var state = {
+	    turn: turn,
+	    status: status,
+	    buckets: buckets,
+	    currentBuckets: currentBuckets,
+	    currentBucket: currentBucket,
+	    currentItemIdx: currentItemIdx,
+	    currentItem: currentItem,
+	    cycle: "jan16"
+	  };
+	  localStorage.faceGameState = JSON.stringify(state);
 	};
 	
 	var addGuess = function addGuess(answer) {
@@ -20535,6 +20550,7 @@
 	
 	  buckets[bucketIdx].push(guessedItem);
 	
+	  storeState();
 	  GameData.__emitChange();
 	};
 	
@@ -20547,7 +20563,7 @@
 	  status = "guessing";
 	  currentItem = nextItem();
 	
-	  GameData.__emitChange();
+	  storeState();
 	};
 	
 	var advanceBucket = function advanceBucket() {
@@ -20568,6 +20584,27 @@
 	    currentItemIdx = 0;
 	  }
 	};
+	
+	// Load saved game data
+	if (localStorage.faceGameState) {
+	  var dehydratedGameState = JSON.parse(localStorage.faceGameState);
+	
+	  // Clear saved game data from old cycles
+	  if (dehydratedGameState.cycle !== "jan16") {
+	    localStorage.removeItem("faceGameState");
+	  } else {
+	    turn = dehydratedGameState.turn;
+	    status = dehydratedGameState.status;
+	    buckets = dehydratedGameState.buckets;
+	    currentBuckets = dehydratedGameState.currentBuckets;
+	    currentBucket = dehydratedGameState.currentBucket;
+	    currentItemIdx = dehydratedGameState.currentItemIdx;
+	    currentItem = dehydratedGameState.currentItem;
+	    if (status !== "guessing") {
+	      advanceItem();
+	    }
+	  }
+	}
 	
 	module.exports = GameData;
 
