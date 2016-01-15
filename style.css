@@ -499,6 +499,9 @@ h1 {
   width: 400px;
   height: 400px;
   margin: 50px auto;
+  background: #5B99C3;
+  padding: 30px 20px 150px 20px;
+  border-radius: 5px;
 }
 
 .game-zone img {
@@ -547,21 +550,21 @@ h1 {
   height: 30px;
   position: relative;
   top: 100px;
-  left: 20px;
+  left: 150px;
   width: 200px;
 }
 
-@media screen and (max-width: 650px){
+@media screen and (max-width: 1200px){
   .progress-bar {
     position: absolute;
     left: 30%;
     top: 100px;
     margin-bottom: 20px;
-  }
+}
 
-  .game-zone {
-    position: relative;
-    top: 200px;
-  }
+.game-zone {
+  position: relative;
+  top: 200px;
+}
 }
 
