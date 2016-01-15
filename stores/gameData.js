@@ -34,7 +34,11 @@ GameData.status = function () {
   return status;
 };
 
-
+GameData.bucketSizes = function () {
+  return currentBuckets.map((bucket, idx) => {
+    return bucket.length + buckets[idx].length;
+  });
+};
 
 var addGuess = function (answer) {
   var guess = FuzzySet([GameData.currentItem().name.toLowerCase()]).get(answer);

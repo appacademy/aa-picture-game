@@ -19660,6 +19660,7 @@
 	var Picture = __webpack_require__(160);
 	var Message = __webpack_require__(161);
 	var Controls = __webpack_require__(162);
+	var ProgressBar = __webpack_require__(194);
 	var GameDataStore = __webpack_require__(174);
 	var FuzzySet = __webpack_require__(193);
 	
@@ -19670,7 +19671,8 @@
 	    return {
 	      status: "guessing",
 	      nextPicture: false,
-	      person: GameDataStore.currentItem()
+	      person: GameDataStore.currentItem(),
+	      bucketSizes: GameDataStore.bucketSizes()
 	    };
 	  },
 	  componentDidMount: function componentDidMount() {
@@ -19680,7 +19682,8 @@
 	    this.setState({
 	      person: GameDataStore.currentItem(),
 	      status: GameDataStore.status(),
-	      nextPicture: false
+	      nextPicture: false,
+	      bucketSizes: GameDataStore.bucketSizes()
 	    });
 	  },
 	  currentName: function currentName() {
@@ -19704,6 +19707,7 @@
 	          'The Picture Game'
 	        )
 	      ),
+	      React.createElement(ProgressBar, { bucketSizes: this.state.bucketSizes }),
 	      React.createElement(
 	        'div',
 	        { className: 'game-zone' },
@@ -20498,6 +20502,12 @@
 	
 	GameData.status = function () {
 	  return status;
+	};
+	
+	GameData.bucketSizes = function () {
+	  return currentBuckets.map(function (bucket, idx) {
+	    return bucket.length + buckets[idx].length;
+	  });
 	};
 	
 	var addGuess = function addGuess(answer) {
@@ -27296,6 +27306,50 @@
 	};
 	
 	module.exports = FuzzySet;
+
+/***/ },
+/* 194 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	var React = __webpack_require__(1);
+	
+	var ProgressBar = React.createClass({
+	  displayName: "ProgressBar",
+	
+	  render: function render() {
+	    return React.createElement(
+	      "div",
+	      { className: "progress-bar" },
+	      this.props.bucketSizes.map(function (bucketSize, idx) {
+	        var bucketSquares = [];
+	        var status;
+	        for (var i = 0; i < bucketSize; i++) {
+	          switch (idx) {
+	            case 0:
+	              status = "incorrect";
+	              break;
+	            case 1:
+	              status = "close";
+	              break;
+	            case 2:
+	              status = "correct";
+	              break;
+	          }
+	          bucketSquares.push(React.createElement("div", { className: "bucket-square " + status, key: i }));
+	        }
+	        return React.createElement(
+	          "div",
+	          { className: "bucket-size-container", key: bucketSize ^ idx + 1 },
+	          bucketSquares
+	        );
+	      })
+	    );
+	  }
+	});
+	
+	module.exports = ProgressBar;
 
 /***/ }
 /******/ ]);

@@ -2,6 +2,7 @@ var React = require('react');
 var Picture = require('./Picture');
 var Message = require('./Message');
 var Controls = require('./Controls');
+var ProgressBar = require('./ProgressBar');
 var GameDataStore = require('../stores/gameData');
 var FuzzySet = require('../util/fuzzyset');
 
@@ -10,7 +11,8 @@ var PictureGame = React.createClass({
     return {
       status: "guessing",
       nextPicture: false,
-      person: GameDataStore.currentItem()
+      person: GameDataStore.currentItem(),
+      bucketSizes: GameDataStore.bucketSizes()
     };
   },
   componentDidMount : function () {
@@ -20,7 +22,8 @@ var PictureGame = React.createClass({
     this.setState({
       person: GameDataStore.currentItem(),
       status: GameDataStore.status(),
-      nextPicture: false
+      nextPicture: false,
+      bucketSizes: GameDataStore.bucketSizes()
     });
   },
   currentName: function () {
@@ -35,6 +38,7 @@ var PictureGame = React.createClass({
           </div>
           <h1>The Picture Game</h1>
         </header>
+        <ProgressBar bucketSizes={this.state.bucketSizes}/>
 
         <div className="game-zone">
           <Picture src={this.state.person.src} />
