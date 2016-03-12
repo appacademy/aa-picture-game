@@ -99,7 +99,7 @@ var addGuess = function (answer) {
 
 var advanceItem = function () {
   //Advance to next non-empty bucket
-  while (state.currentKeyIdx + 1 > currentBucket().length) {
+  while (currentBucket().length === 0) {
     advanceBucket();
   }
 
@@ -112,7 +112,7 @@ var advanceItem = function () {
 var setCurrentItemToRandomValidItem = function () {
   randomizeCurrentKey();
 
-  while (!currentKeyIsValid()) {
+  while (!keyIsValid(state.currentKey)) {
     currentBucket().splice(state.currentKeyIdx, 1);
     randomizeCurrentKey();
   }
@@ -124,21 +124,17 @@ var randomizeCurrentKey = function () {
 };
 
 var randomizeCurrentKeyIndex = function () {
-  var currentBucketLength = currentBucket().length;
-  state.currentKeyIdx = Math.floor(Math.random() * currentBucketLength);
+  state.currentKeyIdx = Math.floor(Math.random() * currentBucket().length);
 };
 
-var currentKeyIsValid = function () {
-  return people.hasOwnProperty(state.currentKey);
+var keyIsValid = function (key) {
+  return people.hasOwnProperty(key);
 };
 
 var advanceBucket = function () {
   state.currentBucketIdx += 1;
 
-  //Switch back to items from previous state.turn if there are no non-empty buckets or
-  //all buckets for the state.turn have been used
-  if ((state.turn % (state.currentBucketIdx + 1) !== 0) ||
-       state.currentBucketIdx >= state.currentBuckets.length) {
+  if (currentBucketsShouldReplenish()) {
     state.currentBuckets.forEach((bucket, idx) => {
       state.currentBuckets[idx] = bucket.concat(state.seenBuckets[idx]);
       state.seenBuckets[idx] = [];
@@ -147,6 +143,16 @@ var advanceBucket = function () {
     state.currentBucketIdx = 0;
     state.turn += 1;
   }
+};
+
+var currentBucketsShouldReplenish = function() {
+  // modulo against the index of the bucket so that the first bucket is
+  // always replenished, the second is replenished every other time, and
+  // the third is replenished every third time.
+  var itsTheRightTurn = (state.turn % (state.currentBucketIdx + 1) !== 0);
+  var allBucketsSeen = (state.currentBucketIdx >= state.currentBuckets.length);
+
+  return (itsTheRightTurn || allBucketsSeen);
 };
 
 /// localStorage persistence ///
@@ -192,8 +198,37 @@ var loadStoredState = function () {
   }
 }
 
+var syncStateWithPeople = function () {
+  removeInvalidKeysFromBuckets(state.seenBuckets);
+  removeInvalidKeysFromBuckets(state.currentBuckets);
+
+  var usedKeys = setOfAllBucketedKeys();
+  var unusedKeys = Object.keys(people).filter(key =>
+    !usedKeys.hasOwnProperty(key)
+  );
+  state.currentBuckets[0] = state.currentBuckets[0].concat(unusedKeys);
+};
+
+var removeInvalidKeysFromBuckets = function (buckets) {
+  buckets.forEach((bucket, i) => {
+    buckets[i] = bucket.filter(key => keyIsValid(key));
+  });
+};
+
+var setOfAllBucketedKeys = function() {
+  var bucketedKeys = {};
+  state.seenBuckets.forEach(bucket =>
+    bucket.forEach(key => bucketedKeys[key] = true)
+  );
+  state.currentBuckets.forEach(bucket =>
+    bucket.forEach(key => bucketedKeys[key] = true)
+  );
+  return bucketedKeys;
+};
+
 /// post-load setup ///
 
 loadStoredState();
+syncStateWithPeople();
 setCurrentItemToRandomValidItem();
 GameState.addListener(storeState);
