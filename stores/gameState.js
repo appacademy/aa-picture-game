@@ -1,20 +1,24 @@
+var FuzzySet = require('../util/fuzzyset');
 var Dispatcher = require('../dispatcher');
 var Store = require('flux/utils').Store;
+var GameState = new Store(Dispatcher);
+
 var people = require('../data/people');
-var GameData = new Store(Dispatcher);
-var FuzzySet = require('../util/fuzzyset');
-var buckets = [[], [], []]; // [don't know, learning, know]
-var turn = 1;
-var status = "guessing";
-var remedialGuess = false; // you must get it right before moving on
-var currentBuckets = [people, [], []];
-var currentBucket = 0;
-var currentItemIdx;
-var currentItem;
+
 var cycle = "mar16";
 var localStorageKey = "faceGameState-" + cycle;
 
-GameData.__onDispatch = function (payload) {
+var turn = 1;
+var status = "guessing";
+var remedialGuess = false; // you must get it right before moving on
+
+var buckets = [[], [], []]; // [don't know, learning, know]
+var currentBuckets = [Object.keys(people), [], []];
+var currentBucketIdx = 0;
+var currentKey;
+var nextKeyIdx;
+
+GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
     case "GUESS_ADDED":
       addGuess(payload.guess);
@@ -25,39 +29,39 @@ GameData.__onDispatch = function (payload) {
   }
 };
 
-GameData.currentItem = function () {
-  return currentItem;
+GameState.currentItem = function () {
+  return people[currentKey];
 };
 
-var nextItem = function () {
-  return currentBuckets[currentBucket][currentItemIdx];
+var nextKey = function () {
+  return currentBuckets[currentBucketIdx][nextKeyIdx];
 };
 
-GameData.status = function () {
+GameState.status = function () {
   return status;
 };
 
-GameData.bucketSizes = function () {
+GameState.bucketSizes = function () {
   return currentBuckets.map((bucket, idx) => {
     return bucket.length + buckets[idx].length;
   });
 };
 
 var addGuess = function (answer) {
-  var guess = FuzzySet([GameData.currentItem().name.toLowerCase()]).get(answer);
+  var guess = FuzzySet([GameState.currentItem().name.toLowerCase()]).get(answer);
 
-  // currentItemIdx = Math.max(currentItemIdx - 1, 0);
-  let bucketIdx = currentBucket;
+  // nextKeyIdx = Math.max(nextKeyIdx - 1, 0);
+  let bucketIdx = currentBucketIdx;
 
   if (guess === null) {
     remedialGuess = true;
     status = "incorrect";
-    GameData.__emitChange();
+    GameState.__emitChange();
     return;
   }
 
   if (guess[0][1] === answer.toLowerCase()) {
-    if (!remedialGuess && currentBucket !== 2) {
+    if (!remedialGuess && currentBucketIdx !== 2) {
       bucketIdx += 1;
     }
     status = "correct";
@@ -65,53 +69,52 @@ var addGuess = function (answer) {
     status = "close";
   }
 
-  if (remedialGuess && currentBucket !== 0) {
+  if (remedialGuess && currentBucketIdx !== 0) {
     bucketIdx -= 1;
   }
   remedialGuess = false;
 
-  console.log(status, remedialGuess)
-  currentBuckets[currentBucket].splice(currentItemIdx, 1)[0];
-  buckets[bucketIdx].push(currentItem);
+  currentBuckets[currentBucketIdx].splice(nextKeyIdx, 1)[0];
+  buckets[bucketIdx].push(currentKey);
   randomizeNextItem();
 
-  GameData.__emitChange();
+  GameState.__emitChange();
 };
 
 var advanceItem = function () {
   //Advance to next non-empty bucket
-  while (currentItemIdx + 1 > currentBuckets[currentBucket].length) {
+  while (nextKeyIdx + 1 > currentBuckets[currentBucketIdx].length) {
     advanceBucket();
   }
 
   status = "guessing";
-  currentItem = nextItem();
+  currentKey = nextKey();
 
-  GameData.__emitChange();
+  GameState.__emitChange();
 };
 
 var advanceBucket = function () {
-  currentBucket += 1;
+  currentBucketIdx += 1;
 
   //Switch back to items from previous turn if there are no non-empty buckets or
   //all buckets for the turn have been used
-  if ((turn % (currentBucket + 1) !== 0) || currentBucket >= currentBuckets.length) {
+  if ((turn % (currentBucketIdx + 1) !== 0) || currentBucketIdx >= currentBuckets.length) {
     currentBuckets.forEach((bucket, idx) => {
       currentBuckets[idx] = bucket.concat(buckets[idx]);
       buckets[idx] = [];
     });
 
-    currentBucket = 0;
+    currentBucketIdx = 0;
     turn += 1;
   }
 };
 
 var randomizeNextItem = function () {
-  var currentBucketLength = currentBuckets[currentBucket].length
-  currentItemIdx = Math.floor(Math.random() * currentBucketLength);
+  var currentBucketLength = currentBuckets[currentBucketIdx].length
+  nextKeyIdx = Math.floor(Math.random() * currentBucketLength);
 };
 randomizeNextItem();
-currentItem = nextItem();
+currentKey = nextKey();
 
 /// localStorage persistence ///
 
@@ -121,9 +124,9 @@ var storeState = function () {
     status,
     buckets,
     currentBuckets,
-    currentBucket,
-    currentItemIdx,
-    currentItem,
+    currentBucketIdx,
+    nextKeyIdx,
+    currentKey,
     timestamp: Date.now()
   };
   localStorage.setItem(localStorageKey, JSON.stringify(state));
@@ -133,7 +136,7 @@ var storeState = function () {
   }
 };
 
-GameData.addListener(storeState);
+GameState.addListener(storeState);
 
 var removeOldestStoredItem = function () {
   var keyToRemove = null;
@@ -164,9 +167,9 @@ var loadStoredState = function () {
     status = storedGameState.status;
     buckets = storedGameState.buckets;
     currentBuckets = storedGameState.currentBuckets;
-    currentBucket = storedGameState.currentBucket;
-    currentItemIdx = storedGameState.currentItemIdx;
-    currentItem = storedGameState.currentItem;
+    currentBucketIdx = storedGameState.currentBucketIdx;
+    nextKeyIdx = storedGameState.nextKeyIdx;
+    currentKey = storedGameState.currentKey;
     if (status !== "guessing") {
       advanceItem();
     }
@@ -178,4 +181,4 @@ loadStoredState();
 window.getState = function() {
   return JSON.parse(localStorage.getItem(localStorageKey));
 };
-module.exports = GameData;
+module.exports = GameState;

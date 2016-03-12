@@ -3,7 +3,7 @@ var Picture = require('./Picture');
 var Message = require('./Message');
 var Controls = require('./Controls');
 var ProgressBar = require('./ProgressBar');
-var GameDataStore = require('../stores/gameData');
+var GameStateStore = require('../stores/gameState');
 var FuzzySet = require('../util/fuzzyset');
 
 var PictureGame = React.createClass({
@@ -11,23 +11,23 @@ var PictureGame = React.createClass({
     return {
       status: "guessing",
       nextPicture: false,
-      person: GameDataStore.currentItem(),
-      bucketSizes: GameDataStore.bucketSizes()
+      person: GameStateStore.currentItem(),
+      bucketSizes: GameStateStore.bucketSizes()
     };
   },
   componentDidMount : function () {
-    GameDataStore.addListener(this.updateItem);
+    GameStateStore.addListener(this.updateItem);
   },
   updateItem: function () {
     this.setState({
-      person: GameDataStore.currentItem(),
-      status: GameDataStore.status(),
+      person: GameStateStore.currentItem(),
+      status: GameStateStore.status(),
       nextPicture: false,
-      bucketSizes: GameDataStore.bucketSizes()
+      bucketSizes: GameStateStore.bucketSizes()
     });
   },
   currentName: function () {
-    return this.state.person.name + " (" + GameDataStore.currentItem().occup + ")";
+    return this.state.person.name + " (" + GameStateStore.currentItem().occup + ")";
   },
   render: function () {
     return (
@@ -44,7 +44,7 @@ var PictureGame = React.createClass({
           <Picture src={this.state.person.imageUrl} />
           <Message status={this.state.status}
             currentName={this.currentName()}
-            currentOcup={GameDataStore.currentItem().occup}/>
+            currentOcup={GameStateStore.currentItem().occup}/>
           <Controls
             status={this.state.status}
             nextPicture={this.nextPicture}/>

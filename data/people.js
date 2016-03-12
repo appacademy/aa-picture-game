@@ -1,4 +1,6 @@
 var students = require('./students');
 var instructors = require('./instructors');
 
-module.exports = instructors.concat(students);
+instructors.concat(students).forEach(person => {
+  exports[`${person.occup}-${person.id}`] = person
+});
