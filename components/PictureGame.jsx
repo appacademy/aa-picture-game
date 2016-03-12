@@ -41,7 +41,7 @@ var PictureGame = React.createClass({
         <ProgressBar bucketSizes={this.state.bucketSizes}/>
 
         <div className="game-zone">
-          <Picture src={this.state.person.src} />
+          <Picture src={this.state.person.imageUrl} />
           <Message status={this.state.status}
             currentName={this.currentName()}
             currentOcup={GameDataStore.currentItem().occup}/>
@@ -55,5 +55,3 @@ var PictureGame = React.createClass({
 });
 
 module.exports = PictureGame;
-
-

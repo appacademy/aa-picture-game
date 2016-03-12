@@ -1,62 +1,86 @@
 module.exports = [
   {
-    "occup": "instructor",
-    "src": "photos/jeff.jpg",
-    "name": "Jeff Fiddler"
+    "id": 13,
+    "name": "Jeff Fiddler",
+    "imageUrl": "photos/jeff.jpg",
+    "occup": "instructor"
   },
   {
-    "occup": "instructor",
-    "src": "photos/jon.jpg",
-    "name": "Jon Wolverton"
+    "id": 22,
+    "name": "Haseeb Qureshi",
+    "imageUrl": "photos/haseeb.jpg",
+    "occup": "TA"
   },
   {
-    "occup": "instructor",
-    "src": "photos/asher.jpg",
-    "name": "Asher King Abramon"
+    "id": 23,
+    "name": "Alex Chebotarev",
+    "imageUrl": "photos/aleksey.jpg",
+    "occup": "TA"
   },
   {
-    "occup": "TA",
-    "src": "photos/max.jpg",
-    "name": "Max Schram"
+    "id": 26,
+    "name": "Jon Wolverton",
+    "imageUrl": "photos/jon.jpg",
+    "occup": "instructor"
   },
   {
-    "occup": "TA",
-    "src": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/835/medium/mihir_jham.jpg?1440628925",
-    "name": "Mihir Jham"
+    "id": 30,
+    "name": "Max Schram",
+    "imageUrl": "photos/max.jpg",
+    "occup": "TA"
   },
   {
-    "occup": "TA",
-    "src": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/834/medium/brooke_angel.jpg?1440628466",
-    "name": "Brooke Angel"
+    "id": 34,
+    "name": "Anthony Ladson",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/887/medium/anthony_ladson.jpg?1440628437",
+    "occup": "TA"
   },
   {
-    "occup": "TA",
-    "src": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/887/medium/anthony_ladson.jpg?1440628437",
-    "name": "Anthony Ladson"
+    "id": 35,
+    "name": "Brooke Angel",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/834/medium/brooke_angel.jpg?1440628466",
+    "occup": "TA"
   },
   {
-    "occup": "TA",
-    "src": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/972/medium/WinnieNgo.jpg?1446666478",
-    "name": "Winnie Ngo"
+    "id": 36,
+    "name": "Mihir Jham",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/835/medium/mihir_jham.jpg?1440628925",
+    "occup": "TA"
   },
   {
-    "occup": "TA",
-    "src": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/957/medium/Tran.jpg?1446679757",
-    "name": "Ken Tran"
+    "id": 37,
+    "name": "Asher King Abramon",
+    "imageUrl": "photos/asher.jpg",
+    "occup": "instructor"
   },
   {
-    "occup": "TA",
-    "src": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/939/medium/RyanHall.jpg?1446677509",
-    "name": "Ryan Hall"
+    "id": 39,
+    "name": "Winnie Ngo",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/972/medium/WinnieNgo.jpg?1446666478",
+    "occup": "TA"
   },
   {
-    "occup": "TA",
-    "src": "photos/aleksey.jpg",
-    "name": "Alex Chebotarev"
+    "id": 41,
+    "name": "Ken Tran",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/957/medium/Tran.jpg?1446679757",
+    "occup": "TA"
   },
   {
-    "occup": "TA",
-    "src": "photos/haseeb.jpg",
-    "name": "Haseeb Qureshi"
+    "id": 40,
+    "name": "Ryan Hall",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/939/medium/RyanHall.jpg?1446677509",
+    "occup": "TA"
+  },
+  {
+    "id": 46,
+    "name": "Kevin McCall",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/087/medium/McCall.jpg?1452217152",
+    "occup": "TA"
+  },
+  {
+    "id": 47,
+    "name": "Claire Rogers",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/977/medium/Rogers.jpg?1446670488",
+    "occup": "TA"
   }
 ];

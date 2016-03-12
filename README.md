@@ -14,10 +14,14 @@ Helps students and instructors at App Academy learn each other's names
   ```javascript
   var students = [];
   $(".classmate-block.block").each(function (fig) {
-    var name = $(this).find("strong a").text();
-    var src = $(this).find("figure img").attr("src");
+    var $link = $(this).find("strong a");
+    var segments = $link.attr("href").split('/');
 
-    student = {occup: "student", src: src, name: name};
+    var id = parseInt(segments[segments.length - 1]);
+    var name = $link.text();
+    var imageUrl = $(this).find("figure img").attr("src");
+
+    student = {id: id, name: name, imageUrl: imageUrl, occup: "student"};
     students.push(student);
   });
 
