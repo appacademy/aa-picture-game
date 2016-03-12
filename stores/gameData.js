@@ -10,6 +10,8 @@ var currentBuckets = [people, [], []];
 var currentBucket = 0;
 var currentItemIdx = 0;
 var currentItem = currentBuckets[currentBucket][currentItemIdx];
+var cycle = "mar16";
+var localStorageKey = "faceGameState-" + cycle;
 
 GameData.__onDispatch = function (payload) {
   switch(payload.actionType) {
@@ -41,20 +43,6 @@ GameData.bucketSizes = function () {
   });
 };
 
-var storeState = function () {
-  let state = {
-    turn,
-    status,
-    buckets,
-    currentBuckets,
-    currentBucket,
-    currentItemIdx,
-    currentItem,
-    cycle: "jan16"
-  };
-  localStorage.faceGameState = JSON.stringify(state);
-}
-
 var addGuess = function (answer) {
   var guess = FuzzySet([GameData.currentItem().name.toLowerCase()]).get(answer);
   var guessedItem = currentBuckets[currentBucket].splice(currentItemIdx, 1)[0];
@@ -63,13 +51,13 @@ var addGuess = function (answer) {
   let bucketIdx = currentBucket;
 
   if (guess === null) {
-    if (currentBucket != 0) {
+    if (currentBucket !== 0) {
       bucketIdx -= 1;
     }
 
     status = "incorrect";
   } else if (guess[0][1] === answer.toLowerCase()) {
-    if (currentBucket != 2) {
+    if (currentBucket !== 2) {
       bucketIdx += 1;
     }
 
@@ -115,26 +103,64 @@ var advanceBucket = function () {
   }
 };
 
-// Load saved game data
-if (localStorage.faceGameState) {
-  let dehydratedGameState = JSON.parse(localStorage.faceGameState);
+/// localStorage persistence ///
 
-  // Clear saved game data from old cycles
-  if (dehydratedGameState.cycle !== "jan16") {
-    localStorage.removeItem("faceGameState");
-  } else {
-    turn = dehydratedGameState.turn;
-    status = dehydratedGameState.status;
-    buckets = dehydratedGameState.buckets;
-    currentBuckets = dehydratedGameState.currentBuckets;
-    currentBucket = dehydratedGameState.currentBucket;
-    currentItemIdx = dehydratedGameState.currentItemIdx;
-    currentItem = dehydratedGameState.currentItem;
+var storeState = function () {
+  let state = {
+    turn,
+    status,
+    buckets,
+    currentBuckets,
+    currentBucket,
+    currentItemIdx,
+    currentItem,
+    timestamp: Date.now()
+  };
+  localStorage.setItem(localStorageKey, JSON.stringify(state));
+
+  if (localStorage.length > 3) {
+    removeOldestStoredItem();
+  }
+};
+
+var removeOldestStoredItem = function () {
+  var keyToRemove = null;
+  var minTimestamp = Date.now();
+
+  for (let i = 0; i < localStorage.length; i++) {
+    let key = localStorage.key(i);
+    let timestamp = JSON.parse(localStorage.getItem(key)).timestamp || 0;
+    if (!timestamp || timestamp < minTimestamp) {
+      minTimestamp = timestamp;
+      keyToRemove = key;
+    }
+  }
+
+  if (keyToRemove) {
+    localStorage.removeItem(keyToRemove);
+    console.log(keyToRemove + " garbage collected");
+  }
+};
+
+var loadStoredState = function () {
+  let encodedGameState = localStorage.getItem(localStorageKey);
+  if (encodedGameState) {
+    let storedGameState = JSON.parse(encodedGameState);
+
+    // Clear saved game data from old cycles
+    turn = storedGameState.turn;
+    status = storedGameState.status;
+    buckets = storedGameState.buckets;
+    currentBuckets = storedGameState.currentBuckets;
+    currentBucket = storedGameState.currentBucket;
+    currentItemIdx = storedGameState.currentItemIdx;
+    currentItem = storedGameState.currentItem;
     if (status !== "guessing") {
       advanceItem();
     }
   }
 }
 
-module.exports = GameData;
+loadStoredState();
 
+module.exports = GameData;
