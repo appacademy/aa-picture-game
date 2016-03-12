@@ -12,7 +12,23 @@ var turn = 1;
 var status = "guessing";
 var remedialGuess = false; // you must get it right before moving on
 
-var buckets = [[], [], []]; // [don't know, learning, know]
+/* * * How Buckets Work * * *
+ * Buckets store keys to the people object.
+ * There are 3 buckets: don't-know, learning, and already-know.
+ * There are 2 sets of buckets: "seen" and "current" (unseen)
+ * When keys are moved from current to seen:
+ * - They are moved up one bucket when you get them right.
+ * - They are moved back one bucket when you get them wrong.
+ * - They aren't moved when you get them kinda right.
+ * When a bucket is empty, you advance to the next bucket.
+ * When all current buckets are empty, buckets are replenished from
+ *  their corresponding seen buckets, but the don't-know bucket is
+ *  replenished more frequently than the learning bucket, and the
+ *  learning bucket is replenished more frequently than the already-know
+ *  bucket
+ * * */
+
+var seenBuckets = [[], [], []];
 var currentBuckets = [Object.keys(people), [], []];
 var currentBucketIdx = 0;
 var currentKey;
@@ -43,7 +59,7 @@ GameState.status = function () {
 
 GameState.bucketSizes = function () {
   return currentBuckets.map((bucket, idx) => {
-    return bucket.length + buckets[idx].length;
+    return bucket.length + seenBuckets[idx].length;
   });
 };
 
@@ -75,7 +91,7 @@ var addGuess = function (answer) {
   remedialGuess = false;
 
   currentBuckets[currentBucketIdx].splice(nextKeyIdx, 1)[0];
-  buckets[bucketIdx].push(currentKey);
+  seenBuckets[bucketIdx].push(currentKey);
   randomizeNextItem();
 
   GameState.__emitChange();
@@ -100,8 +116,8 @@ var advanceBucket = function () {
   //all buckets for the turn have been used
   if ((turn % (currentBucketIdx + 1) !== 0) || currentBucketIdx >= currentBuckets.length) {
     currentBuckets.forEach((bucket, idx) => {
-      currentBuckets[idx] = bucket.concat(buckets[idx]);
-      buckets[idx] = [];
+      currentBuckets[idx] = bucket.concat(seenBuckets[idx]);
+      seenBuckets[idx] = [];
     });
 
     currentBucketIdx = 0;
@@ -122,7 +138,7 @@ var storeState = function () {
   let state = {
     turn,
     status,
-    buckets,
+    seenBuckets,
     currentBuckets,
     currentBucketIdx,
     nextKeyIdx,
@@ -165,7 +181,7 @@ var loadStoredState = function () {
     // Clear saved game data from old cycles
     turn = storedGameState.turn;
     status = storedGameState.status;
-    buckets = storedGameState.buckets;
+    seenBuckets = storedGameState.seenBuckets;
     currentBuckets = storedGameState.currentBuckets;
     currentBucketIdx = storedGameState.currentBucketIdx;
     nextKeyIdx = storedGameState.nextKeyIdx;
