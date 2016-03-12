@@ -3,9 +3,10 @@ var Store = require('flux/utils').Store;
 var people = require('../data/people');
 var GameData = new Store(Dispatcher);
 var FuzzySet = require('../util/fuzzyset');
-var buckets = [[], [], []];
+var buckets = [[], [], []]; // [don't know, learning, know]
 var turn = 1;
 var status = "guessing";
+var remedialGuess = false; // you must get it right before moving on
 var currentBuckets = [people, [], []];
 var currentBucket = 0;
 var currentItemIdx;
@@ -44,28 +45,34 @@ GameData.bucketSizes = function () {
 
 var addGuess = function (answer) {
   var guess = FuzzySet([GameData.currentItem().name.toLowerCase()]).get(answer);
-  var guessedItem = currentBuckets[currentBucket].splice(currentItemIdx, 1)[0];
 
   // currentItemIdx = Math.max(currentItemIdx - 1, 0);
   let bucketIdx = currentBucket;
 
   if (guess === null) {
-    if (currentBucket !== 0) {
-      bucketIdx -= 1;
-    }
-
+    remedialGuess = true;
     status = "incorrect";
-  } else if (guess[0][1] === answer.toLowerCase()) {
-    if (currentBucket !== 2) {
+    GameData.__emitChange();
+    return;
+  }
+
+  if (guess[0][1] === answer.toLowerCase()) {
+    if (!remedialGuess && currentBucket !== 2) {
       bucketIdx += 1;
     }
-
     status = "correct";
   } else {
     status = "close";
   }
 
-  buckets[bucketIdx].push(guessedItem);
+  if (remedialGuess && currentBucket !== 0) {
+    bucketIdx -= 1;
+  }
+  remedialGuess = false;
+
+  console.log(status, remedialGuess)
+  currentBuckets[currentBucket].splice(currentItemIdx, 1)[0];
+  buckets[bucketIdx].push(currentItem);
   randomizeNextItem();
 
   GameData.__emitChange();
@@ -97,7 +104,6 @@ var advanceBucket = function () {
     currentBucket = 0;
     turn += 1;
   }
-  randomizeNextItem();
 };
 
 var randomizeNextItem = function () {
@@ -169,4 +175,7 @@ var loadStoredState = function () {
 
 loadStoredState();
 
+window.getState = function() {
+  return JSON.parse(localStorage.getItem(localStorageKey));
+};
 module.exports = GameData;
