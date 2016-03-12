@@ -31,10 +31,14 @@ var state = {
   seenBuckets: [[], [], []],
   currentBuckets: [Object.keys(people), [], []],
   currentBucketIdx: 0,
+  currentKeyIdx: 0,
   currentKey: undefined,
-  nextKeyIdx: 0,
-  updatedAt: Date.now()
+  timestamp: Date.now()
 }
+
+var currentBucket = function () {
+  return state.currentBuckets[state.currentBucketIdx];
+};
 
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
@@ -51,10 +55,6 @@ GameState.currentItem = function () {
   return people[state.currentKey];
 };
 
-var nextKey = function () {
-  return state.currentBuckets[state.currentBucketIdx][state.nextKeyIdx];
-};
-
 GameState.status = function () {
   return state.status;
 };
@@ -68,7 +68,6 @@ GameState.bucketSizes = function () {
 var addGuess = function (answer) {
   var guess = FuzzySet([GameState.currentItem().name.toLowerCase()]).get(answer);
 
-  // state.nextKeyIdx = Math.max(state.nextKeyIdx - 1, 0);
   let bucketIdx = state.currentBucketIdx;
 
   if (guess === null) {
@@ -92,23 +91,45 @@ var addGuess = function (answer) {
   }
   state.remedialGuess = false;
 
-  state.currentBuckets[state.currentBucketIdx].splice(state.nextKeyIdx, 1)[0];
+  currentBucket().splice(state.currentKeyIdx, 1)[0];
   state.seenBuckets[bucketIdx].push(state.currentKey);
-  randomizeNextItem();
 
   GameState.__emitChange();
 };
 
 var advanceItem = function () {
   //Advance to next non-empty bucket
-  while (state.nextKeyIdx + 1 > state.currentBuckets[state.currentBucketIdx].length) {
+  while (state.currentKeyIdx + 1 > currentBucket().length) {
     advanceBucket();
   }
 
   state.status = "guessing";
-  state.currentKey = nextKey();
+  setCurrentItemToRandomValidItem();
 
   GameState.__emitChange();
+};
+
+var setCurrentItemToRandomValidItem = function () {
+  randomizeCurrentKey();
+
+  while (!currentKeyIsValid()) {
+    currentBucket().splice(state.currentKeyIdx, 1);
+    randomizeCurrentKey();
+  }
+};
+
+var randomizeCurrentKey = function () {
+  randomizeCurrentKeyIndex();
+  state.currentKey = currentBucket()[state.currentKeyIdx];
+};
+
+var randomizeCurrentKeyIndex = function () {
+  var currentBucketLength = currentBucket().length;
+  state.currentKeyIdx = Math.floor(Math.random() * currentBucketLength);
+};
+
+var currentKeyIsValid = function () {
+  return people.hasOwnProperty(state.currentKey);
 };
 
 var advanceBucket = function () {
@@ -116,7 +137,8 @@ var advanceBucket = function () {
 
   //Switch back to items from previous state.turn if there are no non-empty buckets or
   //all buckets for the state.turn have been used
-  if ((state.turn % (state.currentBucketIdx + 1) !== 0) || state.currentBucketIdx >= state.currentBuckets.length) {
+  if ((state.turn % (state.currentBucketIdx + 1) !== 0) ||
+       state.currentBucketIdx >= state.currentBuckets.length) {
     state.currentBuckets.forEach((bucket, idx) => {
       state.currentBuckets[idx] = bucket.concat(state.seenBuckets[idx]);
       state.seenBuckets[idx] = [];
@@ -127,15 +149,10 @@ var advanceBucket = function () {
   }
 };
 
-var randomizeNextItem = function () {
-  var currentBucketLength = state.currentBuckets[state.currentBucketIdx].length
-  state.nextKeyIdx = Math.floor(Math.random() * currentBucketLength);
-};
-
 /// localStorage persistence ///
 
 var storeState = function () {
-  state.updatedAt = Date.now();
+  state.timestamp = Date.now();
   localStorage.setItem(localStorageKey, JSON.stringify(state));
 
   if (localStorage.length > 3) {
@@ -172,17 +189,11 @@ var loadStoredState = function () {
         state[key] = storedState[key];
       }
     });
-
-    if (state.status !== "guessing") {
-      advanceItem();
-    }
   }
 }
 
 /// post-load setup ///
 
-randomizeNextItem();
-state.currentKey = nextKey();
-
-GameState.addListener(storeState);
 loadStoredState();
+setCurrentItemToRandomValidItem();
+GameState.addListener(storeState);
