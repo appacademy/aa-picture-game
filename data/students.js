@@ -60,7 +60,7 @@ module.exports = [
     "occup": "student"
   },
   {
-    "name": "Cadence Banulis",
+    "name": "Cady Banulis",
     "src": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/144/medium/Cadence_Banulis_.jpg?1457724099",
     "occup": "student"
   },
@@ -160,7 +160,7 @@ module.exports = [
     "occup": "student"
   },
   {
-    "name": "James \"Alastair\" Cleve",
+    "name": "Alastair Cleve",
     "src": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/140/medium/James_Cleve.jpg?1457734741",
     "occup": "student"
   },
@@ -180,7 +180,7 @@ module.exports = [
     "occup": "student"
   },
   {
-    "name": "John Delia",
+    "name": "Jack Delia",
     "src": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/169/medium/John_Delia.jpg?1457735307",
     "occup": "student"
   },
