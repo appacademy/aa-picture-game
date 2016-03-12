@@ -12,14 +12,15 @@ Helps students and instructors at App Academy learn each other's names
 - open dev tools console and run:
 
 ```javascript
-var someDiv = $('<div>');
+var students = [];
 $(".classmate-block.block").each(function (fig) {
-  var imgUrl = $(this).find("figure img").attr("src");
   var name = $(this).find("strong a").text();
-  var img = $("<img>").attr("src", imgUrl).attr("alt", name);
-  someDiv.append(img);
+  var src = $(this).find("figure img").attr("src");
+
+  student = {occup: "student", src: src, name: name};
+  students.push(student);
 });
 
-someDiv
+console.log(JSON.stringify(students, undefined, 2));
 ```
-- right-click on `div` and select `Edit as HTML`. Copy all of it and replace images in `index.html`
+- Copy the logged text and paste it into `data/students.js`.
