@@ -26,7 +26,7 @@ var ProgressBar = React.createClass({
                 );
             }
             return (
-              <div className="bucket-size-container" key={bucketSize^(idx + 1)}>
+              <div className="bucket-size-container" key={idx}>
                 {bucketSquares}
               </div>
              );
