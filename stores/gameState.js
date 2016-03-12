@@ -2,15 +2,9 @@ var FuzzySet = require('../util/fuzzyset');
 var Dispatcher = require('../dispatcher');
 var Store = require('flux/utils').Store;
 var GameState = new Store(Dispatcher);
+module.exports = GameState;
 
 var people = require('../data/people');
-
-var cycle = "mar16";
-var localStorageKey = "faceGameState-" + cycle;
-
-var turn = 1;
-var status = "guessing";
-var remedialGuess = false; // you must get it right before moving on
 
 /* * * How Buckets Work * * *
  * Buckets store keys to the people object.
@@ -28,11 +22,19 @@ var remedialGuess = false; // you must get it right before moving on
  *  bucket
  * * */
 
-var seenBuckets = [[], [], []];
-var currentBuckets = [Object.keys(people), [], []];
-var currentBucketIdx = 0;
-var currentKey;
-var nextKeyIdx;
+var cycle = "mar16";
+var localStorageKey = "faceGameState-" + cycle;
+var state = {
+  turn: 1,
+  status: "guessing",
+  remedialGuess: false, // you must get it right before moving on
+  seenBuckets: [[], [], []],
+  currentBuckets: [Object.keys(people), [], []],
+  currentBucketIdx: 0,
+  currentKey: undefined,
+  nextKeyIdx: 0,
+  updatedAt: Date.now()
+}
 
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
@@ -46,52 +48,52 @@ GameState.__onDispatch = function (payload) {
 };
 
 GameState.currentItem = function () {
-  return people[currentKey];
+  return people[state.currentKey];
 };
 
 var nextKey = function () {
-  return currentBuckets[currentBucketIdx][nextKeyIdx];
+  return state.currentBuckets[state.currentBucketIdx][state.nextKeyIdx];
 };
 
 GameState.status = function () {
-  return status;
+  return state.status;
 };
 
 GameState.bucketSizes = function () {
-  return currentBuckets.map((bucket, idx) => {
-    return bucket.length + seenBuckets[idx].length;
+  return state.currentBuckets.map((bucket, idx) => {
+    return bucket.length + state.seenBuckets[idx].length;
   });
 };
 
 var addGuess = function (answer) {
   var guess = FuzzySet([GameState.currentItem().name.toLowerCase()]).get(answer);
 
-  // nextKeyIdx = Math.max(nextKeyIdx - 1, 0);
-  let bucketIdx = currentBucketIdx;
+  // state.nextKeyIdx = Math.max(state.nextKeyIdx - 1, 0);
+  let bucketIdx = state.currentBucketIdx;
 
   if (guess === null) {
-    remedialGuess = true;
-    status = "incorrect";
+    state.remedialGuess = true;
+    state.status = "incorrect";
     GameState.__emitChange();
     return;
   }
 
   if (guess[0][1] === answer.toLowerCase()) {
-    if (!remedialGuess && currentBucketIdx !== 2) {
+    if (!state.remedialGuess && state.currentBucketIdx !== 2) {
       bucketIdx += 1;
     }
-    status = "correct";
+    state.status = "correct";
   } else {
-    status = "close";
+    state.status = "close";
   }
 
-  if (remedialGuess && currentBucketIdx !== 0) {
+  if (state.remedialGuess && state.currentBucketIdx !== 0) {
     bucketIdx -= 1;
   }
-  remedialGuess = false;
+  state.remedialGuess = false;
 
-  currentBuckets[currentBucketIdx].splice(nextKeyIdx, 1)[0];
-  seenBuckets[bucketIdx].push(currentKey);
+  state.currentBuckets[state.currentBucketIdx].splice(state.nextKeyIdx, 1)[0];
+  state.seenBuckets[bucketIdx].push(state.currentKey);
   randomizeNextItem();
 
   GameState.__emitChange();
@@ -99,60 +101,47 @@ var addGuess = function (answer) {
 
 var advanceItem = function () {
   //Advance to next non-empty bucket
-  while (nextKeyIdx + 1 > currentBuckets[currentBucketIdx].length) {
+  while (state.nextKeyIdx + 1 > state.currentBuckets[state.currentBucketIdx].length) {
     advanceBucket();
   }
 
-  status = "guessing";
-  currentKey = nextKey();
+  state.status = "guessing";
+  state.currentKey = nextKey();
 
   GameState.__emitChange();
 };
 
 var advanceBucket = function () {
-  currentBucketIdx += 1;
+  state.currentBucketIdx += 1;
 
-  //Switch back to items from previous turn if there are no non-empty buckets or
-  //all buckets for the turn have been used
-  if ((turn % (currentBucketIdx + 1) !== 0) || currentBucketIdx >= currentBuckets.length) {
-    currentBuckets.forEach((bucket, idx) => {
-      currentBuckets[idx] = bucket.concat(seenBuckets[idx]);
-      seenBuckets[idx] = [];
+  //Switch back to items from previous state.turn if there are no non-empty buckets or
+  //all buckets for the state.turn have been used
+  if ((state.turn % (state.currentBucketIdx + 1) !== 0) || state.currentBucketIdx >= state.currentBuckets.length) {
+    state.currentBuckets.forEach((bucket, idx) => {
+      state.currentBuckets[idx] = bucket.concat(state.seenBuckets[idx]);
+      state.seenBuckets[idx] = [];
     });
 
-    currentBucketIdx = 0;
-    turn += 1;
+    state.currentBucketIdx = 0;
+    state.turn += 1;
   }
 };
 
 var randomizeNextItem = function () {
-  var currentBucketLength = currentBuckets[currentBucketIdx].length
-  nextKeyIdx = Math.floor(Math.random() * currentBucketLength);
+  var currentBucketLength = state.currentBuckets[state.currentBucketIdx].length
+  state.nextKeyIdx = Math.floor(Math.random() * currentBucketLength);
 };
-randomizeNextItem();
-currentKey = nextKey();
 
 /// localStorage persistence ///
 
 var storeState = function () {
-  let state = {
-    turn,
-    status,
-    seenBuckets,
-    currentBuckets,
-    currentBucketIdx,
-    nextKeyIdx,
-    currentKey,
-    timestamp: Date.now()
-  };
+  state.updatedAt = Date.now();
   localStorage.setItem(localStorageKey, JSON.stringify(state));
 
   if (localStorage.length > 3) {
     removeOldestStoredItem();
   }
 };
-
-GameState.addListener(storeState);
 
 var removeOldestStoredItem = function () {
   var keyToRemove = null;
@@ -174,27 +163,26 @@ var removeOldestStoredItem = function () {
 };
 
 var loadStoredState = function () {
-  let encodedGameState = localStorage.getItem(localStorageKey);
-  if (encodedGameState) {
-    let storedGameState = JSON.parse(encodedGameState);
+  let encodedState = localStorage.getItem(localStorageKey);
+  if (encodedState) {
+    let storedState = JSON.parse(encodedState);
 
-    // Clear saved game data from old cycles
-    turn = storedGameState.turn;
-    status = storedGameState.status;
-    seenBuckets = storedGameState.seenBuckets;
-    currentBuckets = storedGameState.currentBuckets;
-    currentBucketIdx = storedGameState.currentBucketIdx;
-    nextKeyIdx = storedGameState.nextKeyIdx;
-    currentKey = storedGameState.currentKey;
-    if (status !== "guessing") {
+    Object.keys(state).forEach(key => {
+      if (storedState.hasOwnProperty(key)) {
+        state[key] = storedState[key];
+      }
+    });
+
+    if (state.status !== "guessing") {
       advanceItem();
     }
   }
 }
 
-loadStoredState();
+/// post-load setup ///
 
-window.getState = function() {
-  return JSON.parse(localStorage.getItem(localStorageKey));
-};
-module.exports = GameState;
+randomizeNextItem();
+state.currentKey = nextKey();
+
+GameState.addListener(storeState);
+loadStoredState();
