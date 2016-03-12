@@ -8,8 +8,8 @@ var turn = 1;
 var status = "guessing";
 var currentBuckets = [people, [], []];
 var currentBucket = 0;
-var currentItemIdx = 0;
-var currentItem = currentBuckets[currentBucket][currentItemIdx];
+var currentItemIdx;
+var currentItem;
 var cycle = "mar16";
 var localStorageKey = "faceGameState-" + cycle;
 
@@ -20,7 +20,6 @@ GameData.__onDispatch = function (payload) {
       break;
     case "NEXT_ITEM":
       advanceItem();
-      GameData.__emitChange();
       break;
   }
 };
@@ -67,8 +66,8 @@ var addGuess = function (answer) {
   }
 
   buckets[bucketIdx].push(guessedItem);
+  randomizeNextItem();
 
-  storeState();
   GameData.__emitChange();
 };
 
@@ -81,7 +80,7 @@ var advanceItem = function () {
   status = "guessing";
   currentItem = nextItem();
 
-  storeState();
+  GameData.__emitChange();
 };
 
 var advanceBucket = function () {
@@ -96,12 +95,17 @@ var advanceBucket = function () {
     });
 
     currentBucket = 0;
-    currentItemIdx = 0;
     turn += 1;
-  } else {
-    currentItemIdx = 0;
   }
+  randomizeNextItem();
 };
+
+var randomizeNextItem = function () {
+  var currentBucketLength = currentBuckets[currentBucket].length
+  currentItemIdx = Math.floor(Math.random() * currentBucketLength);
+};
+randomizeNextItem();
+currentItem = nextItem();
 
 /// localStorage persistence ///
 
@@ -122,6 +126,8 @@ var storeState = function () {
     removeOldestStoredItem();
   }
 };
+
+GameData.addListener(storeState);
 
 var removeOldestStoredItem = function () {
   var keyToRemove = null;

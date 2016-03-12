@@ -11,16 +11,19 @@ Helps students and instructors at App Academy learn each other's names
 - go to [progress.appacademy.io/students](http://progress.appacademy.io/students/)
 - open dev tools console and run:
 
-```javascript
-var students = [];
-$(".classmate-block.block").each(function (fig) {
-  var name = $(this).find("strong a").text();
-  var src = $(this).find("figure img").attr("src");
+  ```javascript
+  var students = [];
+  $(".classmate-block.block").each(function (fig) {
+    var name = $(this).find("strong a").text();
+    var src = $(this).find("figure img").attr("src");
 
-  student = {occup: "student", src: src, name: name};
-  students.push(student);
-});
+    student = {occup: "student", src: src, name: name};
+    students.push(student);
+  });
 
-console.log(JSON.stringify(students, undefined, 2));
-```
+  console.log(JSON.stringify(students, undefined, 2));
+  ```
+
 - Copy the logged text and paste it into `data/students.js`.
+- Run `webpack`.
+- Check in your changes.
