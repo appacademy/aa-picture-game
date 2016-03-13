@@ -18,15 +18,11 @@ var localStorageKey = "faceGameState-" + cycle;
 var state = {
   turn: 0,
   status: "guessing",
-  remedialGuess: false, // you must get it right before moving on
-  guessRecords: {},
+  remedialGuess: false,
+  guessesByKey: {},
   currentKey: undefined,
   timestamp: Date.now()
 }
-
-var currentGuessRecord = function () {
-  return state.guessRecords[state.currentKey];
-};
 
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
@@ -50,10 +46,10 @@ GameState.status = function () {
 GameState.getScores = function () {
   var totals = {};
 
-  Object.keys(state.guessRecords).forEach(function(key) {
+  Object.keys(state.guessesByKey).forEach(function(key) {
     var sum = 0;
 
-    state.guessRecords[key].guesses.forEach(function(guess) {
+    state.guessesByKey[key].forEach(function(guess) {
       if (guess.status === "correct") {
         sum += 1;
       } else if (guess.status === "incorrect") {
@@ -92,20 +88,22 @@ var makeGuess = function (answer) {
 };
 
 var addGuess = function () {
-  let guessRecord = currentGuessRecord();
-  guessRecord.guesses.push({
+  let guesses = state.guessesByKey[state.currentKey];
+  guesses.push({
     turn: state.turn,
     status: state.status
   });
-  while (guessRecord.guesses.length > GUESSES_TO_KEEP) {
-    guessRecord.guesses.shift();
+  while (guesses.length > GUESSES_TO_KEEP) {
+    guesses.shift();
   }
 }
 
 var advanceItem = function () {
   state.status = "guessing";
-  if (!state.remedialGuess) updateCurrentItem();
-  state.turn += 1;
+  if (!state.remedialGuess) {
+    updateCurrentItem();
+    state.turn += 1;
+  }
 
   GameState.__emitChange();
 };
@@ -114,15 +112,15 @@ var updateCurrentItem = function () {
   chooseBestKey();
 
   while (!keyIsValid(state.currentKey)) {
-    delete state.guessRecords[state.currentKey];
+    delete state.guessesByKey[state.currentKey];
     chooseBestKey();
   }
 };
 
 var chooseBestKey = function () {
   var bestKey, bestScore = -1
-  Object.keys(state.guessRecords).forEach(key => {
-    var score = scoreItem(state.guessRecords[key]);
+  Object.keys(state.guessesByKey).forEach(key => {
+    var score = scoreItem(state.guessesByKey[key]);
     if (score > bestScore) {
       bestKey = key;
       bestScore = score;
@@ -136,13 +134,13 @@ var keyIsValid = function (key) {
   return people.hasOwnProperty(key);
 };
 
-var scoreItem = function (record) {
-  if (record.guesses.length === 0) return 0.4 + 0.2 * Math.random();
+var scoreItem = function (guesses) {
+  if (guesses.length === 0) return 0.4 + 0.2 * Math.random();
 
   var recentIncorrect = 0, correct = 0;
-  var totalRecords = Object.keys(state.guessRecords).length
+  var totalRecords = Object.keys(state.guessesByKey).length
 
-  record.guesses.forEach((guess, i) => {
+  guesses.forEach((guess, i) => {
     var weight = 1 - (state.turn - guess.turn) / totalRecords;
     switch(guess.status) {
       case "correct":
@@ -160,7 +158,7 @@ var scoreItem = function (record) {
 
   correct = correct / GUESSES_TO_KEEP;
   recentIncorrect = Math.max(Math.min(recentIncorrect, 1), 0);
-  var lastTurn = record.guesses[record.guesses.length - 1].turn;
+  var lastTurn = guesses[guesses.length - 1].turn;
   var turnsSince = state.turn - lastTurn
 
   var score = 0.4 * recentIncorrect
@@ -226,20 +224,17 @@ var syncStateWithPeople = function () {
 };
 
 var removeInvalidKeys = function () {
-  Object.keys(state.guessRecords).forEach(key => {
+  Object.keys(state.guessesByKey).forEach(key => {
     if (!people.hasOwnProperty(key)) {
-      delete state.guessRecords[key];
+      delete state.guessesByKey[key];
     }
   });
 };
 
 var addUnusedKeys = function () {
   Object.keys(people).forEach(key => {
-    if (!state.guessRecords.hasOwnProperty(key)) {
-      state.guessRecords[key] = {
-        key,
-        guesses: []
-      };
+    if (!state.guessesByKey.hasOwnProperty(key)) {
+      state.guessesByKey[key] = [];
     }
   });
 }
