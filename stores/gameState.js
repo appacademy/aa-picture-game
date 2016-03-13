@@ -104,7 +104,7 @@ var advanceItem = function () {
   }
 
   state.status = "guessing";
-  setCurrentItemToRandomValidItem();
+  if (!state.remedialGuess) setCurrentItemToRandomValidItem();
 
   GameState.__emitChange();
 };
@@ -195,6 +195,7 @@ var loadStoredState = function () {
         state[key] = storedState[key];
       }
     });
+    state.remedialGuess = false; // always start false
   }
 }
 
