@@ -49,7 +49,7 @@ module.exports = [
   },
   {
     "id": 37,
-    "name": "Asher King Abramon",
+    "name": "Asher King Abramson",
     "imageUrl": "photos/asher.jpg",
     "occup": "instructor"
   },
