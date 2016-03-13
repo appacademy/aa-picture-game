@@ -6,6 +6,13 @@ module.exports = GameState;
 
 var people = require('../data/people');
 
+// scoring params
+
+const RESHOW_PENALTHY_THRESHOLD = 10;
+const GUESSES_TO_KEEP = 5;
+
+// state
+
 var cycle = "mar16";
 var localStorageKey = "faceGameState-" + cycle;
 var state = {
@@ -55,7 +62,6 @@ GameState.getScores = function () {
     });
 
     totals[key] = sum;
-    console.log(key);
   });
 
   return totals;
@@ -91,7 +97,7 @@ var addGuess = function () {
     turn: state.turn,
     status: state.status
   });
-  while (guessRecord.guesses.length > 5) {
+  while (guessRecord.guesses.length > GUESSES_TO_KEEP) {
     guessRecord.guesses.shift();
   }
 }
@@ -131,7 +137,7 @@ var keyIsValid = function (key) {
 };
 
 var scoreItem = function (record) {
-  if (record.guesses.length === 0) return 0.5;
+  if (record.guesses.length === 0) return 0.4 + 0.2 * Math.random();
 
   var recentIncorrect = 0, correct = 0;
   var totalRecords = Object.keys(state.guessRecords).length
@@ -152,18 +158,19 @@ var scoreItem = function (record) {
     }
   });
 
-  correct = correct / 5;
+  correct = correct / GUESSES_TO_KEEP;
   recentIncorrect = Math.max(Math.min(recentIncorrect, 1), 0);
   var lastTurn = record.guesses[record.guesses.length - 1].turn;
   var turnsSince = state.turn - lastTurn
 
   var score = 0.4 * recentIncorrect
-            + 0.2 * (1 - correct)
-            + 0.2 * turnsSince / totalRecords;
+            + 0.3 * (1 - correct)
+            + 0.2 * Math.random()
+            + 0.1 * turnsSince / totalRecords;
   score = Math.min(1, score);
 
-  if (turnsSince < 15) {
-    score *= turnsSince / 15;
+  if (turnsSince < RESHOW_PENALTHY_THRESHOLD) {
+    score *= turnsSince / RESHOW_PENALTHY_THRESHOLD;
   }
 
   return score;
@@ -243,4 +250,3 @@ loadStoredState();
 syncStateWithPeople();
 updateCurrentItem();
 GameState.addListener(storeState);
-window.state = state;

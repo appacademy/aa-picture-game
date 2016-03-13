@@ -5,7 +5,6 @@ var Controls = require('./Controls');
 var ProgressBar = require('./ProgressBar');
 var GameStateStore = require('../stores/gameState');
 var FuzzySet = require('../util/fuzzyset');
-window.GameStateStore = GameStateStore;
 
 var PictureGame = React.createClass({
   getInitialState: function () {
