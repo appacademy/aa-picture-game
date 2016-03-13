@@ -9312,6 +9312,7 @@
 	 */
 	var EventInterface = {
 	  type: null,
+	  target: null,
 	  // currentTarget is set when dispatching; no use in copying it here
 	  currentTarget: emptyFunction.thatReturnsNull,
 	  eventPhase: null,
@@ -9345,8 +9346,6 @@
 	  this.dispatchConfig = dispatchConfig;
 	  this.dispatchMarker = dispatchMarker;
 	  this.nativeEvent = nativeEvent;
-	  this.target = nativeEventTarget;
-	  this.currentTarget = nativeEventTarget;
 	
 	  var Interface = this.constructor.Interface;
 	  for (var propName in Interface) {
@@ -9357,7 +9356,11 @@
 	    if (normalize) {
 	      this[propName] = normalize(nativeEvent);
 	    } else {
-	      this[propName] = nativeEvent[propName];
+	      if (propName === 'target') {
+	        this.target = nativeEventTarget;
+	      } else {
+	        this[propName] = nativeEvent[propName];
+	      }
 	    }
 	  }
 	
@@ -13206,7 +13209,10 @@
 	      }
 	    });
 	
-	    nativeProps.children = content;
+	    if (content) {
+	      nativeProps.children = content;
+	    }
+	
 	    return nativeProps;
 	  }
 	
@@ -18679,7 +18685,7 @@
 	
 	'use strict';
 	
-	module.exports = '0.14.6';
+	module.exports = '0.14.7';
 
 /***/ },
 /* 147 */
@@ -19660,9 +19666,9 @@
 	var Picture = __webpack_require__(160);
 	var Message = __webpack_require__(161);
 	var Controls = __webpack_require__(162);
-	var ProgressBar = __webpack_require__(194);
-	var GameDataStore = __webpack_require__(174);
-	var FuzzySet = __webpack_require__(193);
+	var ProgressBar = __webpack_require__(174);
+	var GameStateStore = __webpack_require__(175);
+	var FuzzySet = __webpack_require__(176);
 	
 	var PictureGame = React.createClass({
 	  displayName: 'PictureGame',
@@ -19671,23 +19677,23 @@
 	    return {
 	      status: "guessing",
 	      nextPicture: false,
-	      person: GameDataStore.currentItem(),
-	      bucketSizes: GameDataStore.bucketSizes()
+	      person: GameStateStore.currentItem(),
+	      bucketSizes: GameStateStore.bucketSizes()
 	    };
 	  },
 	  componentDidMount: function componentDidMount() {
-	    GameDataStore.addListener(this.updateItem);
+	    GameStateStore.addListener(this.updateItem);
 	  },
 	  updateItem: function updateItem() {
 	    this.setState({
-	      person: GameDataStore.currentItem(),
-	      status: GameDataStore.status(),
+	      person: GameStateStore.currentItem(),
+	      status: GameStateStore.status(),
 	      nextPicture: false,
-	      bucketSizes: GameDataStore.bucketSizes()
+	      bucketSizes: GameStateStore.bucketSizes()
 	    });
 	  },
 	  currentName: function currentName() {
-	    return this.state.person.name + " (" + GameDataStore.currentItem().occup + ")";
+	    return this.state.person.name + " (" + GameStateStore.currentItem().occup + ")";
 	  },
 	  render: function render() {
 	    return React.createElement(
@@ -19711,10 +19717,10 @@
 	      React.createElement(
 	        'div',
 	        { className: 'game-zone' },
-	        React.createElement(Picture, { src: this.state.person.src }),
+	        React.createElement(Picture, { src: this.state.person.imageUrl }),
 	        React.createElement(Message, { status: this.state.status,
 	          currentName: this.currentName(),
-	          currentOcup: GameDataStore.currentItem().occup }),
+	          currentOcup: GameStateStore.currentItem().occup }),
 	        React.createElement(Controls, {
 	          status: this.state.status,
 	          nextPicture: this.nextPicture })
@@ -20466,150 +20472,576 @@
 /* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+	
+	var React = __webpack_require__(1);
+	
+	var ProgressBar = React.createClass({
+	  displayName: "ProgressBar",
+	
+	  render: function render() {
+	    return React.createElement(
+	      "div",
+	      { className: "progress-bar" },
+	      this.props.bucketSizes.map(function (bucketSize, idx) {
+	        var bucketSquares = [];
+	        var status;
+	        for (var i = 0; i < bucketSize; i++) {
+	          switch (idx) {
+	            case 0:
+	              status = "incorrect";
+	              break;
+	            case 1:
+	              status = "close";
+	              break;
+	            case 2:
+	              status = "correct";
+	              break;
+	          }
+	          bucketSquares.push(React.createElement("div", { className: "bucket-square " + status, key: i }));
+	        }
+	        return React.createElement(
+	          "div",
+	          { className: "bucket-size-container", key: idx },
+	          bucketSquares
+	        );
+	      })
+	    );
+	  }
+	});
+	
+	module.exports = ProgressBar;
+
+/***/ },
+/* 175 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 	
+	var FuzzySet = __webpack_require__(176);
 	var Dispatcher = __webpack_require__(165);
-	var Store = __webpack_require__(175).Store;
-	var people = __webpack_require__(192);
-	var GameData = new Store(Dispatcher);
-	var FuzzySet = __webpack_require__(193);
-	var buckets = [[], [], []];
-	var turn = 1;
-	var status = "guessing";
-	var currentBuckets = [people, [], []];
-	var currentBucket = 0;
-	var currentItemIdx = 0;
-	var currentItem = currentBuckets[currentBucket][currentItemIdx];
+	var Store = __webpack_require__(177).Store;
+	var GameState = new Store(Dispatcher);
+	module.exports = GameState;
 	
-	GameData.__onDispatch = function (payload) {
+	var people = __webpack_require__(194);
+	
+	/* * * How Buckets Work * * *
+	 * Buckets store keys to the people object.
+	 * There are 3 buckets: don't-know, learning, and already-know.
+	 * There are 2 sets of buckets: "seen" and "current" (unseen)
+	 * When keys are moved from current to seen:
+	 * - They are moved up one bucket when you get them right.
+	 * - They are moved back one bucket when you get them wrong.
+	 * - They aren't moved when you get them kinda right.
+	 * When a bucket is empty, you advance to the next bucket.
+	 * When all current buckets are empty, buckets are replenished from
+	 *  their corresponding seen buckets, but the don't-know bucket is
+	 *  replenished more frequently than the learning bucket, and the
+	 *  learning bucket is replenished more frequently than the already-know
+	 *  bucket
+	 * * */
+	
+	var cycle = "mar16";
+	var localStorageKey = "faceGameState-" + cycle;
+	var state = {
+	  turn: 1,
+	  status: "guessing",
+	  remedialGuess: false, // you must get it right before moving on
+	  seenBuckets: [[], [], []],
+	  currentBuckets: [Object.keys(people), [], []],
+	  currentBucketIdx: 0,
+	  currentKeyIdx: 0,
+	  currentKey: undefined,
+	  timestamp: Date.now()
+	};
+	
+	var currentBucket = function currentBucket() {
+	  return state.currentBuckets[state.currentBucketIdx];
+	};
+	
+	GameState.__onDispatch = function (payload) {
 	  switch (payload.actionType) {
 	    case "GUESS_ADDED":
 	      addGuess(payload.guess);
 	      break;
 	    case "NEXT_ITEM":
 	      advanceItem();
-	      GameData.__emitChange();
 	      break;
 	  }
 	};
 	
-	GameData.currentItem = function () {
-	  return currentItem;
+	GameState.currentItem = function () {
+	  return people[state.currentKey];
 	};
 	
-	var nextItem = function nextItem() {
-	  return currentBuckets[currentBucket][currentItemIdx];
+	GameState.status = function () {
+	  return state.status;
 	};
 	
-	GameData.status = function () {
-	  return status;
-	};
-	
-	GameData.bucketSizes = function () {
-	  return currentBuckets.map(function (bucket, idx) {
-	    return bucket.length + buckets[idx].length;
+	GameState.bucketSizes = function () {
+	  return state.currentBuckets.map(function (bucket, idx) {
+	    return bucket.length + state.seenBuckets[idx].length;
 	  });
 	};
 	
-	var storeState = function storeState() {
-	  var state = {
-	    turn: turn,
-	    status: status,
-	    buckets: buckets,
-	    currentBuckets: currentBuckets,
-	    currentBucket: currentBucket,
-	    currentItemIdx: currentItemIdx,
-	    currentItem: currentItem,
-	    cycle: "jan16"
-	  };
-	  localStorage.faceGameState = JSON.stringify(state);
-	};
-	
 	var addGuess = function addGuess(answer) {
-	  var guess = FuzzySet([GameData.currentItem().name.toLowerCase()]).get(answer);
-	  var guessedItem = currentBuckets[currentBucket].splice(currentItemIdx, 1)[0];
+	  var guess = FuzzySet([GameState.currentItem().name.toLowerCase()]).get(answer);
 	
-	  // currentItemIdx = Math.max(currentItemIdx - 1, 0);
-	  var bucketIdx = currentBucket;
+	  var bucketIdx = state.currentBucketIdx;
 	
 	  if (guess === null) {
-	    if (currentBucket != 0) {
-	      bucketIdx -= 1;
-	    }
-	
-	    status = "incorrect";
-	  } else if (guess[0][1] === answer.toLowerCase()) {
-	    if (currentBucket != 2) {
-	      bucketIdx += 1;
-	    }
-	
-	    status = "correct";
-	  } else {
-	    status = "close";
+	    state.remedialGuess = true;
+	    state.status = "incorrect";
+	    GameState.__emitChange();
+	    return;
 	  }
 	
-	  buckets[bucketIdx].push(guessedItem);
+	  if (guess[0][1] === answer.toLowerCase()) {
+	    if (!state.remedialGuess && state.currentBucketIdx !== 2) {
+	      bucketIdx += 1;
+	    }
+	    state.status = "correct";
+	  } else {
+	    state.status = "close";
+	  }
 	
-	  storeState();
-	  GameData.__emitChange();
+	  if (state.remedialGuess && state.currentBucketIdx !== 0) {
+	    bucketIdx -= 1;
+	  }
+	  state.remedialGuess = false;
+	
+	  currentBucket().splice(state.currentKeyIdx, 1)[0];
+	  state.seenBuckets[bucketIdx].push(state.currentKey);
+	
+	  GameState.__emitChange();
 	};
 	
 	var advanceItem = function advanceItem() {
 	  //Advance to next non-empty bucket
-	  while (currentItemIdx + 1 > currentBuckets[currentBucket].length) {
+	  while (currentBucket().length === 0) {
 	    advanceBucket();
 	  }
 	
-	  status = "guessing";
-	  currentItem = nextItem();
+	  state.status = "guessing";
+	  if (!state.remedialGuess) setCurrentItemToRandomValidItem();
 	
-	  storeState();
+	  GameState.__emitChange();
+	};
+	
+	var setCurrentItemToRandomValidItem = function setCurrentItemToRandomValidItem() {
+	  randomizeCurrentKey();
+	
+	  while (!keyIsValid(state.currentKey)) {
+	    currentBucket().splice(state.currentKeyIdx, 1);
+	    randomizeCurrentKey();
+	  }
+	};
+	
+	var randomizeCurrentKey = function randomizeCurrentKey() {
+	  randomizeCurrentKeyIndex();
+	  state.currentKey = currentBucket()[state.currentKeyIdx];
+	};
+	
+	var randomizeCurrentKeyIndex = function randomizeCurrentKeyIndex() {
+	  state.currentKeyIdx = Math.floor(Math.random() * currentBucket().length);
+	};
+	
+	var keyIsValid = function keyIsValid(key) {
+	  return people.hasOwnProperty(key);
 	};
 	
 	var advanceBucket = function advanceBucket() {
-	  currentBucket += 1;
+	  state.currentBucketIdx += 1;
 	
-	  //Switch back to items from previous turn if there are no non-empty buckets or
-	  //all buckets for the turn have been used
-	  if (turn % (currentBucket + 1) !== 0 || currentBucket >= currentBuckets.length) {
-	    currentBuckets.forEach(function (bucket, idx) {
-	      currentBuckets[idx] = bucket.concat(buckets[idx]);
-	      buckets[idx] = [];
+	  if (currentBucketsShouldReplenish()) {
+	    state.currentBuckets.forEach(function (bucket, idx) {
+	      state.currentBuckets[idx] = bucket.concat(state.seenBuckets[idx]);
+	      state.seenBuckets[idx] = [];
 	    });
 	
-	    currentBucket = 0;
-	    currentItemIdx = 0;
-	    turn += 1;
-	  } else {
-	    currentItemIdx = 0;
+	    state.currentBucketIdx = 0;
+	    state.turn += 1;
 	  }
 	};
 	
-	// Load saved game data
-	if (localStorage.faceGameState) {
-	  var dehydratedGameState = JSON.parse(localStorage.faceGameState);
+	var currentBucketsShouldReplenish = function currentBucketsShouldReplenish() {
+	  // modulo against the index of the bucket so that the first bucket is
+	  // always replenished, the second is replenished every other time, and
+	  // the third is replenished every third time.
+	  var itsTheRightTurn = state.turn % (state.currentBucketIdx + 1) !== 0;
+	  var allBucketsSeen = state.currentBucketIdx >= state.currentBuckets.length;
 	
-	  // Clear saved game data from old cycles
-	  if (dehydratedGameState.cycle !== "jan16") {
-	    localStorage.removeItem("faceGameState");
-	  } else {
-	    turn = dehydratedGameState.turn;
-	    status = dehydratedGameState.status;
-	    buckets = dehydratedGameState.buckets;
-	    currentBuckets = dehydratedGameState.currentBuckets;
-	    currentBucket = dehydratedGameState.currentBucket;
-	    currentItemIdx = dehydratedGameState.currentItemIdx;
-	    currentItem = dehydratedGameState.currentItem;
-	    if (status !== "guessing") {
-	      advanceItem();
+	  return itsTheRightTurn || allBucketsSeen;
+	};
+	
+	/// localStorage persistence ///
+	
+	var storeState = function storeState() {
+	  state.timestamp = Date.now();
+	  localStorage.setItem(localStorageKey, JSON.stringify(state));
+	
+	  if (localStorage.length > 3) {
+	    removeOldestStoredItem();
+	  }
+	};
+	
+	var removeOldestStoredItem = function removeOldestStoredItem() {
+	  var keyToRemove = null;
+	  var minTimestamp = Date.now();
+	
+	  for (var i = 0; i < localStorage.length; i++) {
+	    var key = localStorage.key(i);
+	    var timestamp = JSON.parse(localStorage.getItem(key)).timestamp || 0;
+	    if (!timestamp || timestamp < minTimestamp) {
+	      minTimestamp = timestamp;
+	      keyToRemove = key;
 	    }
 	  }
-	}
 	
-	module.exports = GameData;
+	  if (keyToRemove) {
+	    localStorage.removeItem(keyToRemove);
+	    console.log(keyToRemove + " garbage collected");
+	  }
+	};
+	
+	var loadStoredState = function loadStoredState() {
+	  var encodedState = localStorage.getItem(localStorageKey);
+	  if (encodedState) {
+	    (function () {
+	      var storedState = JSON.parse(encodedState);
+	
+	      Object.keys(state).forEach(function (key) {
+	        if (storedState.hasOwnProperty(key)) {
+	          state[key] = storedState[key];
+	        }
+	      });
+	      state.remedialGuess = false; // always start false
+	    })();
+	  }
+	};
+	
+	var syncStateWithPeople = function syncStateWithPeople() {
+	  removeInvalidKeysFromBuckets(state.seenBuckets);
+	  removeInvalidKeysFromBuckets(state.currentBuckets);
+	
+	  var usedKeys = setOfAllBucketedKeys();
+	  var unusedKeys = Object.keys(people).filter(function (key) {
+	    return !usedKeys.hasOwnProperty(key);
+	  });
+	  state.currentBuckets[0] = state.currentBuckets[0].concat(unusedKeys);
+	};
+	
+	var removeInvalidKeysFromBuckets = function removeInvalidKeysFromBuckets(buckets) {
+	  buckets.forEach(function (bucket, i) {
+	    buckets[i] = bucket.filter(function (key) {
+	      return keyIsValid(key);
+	    });
+	  });
+	};
+	
+	var setOfAllBucketedKeys = function setOfAllBucketedKeys() {
+	  var bucketedKeys = {};
+	  state.seenBuckets.forEach(function (bucket) {
+	    return bucket.forEach(function (key) {
+	      return bucketedKeys[key] = true;
+	    });
+	  });
+	  state.currentBuckets.forEach(function (bucket) {
+	    return bucket.forEach(function (key) {
+	      return bucketedKeys[key] = true;
+	    });
+	  });
+	  return bucketedKeys;
+	};
+	
+	/// post-load setup ///
+	
+	loadStoredState();
+	syncStateWithPeople();
+	setCurrentItemToRandomValidItem();
+	GameState.addListener(storeState);
 
 /***/ },
-/* 175 */
+/* 176 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	var FuzzySet = function FuzzySet(arr, useLevenshtein, gramSizeLower, gramSizeUpper) {
+	  var fuzzyset = {
+	    version: '0.0.1'
+	  };
+	
+	  // default options
+	  arr = arr || [];
+	  fuzzyset.gramSizeLower = gramSizeLower || 2;
+	  fuzzyset.gramSizeUpper = gramSizeUpper || 3;
+	  fuzzyset.useLevenshtein = useLevenshtein || true;
+	
+	  // define all the object functions and attributes
+	  fuzzyset.exactSet = {};
+	  fuzzyset.matchDict = {};
+	  fuzzyset.items = {};
+	
+	  // helper functions
+	  var levenshtein = function levenshtein(str1, str2) {
+	    var current = [],
+	        prev,
+	        value;
+	
+	    for (var i = 0; i <= str2.length; i++) {
+	      for (var j = 0; j <= str1.length; j++) {
+	        if (i && j) {
+	          if (str1.charAt(j - 1) === str2.charAt(i - 1)) value = prev;else value = Math.min(current[j], current[j - 1], prev) + 1;
+	        } else value = i + j;
+	
+	        prev = current[j];
+	        current[j] = value;
+	      }
+	    }return current.pop();
+	  };
+	
+	  // return an edit distance from 0 to 1
+	  var _distance = function _distance(str1, str2) {
+	    if (str1 == null && str2 == null) throw 'Trying to compare two null values';
+	    if (str1 == null || str2 == null) return 0;
+	    str1 = String(str1);str2 = String(str2);
+	
+	    var distance = levenshtein(str1, str2);
+	    if (str1.length > str2.length) {
+	      return 1 - distance / str1.length;
+	    } else {
+	      return 1 - distance / str2.length;
+	    }
+	  };
+	  var _nonWordRe = /[^\w, ]+/;
+	
+	  var _iterateGrams = function _iterateGrams(value, gramSize) {
+	    gramSize = gramSize || 2;
+	    var simplified = '-' + value.toLowerCase().replace(_nonWordRe, '') + '-',
+	        lenDiff = gramSize - simplified.length,
+	        results = [];
+	    if (lenDiff > 0) {
+	      for (var i = 0; i < lenDiff; ++i) {
+	        value += '-';
+	      }
+	    }
+	    for (var i = 0; i < simplified.length - gramSize + 1; ++i) {
+	      results.push(simplified.slice(i, i + gramSize));
+	    }
+	    return results;
+	  };
+	
+	  var _gramCounter = function _gramCounter(value, gramSize) {
+	    gramSize = gramSize || 2;
+	    var result = {},
+	        grams = _iterateGrams(value, gramSize),
+	        i = 0;
+	    for (i; i < grams.length; ++i) {
+	      if (grams[i] in result) {
+	        result[grams[i]] += 1;
+	      } else {
+	        result[grams[i]] = 1;
+	      }
+	    }
+	    return result;
+	  };
+	
+	  // the main functions
+	  fuzzyset.get = function (value, defaultValue) {
+	    var result = this._get(value);
+	    if (!result && defaultValue) {
+	      return defaultValue;
+	    }
+	    return result;
+	  };
+	
+	  fuzzyset._get = function (value) {
+	    var normalizedValue = this._normalizeStr(value),
+	        result = this.exactSet[normalizedValue];
+	    if (result) {
+	      return [[1, result]];
+	    }
+	    var results = [];
+	    for (var gramSize = this.gramSizeUpper; gramSize > this.gramSizeLower; --gramSize) {
+	      results = this.__get(value, gramSize);
+	      if (results) {
+	        return results;
+	      }
+	    }
+	    return null;
+	  };
+	
+	  fuzzyset.__get = function (value, gramSize) {
+	    var normalizedValue = this._normalizeStr(value),
+	        matches = {},
+	        gramCounts = _gramCounter(normalizedValue, gramSize),
+	        items = this.items[gramSize],
+	        sumOfSquareGramCounts = 0,
+	        gram,
+	        gramCount,
+	        i,
+	        index,
+	        otherGramCount;
+	
+	    for (gram in gramCounts) {
+	      gramCount = gramCounts[gram];
+	      sumOfSquareGramCounts += Math.pow(gramCount, 2);
+	      if (gram in this.matchDict) {
+	        for (i = 0; i < this.matchDict[gram].length; ++i) {
+	          index = this.matchDict[gram][i][0];
+	          otherGramCount = this.matchDict[gram][i][1];
+	          if (index in matches) {
+	            matches[index] += gramCount * otherGramCount;
+	          } else {
+	            matches[index] = gramCount * otherGramCount;
+	          }
+	        }
+	      }
+	    }
+	
+	    function isEmptyObject(obj) {
+	      for (var prop in obj) {
+	        if (obj.hasOwnProperty(prop)) return false;
+	      }
+	      return true;
+	    }
+	
+	    if (isEmptyObject(matches)) {
+	      return null;
+	    }
+	
+	    var vectorNormal = Math.sqrt(sumOfSquareGramCounts),
+	        results = [],
+	        matchScore;
+	    // build a results list of [score, str]
+	    for (var matchIndex in matches) {
+	      matchScore = matches[matchIndex];
+	      results.push([matchScore / (vectorNormal * items[matchIndex][0]), items[matchIndex][1]]);
+	    }
+	    var sortDescending = function sortDescending(a, b) {
+	      if (a[0] < b[0]) {
+	        return 1;
+	      } else if (a[0] > b[0]) {
+	        return -1;
+	      } else {
+	        return 0;
+	      }
+	    };
+	    results.sort(sortDescending);
+	    if (this.useLevenshtein) {
+	      var newResults = [],
+	          endIndex = Math.min(50, results.length);
+	      // truncate somewhat arbitrarily to 50
+	      for (var i = 0; i < endIndex; ++i) {
+	        newResults.push([_distance(results[i][1], normalizedValue), results[i][1]]);
+	      }
+	      results = newResults;
+	      results.sort(sortDescending);
+	    }
+	    var newResults = [];
+	    for (var i = 0; i < results.length; ++i) {
+	      if (results[i][0] == results[0][0]) {
+	        newResults.push([results[i][0], this.exactSet[results[i][1]]]);
+	      }
+	    }
+	    return newResults;
+	  };
+	
+	  fuzzyset.add = function (value) {
+	    var normalizedValue = this._normalizeStr(value);
+	    if (normalizedValue in this.exactSet) {
+	      return false;
+	    }
+	
+	    var i = this.gramSizeLower;
+	    for (i; i < this.gramSizeUpper + 1; ++i) {
+	      this._add(value, i);
+	    }
+	  };
+	
+	  fuzzyset._add = function (value, gramSize) {
+	    var normalizedValue = this._normalizeStr(value),
+	        items = this.items[gramSize] || [],
+	        index = items.length;
+	
+	    items.push(0);
+	    var gramCounts = _gramCounter(normalizedValue, gramSize),
+	        sumOfSquareGramCounts = 0,
+	        gram,
+	        gramCount;
+	    for (var gram in gramCounts) {
+	      gramCount = gramCounts[gram];
+	      sumOfSquareGramCounts += Math.pow(gramCount, 2);
+	      if (gram in this.matchDict) {
+	        this.matchDict[gram].push([index, gramCount]);
+	      } else {
+	        this.matchDict[gram] = [[index, gramCount]];
+	      }
+	    }
+	    var vectorNormal = Math.sqrt(sumOfSquareGramCounts);
+	    items[index] = [vectorNormal, normalizedValue];
+	    this.items[gramSize] = items;
+	    this.exactSet[normalizedValue] = value;
+	  };
+	
+	  fuzzyset._normalizeStr = function (str) {
+	    if (Object.prototype.toString.call(str) !== '[object String]') throw 'Must use a string as argument to FuzzySet functions';
+	    return str.toLowerCase();
+	  };
+	
+	  // return length of items in set
+	  fuzzyset.length = function () {
+	    var count = 0,
+	        prop;
+	    for (prop in this.exactSet) {
+	      if (this.exactSet.hasOwnProperty(prop)) {
+	        count += 1;
+	      }
+	    }
+	    return count;
+	  };
+	
+	  // return is set is empty
+	  fuzzyset.isEmpty = function () {
+	    for (var prop in this.exactSet) {
+	      if (this.exactSet.hasOwnProperty(prop)) {
+	        return false;
+	      }
+	    }
+	    return true;
+	  };
+	
+	  // return list of values loaded into set
+	  fuzzyset.values = function () {
+	    var values = [],
+	        prop;
+	    for (prop in this.exactSet) {
+	      if (this.exactSet.hasOwnProperty(prop)) {
+	        values.push(this.exactSet[prop]);
+	      }
+	    }
+	    return values;
+	  };
+	
+	  // initialization
+	  var i = fuzzyset.gramSizeLower;
+	  for (i; i < fuzzyset.gramSizeUpper + 1; ++i) {
+	    fuzzyset.items[i] = [];
+	  }
+	  // add all the items to the set
+	  for (i = 0; i < arr.length; ++i) {
+	    fuzzyset.add(arr[i]);
+	  }
+	
+	  return fuzzyset;
+	};
+	
+	module.exports = FuzzySet;
+
+/***/ },
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20621,15 +21053,15 @@
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 */
 	
-	module.exports.Container = __webpack_require__(176);
-	module.exports.MapStore = __webpack_require__(179);
-	module.exports.Mixin = __webpack_require__(191);
-	module.exports.ReduceStore = __webpack_require__(180);
-	module.exports.Store = __webpack_require__(181);
+	module.exports.Container = __webpack_require__(178);
+	module.exports.MapStore = __webpack_require__(181);
+	module.exports.Mixin = __webpack_require__(193);
+	module.exports.ReduceStore = __webpack_require__(182);
+	module.exports.Store = __webpack_require__(183);
 
 
 /***/ },
-/* 176 */
+/* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20651,10 +21083,10 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var FluxStoreGroup = __webpack_require__(177);
+	var FluxStoreGroup = __webpack_require__(179);
 	
 	var invariant = __webpack_require__(168);
-	var shallowEqual = __webpack_require__(178);
+	var shallowEqual = __webpack_require__(180);
 	
 	var DEFAULT_OPTIONS = {
 	  pure: true,
@@ -20812,7 +21244,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 177 */
+/* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20893,7 +21325,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 178 */
+/* 180 */
 /***/ function(module, exports) {
 
 	/**
@@ -20948,7 +21380,7 @@
 	module.exports = shallowEqual;
 
 /***/ },
-/* 179 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20969,8 +21401,8 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var FluxReduceStore = __webpack_require__(180);
-	var Immutable = __webpack_require__(190);
+	var FluxReduceStore = __webpack_require__(182);
+	var Immutable = __webpack_require__(192);
 	
 	var invariant = __webpack_require__(168);
 	
@@ -21098,7 +21530,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 180 */
+/* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21119,9 +21551,9 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var FluxStore = __webpack_require__(181);
+	var FluxStore = __webpack_require__(183);
 	
-	var abstractMethod = __webpack_require__(189);
+	var abstractMethod = __webpack_require__(191);
 	var invariant = __webpack_require__(168);
 	
 	var FluxReduceStore = (function (_FluxStore) {
@@ -21205,7 +21637,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 181 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21224,7 +21656,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var _require = __webpack_require__(182);
+	var _require = __webpack_require__(184);
 	
 	var EventEmitter = _require.EventEmitter;
 	
@@ -21388,7 +21820,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 182 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21401,14 +21833,14 @@
 	 */
 	
 	var fbemitter = {
-	  EventEmitter: __webpack_require__(183)
+	  EventEmitter: __webpack_require__(185)
 	};
 	
 	module.exports = fbemitter;
 
 
 /***/ },
-/* 183 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21427,11 +21859,11 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var EmitterSubscription = __webpack_require__(184);
-	var EventSubscriptionVendor = __webpack_require__(186);
+	var EmitterSubscription = __webpack_require__(186);
+	var EventSubscriptionVendor = __webpack_require__(188);
 	
-	var emptyFunction = __webpack_require__(188);
-	var invariant = __webpack_require__(187);
+	var emptyFunction = __webpack_require__(190);
+	var invariant = __webpack_require__(189);
 	
 	/**
 	 * @class BaseEventEmitter
@@ -21605,7 +22037,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 184 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21626,7 +22058,7 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var EventSubscription = __webpack_require__(185);
+	var EventSubscription = __webpack_require__(187);
 	
 	/**
 	 * EmitterSubscription represents a subscription with listener and context data.
@@ -21658,7 +22090,7 @@
 	module.exports = EmitterSubscription;
 
 /***/ },
-/* 185 */
+/* 187 */
 /***/ function(module, exports) {
 
 	/**
@@ -21712,7 +22144,7 @@
 	module.exports = EventSubscription;
 
 /***/ },
-/* 186 */
+/* 188 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21731,7 +22163,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var invariant = __webpack_require__(187);
+	var invariant = __webpack_require__(189);
 	
 	/**
 	 * EventSubscriptionVendor stores a set of EventSubscriptions that are
@@ -21821,7 +22253,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 187 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21832,7 +22264,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule invariant
 	 */
 	
 	'use strict';
@@ -21877,7 +22308,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 188 */
+/* 190 */
 /***/ function(module, exports) {
 
 	/**
@@ -21888,7 +22319,6 @@
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * @providesModule emptyFunction
 	 */
 	
 	"use strict";
@@ -21920,7 +22350,7 @@
 	module.exports = emptyFunction;
 
 /***/ },
-/* 189 */
+/* 191 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21947,7 +22377,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 190 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -26934,7 +27364,7 @@
 	}));
 
 /***/ },
-/* 191 */
+/* 193 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -26951,7 +27381,7 @@
 	
 	'use strict';
 	
-	var FluxStoreGroup = __webpack_require__(177);
+	var FluxStoreGroup = __webpack_require__(179);
 	
 	var invariant = __webpack_require__(168);
 	
@@ -27057,336 +27487,433 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 192 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	var people = [{ occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/059/medium/Silverbrook.jpg?1452214889", name: "Aaron Silverbook" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/032/medium/Dutta.jpg?1452215040", name: "Arjun Dutta" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/082/medium/Gee.jpg?1452215039", name: "Austen Gee" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/053/medium/Zagorski.jpg?1452215174", name: "Benjamin Zagorski" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/063/medium/Neal.jpg?1452215298", name: "Bradley Neal" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/047/medium/Gerson.jpg?1452215361", name: "Brian Gerson" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/058/medium/Hayzlett.jpg?1452215440", name: "Brian Hayzlett" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/060/medium/Lambert.jpg?1452215520", name: "Brian Lambert" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/064/medium/Swope.jpg?1452215583", name: "Carson Swope" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/071/medium/Jordan.jpg?1452215663", name: "Chris Jordan" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/081/medium/VHoosier.jpg?1452215737", name: "Christopher Van Hoosier" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/043/medium/McMahon.jpg?1452215845", name: "Colin McMahon" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/048/medium/Chen.jpg?1452215845", name: "Connie Chen" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/028/medium/Reid.jpg?1452216083", name: "David Reid" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/044/medium/Dominguez.jpg?1452216101", name: "Devin Dominguez" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/031/medium/Lai.jpg?1452216123", name: "Edwin Lai" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/039/medium/Liu.jpg?1452216407", name: "Eric Liu" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/084/medium/Summins.jpg?1452216478", name: "Eric Summins" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/078/medium/Hwang.jpg?1452216608", name: "Joshua Hwang" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/062/medium/McMenemy.jpg?1452216495", name: "Joshua McMenemy" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/033/medium/Miller.jpg?1452216952", name: "Julie Miller" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/073/medium/Tung.jpg?1452216963", name: "Justin Tung" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/049/medium/Varjoy.jpg?1452216967", name: "Kaveh Varjoy" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/052/medium/Dolch.jpg?1452216956", name: "Kevin Dolch" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/087/medium/McCall.jpg?1452217152", name: "Kevin McCall" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/035/medium/Krik.jpg?1452217235", name: "Ksenia Kriksunov" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/042/medium/Ou.jpg?1452217237", name: "Laurie Ou" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/045/medium/Dubin.jpg?1452217230", name: "Matthew Dubin" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/050/medium/Shen.jpg?1452217497", name: "Matthew Shen" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/085/medium/Ahmadov.jpg?1452217546", name: "Mehdi Ahmadov" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/072/medium/Heller.jpg?1452217556", name: "Meredith Heller" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/065/medium/Park.jpg?1452217572", name: "Michael Park" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/083/medium/Grab.jpg?1452217572", name: "Michael Shane Grabianowski" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/074/medium/Zhang.jpg?1452217738", name: "Mingshuo Zhang" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/076/medium/Matteson.jpg?1452217745", name: "Nathan Matteson" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/057/medium/Ho.jpg?1452218229", name: "Nhat Ho" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/040/medium/p1769981184-o678456000-4.jpg?1452273865", name: "Pardha Ponugoti" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/077/medium/p1701384941-o678456000-4.jpg?1452274116", name: "Pat Walls" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/038/medium/p1753633308-o678456000-4.jpg?1452274209", name: "Pawandeep Rai" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/069/medium/p1847591714-o678456000-4.jpg?1452274324", name: "peter luu" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/029/medium/p1634290812-o678456000-4.jpg?1452273386", name: "Peter Yi" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/068/medium/p1705058685-o678456000-4.jpg?1452273478", name: "Rafael Pedicini" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/075/medium/p1792855726-o678456000-4.jpg?1452273700", name: "Riley Scheid" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/061/medium/p1697069878-o678456000-4.jpg?1452273783", name: "Ryan Chong" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/027/medium/p1635634093-o678456000-4.jpg?1452273255", name: "Sam Gerber" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/036/medium/p1727134943-o678456000-4.jpg?1452272532", name: "Sameeran Kunche" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/079/medium/p1620519047-o678456000-4.jpg?1452273142", name: "Scott Kwang" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/046/medium/PTP247-239.jpg?1452272940", name: "Sean Connor" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/070/medium/p1660018668-o678456000-4.jpg?1452272455", name: "Spencer Christensen" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/041/medium/p1674371523-o678456000-4.jpg?1452272308", name: "Stan Amsellem" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/055/medium/Stephanie_Kirtarti.jpg?1452218133", name: "Stephanie Kirtiadi" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/034/medium/Steven_Saekoo.jpg?1452217925", name: "Stephen Saekoo" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/051/medium/Steve_Kim.jpg?1452217954", name: "Steve Kim" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/037/medium/Ted_Eckel.jpg?1452217543", name: "Ted Eckel" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/080/medium/Tim_Pang.jpg?1452217465", name: "Tim Pang" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/030/medium/Timothy_Huang.jpg?1452217400", name: "Timothy Hwang" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/067/medium/Vincent_Budrovich.jpg?1452217329", name: "Vincent Budrovich" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/056/medium/Wen_Liang.jpg?1452217224", name: "Wen Liang" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/054/medium/Wennoung_Kuang.jpg?1452217088", name: "Wennong Kuang" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/086/medium/Yian_Lo.jpg?1452216926", name: "Yian Lo" }, { occup: "student", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/066/medium/Zachary_Buhler.jpg?1452216817", name: "Zachary Buhler" }, { occup: "instructor", name: "Jeff Fiddler", src: "photos/jeff.jpg" }, { occup: "instructor", name: "Jon Wolverton", src: "photos/jon.jpg" }, { occup: "instructor", name: "Asher King Abramson", src: "photos/asher.jpg" }, { occup: "TA", name: "Max Schram", src: "photos/max.jpg" }, { occup: "TA", name: "Mihir Jham", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/835/medium/mihir_jham.jpg?1440628925" }, { occup: "TA", name: "Brooke Angel", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/834/medium/brooke_angel.jpg?1440628466" }, { occup: "TA", name: "Anthony Ladson", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/887/medium/anthony_ladson.jpg?1440628437" }, { occup: "TA", name: "Winnie Ngo", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/972/medium/WinnieNgo.jpg?1446666478" }, { occup: "TA", name: "Ken Tran", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/957/medium/Tran.jpg?1446679757" }, { occup: "TA", name: "Ryan Hall", src: "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/939/medium/RyanHall.jpg?1446677509" }, { occup: "TA", name: "Alex Chebotarev", src: "photos/aleksey.jpg" }, { occup: "TA", name: "Haseeb Qureshi", src: "photos/haseeb.jpg" }];
-	
-	module.exports = people;
-
-/***/ },
-/* 193 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	var FuzzySet = function FuzzySet(arr, useLevenshtein, gramSizeLower, gramSizeUpper) {
-	  var fuzzyset = {
-	    version: '0.0.1'
-	  };
-	
-	  // default options
-	  arr = arr || [];
-	  fuzzyset.gramSizeLower = gramSizeLower || 2;
-	  fuzzyset.gramSizeUpper = gramSizeUpper || 3;
-	  fuzzyset.useLevenshtein = useLevenshtein || true;
-	
-	  // define all the object functions and attributes
-	  fuzzyset.exactSet = {};
-	  fuzzyset.matchDict = {};
-	  fuzzyset.items = {};
-	
-	  // helper functions
-	  var levenshtein = function levenshtein(str1, str2) {
-	    var current = [],
-	        prev,
-	        value;
-	
-	    for (var i = 0; i <= str2.length; i++) {
-	      for (var j = 0; j <= str1.length; j++) {
-	        if (i && j) {
-	          if (str1.charAt(j - 1) === str2.charAt(i - 1)) value = prev;else value = Math.min(current[j], current[j - 1], prev) + 1;
-	        } else value = i + j;
-	
-	        prev = current[j];
-	        current[j] = value;
-	      }
-	    }return current.pop();
-	  };
-	
-	  // return an edit distance from 0 to 1
-	  var _distance = function _distance(str1, str2) {
-	    if (str1 == null && str2 == null) throw 'Trying to compare two null values';
-	    if (str1 == null || str2 == null) return 0;
-	    str1 = String(str1);str2 = String(str2);
-	
-	    var distance = levenshtein(str1, str2);
-	    if (str1.length > str2.length) {
-	      return 1 - distance / str1.length;
-	    } else {
-	      return 1 - distance / str2.length;
-	    }
-	  };
-	  var _nonWordRe = /[^\w, ]+/;
-	
-	  var _iterateGrams = function _iterateGrams(value, gramSize) {
-	    gramSize = gramSize || 2;
-	    var simplified = '-' + value.toLowerCase().replace(_nonWordRe, '') + '-',
-	        lenDiff = gramSize - simplified.length,
-	        results = [];
-	    if (lenDiff > 0) {
-	      for (var i = 0; i < lenDiff; ++i) {
-	        value += '-';
-	      }
-	    }
-	    for (var i = 0; i < simplified.length - gramSize + 1; ++i) {
-	      results.push(simplified.slice(i, i + gramSize));
-	    }
-	    return results;
-	  };
-	
-	  var _gramCounter = function _gramCounter(value, gramSize) {
-	    gramSize = gramSize || 2;
-	    var result = {},
-	        grams = _iterateGrams(value, gramSize),
-	        i = 0;
-	    for (i; i < grams.length; ++i) {
-	      if (grams[i] in result) {
-	        result[grams[i]] += 1;
-	      } else {
-	        result[grams[i]] = 1;
-	      }
-	    }
-	    return result;
-	  };
-	
-	  // the main functions
-	  fuzzyset.get = function (value, defaultValue) {
-	    var result = this._get(value);
-	    if (!result && defaultValue) {
-	      return defaultValue;
-	    }
-	    return result;
-	  };
-	
-	  fuzzyset._get = function (value) {
-	    var normalizedValue = this._normalizeStr(value),
-	        result = this.exactSet[normalizedValue];
-	    if (result) {
-	      return [[1, result]];
-	    }
-	    var results = [];
-	    for (var gramSize = this.gramSizeUpper; gramSize > this.gramSizeLower; --gramSize) {
-	      results = this.__get(value, gramSize);
-	      if (results) {
-	        return results;
-	      }
-	    }
-	    return null;
-	  };
-	
-	  fuzzyset.__get = function (value, gramSize) {
-	    var normalizedValue = this._normalizeStr(value),
-	        matches = {},
-	        gramCounts = _gramCounter(normalizedValue, gramSize),
-	        items = this.items[gramSize],
-	        sumOfSquareGramCounts = 0,
-	        gram,
-	        gramCount,
-	        i,
-	        index,
-	        otherGramCount;
-	
-	    for (gram in gramCounts) {
-	      gramCount = gramCounts[gram];
-	      sumOfSquareGramCounts += Math.pow(gramCount, 2);
-	      if (gram in this.matchDict) {
-	        for (i = 0; i < this.matchDict[gram].length; ++i) {
-	          index = this.matchDict[gram][i][0];
-	          otherGramCount = this.matchDict[gram][i][1];
-	          if (index in matches) {
-	            matches[index] += gramCount * otherGramCount;
-	          } else {
-	            matches[index] = gramCount * otherGramCount;
-	          }
-	        }
-	      }
-	    }
-	
-	    function isEmptyObject(obj) {
-	      for (var prop in obj) {
-	        if (obj.hasOwnProperty(prop)) return false;
-	      }
-	      return true;
-	    }
-	
-	    if (isEmptyObject(matches)) {
-	      return null;
-	    }
-	
-	    var vectorNormal = Math.sqrt(sumOfSquareGramCounts),
-	        results = [],
-	        matchScore;
-	    // build a results list of [score, str]
-	    for (var matchIndex in matches) {
-	      matchScore = matches[matchIndex];
-	      results.push([matchScore / (vectorNormal * items[matchIndex][0]), items[matchIndex][1]]);
-	    }
-	    var sortDescending = function sortDescending(a, b) {
-	      if (a[0] < b[0]) {
-	        return 1;
-	      } else if (a[0] > b[0]) {
-	        return -1;
-	      } else {
-	        return 0;
-	      }
-	    };
-	    results.sort(sortDescending);
-	    if (this.useLevenshtein) {
-	      var newResults = [],
-	          endIndex = Math.min(50, results.length);
-	      // truncate somewhat arbitrarily to 50
-	      for (var i = 0; i < endIndex; ++i) {
-	        newResults.push([_distance(results[i][1], normalizedValue), results[i][1]]);
-	      }
-	      results = newResults;
-	      results.sort(sortDescending);
-	    }
-	    var newResults = [];
-	    for (var i = 0; i < results.length; ++i) {
-	      if (results[i][0] == results[0][0]) {
-	        newResults.push([results[i][0], this.exactSet[results[i][1]]]);
-	      }
-	    }
-	    return newResults;
-	  };
-	
-	  fuzzyset.add = function (value) {
-	    var normalizedValue = this._normalizeStr(value);
-	    if (normalizedValue in this.exactSet) {
-	      return false;
-	    }
-	
-	    var i = this.gramSizeLower;
-	    for (i; i < this.gramSizeUpper + 1; ++i) {
-	      this._add(value, i);
-	    }
-	  };
-	
-	  fuzzyset._add = function (value, gramSize) {
-	    var normalizedValue = this._normalizeStr(value),
-	        items = this.items[gramSize] || [],
-	        index = items.length;
-	
-	    items.push(0);
-	    var gramCounts = _gramCounter(normalizedValue, gramSize),
-	        sumOfSquareGramCounts = 0,
-	        gram,
-	        gramCount;
-	    for (var gram in gramCounts) {
-	      gramCount = gramCounts[gram];
-	      sumOfSquareGramCounts += Math.pow(gramCount, 2);
-	      if (gram in this.matchDict) {
-	        this.matchDict[gram].push([index, gramCount]);
-	      } else {
-	        this.matchDict[gram] = [[index, gramCount]];
-	      }
-	    }
-	    var vectorNormal = Math.sqrt(sumOfSquareGramCounts);
-	    items[index] = [vectorNormal, normalizedValue];
-	    this.items[gramSize] = items;
-	    this.exactSet[normalizedValue] = value;
-	  };
-	
-	  fuzzyset._normalizeStr = function (str) {
-	    if (Object.prototype.toString.call(str) !== '[object String]') throw 'Must use a string as argument to FuzzySet functions';
-	    return str.toLowerCase();
-	  };
-	
-	  // return length of items in set
-	  fuzzyset.length = function () {
-	    var count = 0,
-	        prop;
-	    for (prop in this.exactSet) {
-	      if (this.exactSet.hasOwnProperty(prop)) {
-	        count += 1;
-	      }
-	    }
-	    return count;
-	  };
-	
-	  // return is set is empty
-	  fuzzyset.isEmpty = function () {
-	    for (var prop in this.exactSet) {
-	      if (this.exactSet.hasOwnProperty(prop)) {
-	        return false;
-	      }
-	    }
-	    return true;
-	  };
-	
-	  // return list of values loaded into set
-	  fuzzyset.values = function () {
-	    var values = [],
-	        prop;
-	    for (prop in this.exactSet) {
-	      if (this.exactSet.hasOwnProperty(prop)) {
-	        values.push(this.exactSet[prop]);
-	      }
-	    }
-	    return values;
-	  };
-	
-	  // initialization
-	  var i = fuzzyset.gramSizeLower;
-	  for (i; i < fuzzyset.gramSizeUpper + 1; ++i) {
-	    fuzzyset.items[i] = [];
-	  }
-	  // add all the items to the set
-	  for (i = 0; i < arr.length; ++i) {
-	    fuzzyset.add(arr[i]);
-	  }
-	
-	  return fuzzyset;
-	};
-	
-	module.exports = FuzzySet;
-
-/***/ },
 /* 194 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+	
+	var students = __webpack_require__(195);
+	var instructors = __webpack_require__(196);
+	
+	instructors.concat(students).forEach(function (person) {
+	  exports[person.occup + '-' + person.id] = person;
+	});
+
+/***/ },
+/* 195 */
+/***/ function(module, exports) {
+
 	"use strict";
 	
-	var React = __webpack_require__(1);
+	module.exports = [{
+	  "id": 1151,
+	  "name": "Albert Nguyen",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/151/medium/Albert_Nguyen.jpg?1457721997",
+	  "occup": "student"
+	}, {
+	  "id": 1136,
+	  "name": "Alex Thaler",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/136/medium/Alex_Thaler.jpg?1457722223",
+	  "occup": "student"
+	}, {
+	  "id": 1178,
+	  "name": "Alex Theg",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/178/medium/Alex_Theg.jpg?1457722320",
+	  "occup": "student"
+	}, {
+	  "id": 1162,
+	  "name": "Andrew Paulson",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/162/medium/Andrew_Paulson.jpg?1457722389",
+	  "occup": "student"
+	}, {
+	  "id": 1126,
+	  "name": "Andrew Watt",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/126/medium/Andrew_Watt.jpg?1457722495",
+	  "occup": "student"
+	}, {
+	  "id": 1176,
+	  "name": "Anup Segu",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/176/medium/Anup_Segu.jpg?1457722842",
+	  "occup": "student"
+	}, {
+	  "id": 1133,
+	  "name": "Beck Nygard",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/133/medium/Beck_Nygard.jpg?1457722976",
+	  "occup": "student"
+	}, {
+	  "id": 1132,
+	  "name": "Ben Calabrese",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/132/medium/Ben_Calabrese.jpg?1457723082",
+	  "occup": "student"
+	}, {
+	  "id": 1180,
+	  "name": "Bihn Kim",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/180/medium/Bihn_Kim.jpg?1457723504",
+	  "occup": "student"
+	}, {
+	  "id": 1161,
+	  "name": "Brandon Cai",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/161/medium/Brandon_Cai.jpg?1457723612",
+	  "occup": "student"
+	}, {
+	  "id": 1150,
+	  "name": "Brian Quan",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/150/medium/Brian_Quan.jpg?1457723814",
+	  "occup": "student"
+	}, {
+	  "id": 1138,
+	  "name": "Bryan Ng",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/138/medium/Bryan_Ng.jpg?1457723959",
+	  "occup": "student"
+	}, {
+	  "id": 1144,
+	  "name": "Cady Banulis",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/144/medium/Cadence_Banulis_.jpg?1457724099",
+	  "occup": "student"
+	}, {
+	  "id": 1167,
+	  "name": "Calvin Feng",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/167/medium/Calvin_Feng.jpg?1457724204",
+	  "occup": "student"
+	}, {
+	  "id": 1128,
+	  "name": "Charles Cho",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/128/medium/Charles_Cho.jpg?1457724291",
+	  "occup": "student"
+	}, {
+	  "id": 1190,
+	  "name": "Charles Simms",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/190/medium/Charles_Simms.jpg?1457724407",
+	  "occup": "student"
+	}, {
+	  "id": 1157,
+	  "name": "Colin Fruit",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/157/medium/Colin_Fruit.jpg?1457724499",
+	  "occup": "student"
+	}, {
+	  "id": 1163,
+	  "name": "Daniel Mynick",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/163/medium/Daniel_Mynick.jpg?1457724597",
+	  "occup": "student"
+	}, {
+	  "id": 1168,
+	  "name": "David Noah",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/168/medium/David_Noah.jpg?1457724939",
+	  "occup": "student"
+	}, {
+	  "id": 1139,
+	  "name": "David Resnick",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/139/medium/David_Resnick.jpg?1457725043",
+	  "occup": "student"
+	}, {
+	  "id": 1153,
+	  "name": "Devin Truong",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/153/medium/Devin_Truong.jpg?1457725140",
+	  "occup": "student"
+	}, {
+	  "id": 1141,
+	  "name": "Emily Westfall",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/141/medium/Emily_Westfall.jpg?1457730889",
+	  "occup": "student"
+	}, {
+	  "id": 1173,
+	  "name": "Eric Lee",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/173/medium/Eric_Lee.jpg?1457731699",
+	  "occup": "student"
+	}, {
+	  "id": 1156,
+	  "name": "Eric Millman",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/156/medium/Eric_Millman.jpg?1457731789",
+	  "occup": "student"
+	}, {
+	  "id": 1130,
+	  "name": "Gabriel Gutierrez",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/130/medium/Gabriel_Gutierrez.jpg?1457732261",
+	  "occup": "student"
+	}, {
+	  "id": 1171,
+	  "name": "Gage Newman",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/171/medium/Gage_Newman.jpg?1457733683",
+	  "occup": "student"
+	}, {
+	  "id": 1152,
+	  "name": "Grant Sauer",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/152/medium/Grant_Sauer.jpg?1457733926",
+	  "occup": "student"
+	}, {
+	  "id": 1135,
+	  "name": "Greg Trunk",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/135/medium/Greg_Trunk.jpg?1457734043",
+	  "occup": "student"
+	}, {
+	  "id": 1165,
+	  "name": "Guy Hadas",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/165/medium/Guy_Hadas.jpg?1457734189",
+	  "occup": "student"
+	}, {
+	  "id": 1127,
+	  "name": "Henry Li",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/127/medium/Henry_Li.jpg?1457734280",
+	  "occup": "student"
+	}, {
+	  "id": 1159,
+	  "name": "Ian King",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/159/medium/Ian_King.jpg?1457734385",
+	  "occup": "student"
+	}, {
+	  "id": 1155,
+	  "name": "James Hatch",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/155/medium/James_Hatch.jpg?1457734522",
+	  "occup": "student"
+	}, {
+	  "id": 1140,
+	  "name": "Alastair Cleve",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/140/medium/James_Cleve.jpg?1457734741",
+	  "occup": "student"
+	}, {
+	  "id": 1186,
+	  "name": "Jeffrey Nguyen",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/186/medium/Jeffrey_Nguyen.jpg?1457734901",
+	  "occup": "student"
+	}, {
+	  "id": 1149,
+	  "name": "Jeremy Culler-Mayeno",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/149/medium/Jeremy_Culler_-_Mayeno.jpg?1457735104",
+	  "occup": "student"
+	}, {
+	  "id": 1137,
+	  "name": "Jesse Posner",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/137/medium/Jesse_Posner.jpg?1457735180",
+	  "occup": "student"
+	}, {
+	  "id": 1169,
+	  "name": "Jack Delia",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/169/medium/John_Delia.jpg?1457735307",
+	  "occup": "student"
+	}, {
+	  "id": 1187,
+	  "name": "Jon Mendelson",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/187/medium/Jon_Mendelson.jpg?1457735396",
+	  "occup": "student"
+	}, {
+	  "id": 1181,
+	  "name": "Joseph Williams",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/181/medium/Joseph_Williams.jpg?1457735699",
+	  "occup": "student"
+	}, {
+	  "id": 1134,
+	  "name": "Kasper Kuo",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/134/medium/Kasper_Kuo.jpg?1457735868",
+	  "occup": "student"
+	}, {
+	  "id": 1189,
+	  "name": "Kellam Bartley",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/189/medium/Kellam_Bartley.jpg?1457735958",
+	  "occup": "student"
+	}, {
+	  "id": 1172,
+	  "name": "Kenneth Ma",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/172/medium/Kenneth_Ma.jpg?1457736057",
+	  "occup": "student"
+	}, {
+	  "id": 1183,
+	  "name": "Kevin Huang",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/183/medium/Kevin_Huang.jpg?1457736262",
+	  "occup": "student"
+	}, {
+	  "id": 1177,
+	  "name": "Kurt Brown",
+	  "imageUrl": "http://gravatar.com/avatar/2cfd0edce019a35eede0a5315dba1e8d?secure=false&size=300",
+	  "occup": "student"
+	}, {
+	  "id": 1174,
+	  "name": "Kyle Costanzo",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/174/medium/Kyle_Costanzo.jpg?1457738369",
+	  "occup": "student"
+	}, {
+	  "id": 1131,
+	  "name": "Matthew Fong",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/131/medium/Matthew_Fong.jpg?1457738442",
+	  "occup": "student"
+	}, {
+	  "id": 1158,
+	  "name": "Megan Anderson",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/158/medium/Megan_Anderson.jpg?1457738606",
+	  "occup": "student"
+	}, {
+	  "id": 1184,
+	  "name": "Melissa Balch",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/184/medium/Melissa_Balch.jpg?1457738719",
+	  "occup": "student"
+	}, {
+	  "id": 1179,
+	  "name": "Michael Gloudeman",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/179/medium/Michael_Gloudeman.jpg?1457739490",
+	  "occup": "student"
+	}, {
+	  "id": 1154,
+	  "name": "Mohammad Majd",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/154/medium/Mohammad_Majd.jpg?1457739584",
+	  "occup": "student"
+	}, {
+	  "id": 1148,
+	  "name": "Natalie Szweda",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/148/medium/Natalie_Szweda.jpg?1457739658",
+	  "occup": "student"
+	}, {
+	  "id": 1164,
+	  "name": "Phillip Chung",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/164/medium/Phillip_Chung.jpg?1457739745",
+	  "occup": "student"
+	}, {
+	  "id": 1142,
+	  "name": "Quinn Leong",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/142/medium/Quinn_Leong.jpg?1457739857",
+	  "occup": "student"
+	}, {
+	  "id": 1160,
+	  "name": "Reed Williams",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/160/medium/Reed_Williams_.jpg?1457739957",
+	  "occup": "student"
+	}, {
+	  "id": 1125,
+	  "name": "Rob Kayson",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/125/medium/Robert_Kayson.jpg?1457740040",
+	  "occup": "student"
+	}, {
+	  "id": 1166,
+	  "name": "Rodrigo Cardenas",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/166/medium/Rodrigo_Cardenas.jpg?1457740142",
+	  "occup": "student"
+	}, {
+	  "id": 1185,
+	  "name": "Ryan Jordan",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/185/medium/Ryan_Jordan.jpg?1457740223",
+	  "occup": "student"
+	}, {
+	  "id": 1146,
+	  "name": "Samuel Winter",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/146/medium/Samuel_Winter.jpg?1457740367",
+	  "occup": "student"
+	}, {
+	  "id": 1175,
+	  "name": "Sang Park",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/175/medium/Sang_Park.jpg?1457740445",
+	  "occup": "student"
+	}, {
+	  "id": 1147,
+	  "name": "Sara Sharif",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/147/medium/Sara_Sharif.jpg?1457740551",
+	  "occup": "student"
+	}, {
+	  "id": 1182,
+	  "name": "Steve Boyle",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/182/medium/Steve_Boyle.jpg?1457740622",
+	  "occup": "student"
+	}, {
+	  "id": 1170,
+	  "name": "Teja Kavallappa",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/170/medium/Teja_Kavallappa.jpg?1457740711",
+	  "occup": "student"
+	}, {
+	  "id": 1129,
+	  "name": "Tony Won",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/129/medium/Tony_Won.jpg?1457740807",
+	  "occup": "student"
+	}, {
+	  "id": 1143,
+	  "name": "Walid Arghandewal",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/143/medium/Walid_Arghandewal.jpg?1457741009",
+	  "occup": "student"
+	}, {
+	  "id": 1188,
+	  "name": "William Judd",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/188/medium/William_Judd.jpg?1457741106",
+	  "occup": "student"
+	}, {
+	  "id": 1145,
+	  "name": "Zach Monteith",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/145/medium/Zachary_Monteith.jpg?1457741182",
+	  "occup": "student"
+	}];
+
+/***/ },
+/* 196 */
+/***/ function(module, exports) {
+
+	"use strict";
 	
-	var ProgressBar = React.createClass({
-	  displayName: "ProgressBar",
-	
-	  render: function render() {
-	    return React.createElement(
-	      "div",
-	      { className: "progress-bar" },
-	      this.props.bucketSizes.map(function (bucketSize, idx) {
-	        var bucketSquares = [];
-	        var status;
-	        for (var i = 0; i < bucketSize; i++) {
-	          switch (idx) {
-	            case 0:
-	              status = "incorrect";
-	              break;
-	            case 1:
-	              status = "close";
-	              break;
-	            case 2:
-	              status = "correct";
-	              break;
-	          }
-	          bucketSquares.push(React.createElement("div", { className: "bucket-square " + status, key: i }));
-	        }
-	        return React.createElement(
-	          "div",
-	          { className: "bucket-size-container", key: bucketSize ^ idx + 1 },
-	          bucketSquares
-	        );
-	      })
-	    );
-	  }
-	});
-	
-	module.exports = ProgressBar;
+	module.exports = [{
+	  "id": 13,
+	  "name": "Jeff Fiddler",
+	  "imageUrl": "photos/jeff.jpg",
+	  "occup": "instructor"
+	}, {
+	  "id": 22,
+	  "name": "Haseeb Qureshi",
+	  "imageUrl": "photos/haseeb.jpg",
+	  "occup": "TA"
+	}, {
+	  "id": 23,
+	  "name": "Alex Chebotarev",
+	  "imageUrl": "photos/aleksey.jpg",
+	  "occup": "TA"
+	}, {
+	  "id": 26,
+	  "name": "Jon Wolverton",
+	  "imageUrl": "photos/jon.jpg",
+	  "occup": "instructor"
+	}, {
+	  "id": 30,
+	  "name": "Max Schram",
+	  "imageUrl": "photos/max.jpg",
+	  "occup": "TA"
+	}, {
+	  "id": 34,
+	  "name": "Anthony Ladson",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/887/medium/anthony_ladson.jpg?1440628437",
+	  "occup": "TA"
+	}, {
+	  "id": 35,
+	  "name": "Brooke Angel",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/834/medium/brooke_angel.jpg?1440628466",
+	  "occup": "TA"
+	}, {
+	  "id": 36,
+	  "name": "Mihir Jham",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/835/medium/mihir_jham.jpg?1440628925",
+	  "occup": "TA"
+	}, {
+	  "id": 37,
+	  "name": "Asher King Abramon",
+	  "imageUrl": "photos/asher.jpg",
+	  "occup": "instructor"
+	}, {
+	  "id": 39,
+	  "name": "Winnie Ngo",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/972/medium/WinnieNgo.jpg?1446666478",
+	  "occup": "TA"
+	}, {
+	  "id": 41,
+	  "name": "Ken Tran",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/957/medium/Tran.jpg?1446679757",
+	  "occup": "TA"
+	}, {
+	  "id": 40,
+	  "name": "Ryan Hall",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/939/medium/RyanHall.jpg?1446677509",
+	  "occup": "TA"
+	}, {
+	  "id": 46,
+	  "name": "Kevin McCall",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/087/medium/McCall.jpg?1452217152",
+	  "occup": "TA"
+	}, {
+	  "id": 47,
+	  "name": "Claire Rogers",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/977/medium/Rogers.jpg?1446670488",
+	  "occup": "TA"
+	}];
 
 /***/ }
 /******/ ]);
