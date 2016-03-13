@@ -583,7 +583,20 @@ h1 {
   background-color: #00ff00;
 }
 
+.progress-square.score-5:after {
+  content: "";
+  display: block;
+  height: 8px;
+  width: 8px;
+  position: absolute;
+  bottom: 2px;
+  right: 0px;
+  background-image: url("checkmark.png");
+  background-size: contain;
+}
+
 .progress-square {
+  position: relative;
   width: 25px;
   height: 25px;
   float: left;
