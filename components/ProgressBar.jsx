@@ -2,37 +2,16 @@ var React = require('react');
 
 var ProgressBar = React.createClass({
   render: function () {
+    var scores = this.props.scores
     return (
-      <div className="progress-bar">
+      <figure className="progress-bar">
         {
-          this.props.bucketSizes.map((bucketSize, idx) => {
-            var bucketSquares = [];
-            var status;
-            for(var i = 0; i < bucketSize; i ++) {
-              switch (idx) {
-                case 0:
-                  status = "incorrect";
-                  break;
-                case 1:
-                  status = "close";
-                  break;
-                case 2:
-                  status = "correct";
-                  break;
-              }
-              bucketSquares.push(
-                <div className={`bucket-square ${status}`} key={i}>
-                </div>
-                );
-            }
-            return (
-              <div className="bucket-size-container" key={idx}>
-                {bucketSquares}
-              </div>
-             );
+          Object.keys(scores).map(key => {
+            var className = `progress-square score-${scores[key]}`
+            return <div className={className} key={key}></div>
           })
         }
-      </div>
+      </figure>
     )
   }
 });

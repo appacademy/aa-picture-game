@@ -526,23 +526,55 @@ h1 {
   color: green;
 }
 
-.bucket-square {
+.progress-square {
   width: 20px;
   height: 20px;
   float: left;
   border: 1px solid black;
 }
 
-.bucket-square.close {
-  background: yellow;
+.progress-square.score--5 {
+  background: #ff0000;
 }
 
-.bucket-square.incorrect {
-  background: red;
+.progress-square.score--4 {
+  background: #ff3300;
 }
 
-.bucket-square.correct {
-  background: green;
+.progress-square.score--3 {
+  background: #ff6600;
+}
+
+.progress-square.score--2 {
+  background: #ff9900;
+}
+
+.progress-square.score--1 {
+  background: #ffcc00;
+}
+
+.progress-square.score-0 {
+  background: #ffff00;
+}
+
+.progress-square.score-1 {
+  background: #ccff00;
+}
+
+.progress-square.score-2 {
+  background: #99ff00;
+}
+
+.progress-square.score-3 {
+  background: #66ff00;
+}
+
+.progress-square.score-4 {
+  background: #33ff00;
+}
+
+.progress-square.score-5 {
+  background: #00ff00;
 }
 
 .progress-bar {
@@ -567,4 +599,3 @@ h1 {
   top: 200px;
 }
 }
-

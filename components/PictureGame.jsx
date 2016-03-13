@@ -5,6 +5,7 @@ var Controls = require('./Controls');
 var ProgressBar = require('./ProgressBar');
 var GameStateStore = require('../stores/gameState');
 var FuzzySet = require('../util/fuzzyset');
+window.GameStateStore = GameStateStore;
 
 var PictureGame = React.createClass({
   getInitialState: function () {
@@ -12,7 +13,7 @@ var PictureGame = React.createClass({
       status: "guessing",
       nextPicture: false,
       person: GameStateStore.currentItem(),
-      bucketSizes: GameStateStore.bucketSizes()
+      scores: GameStateStore.getScores()
     };
   },
   componentDidMount : function () {
@@ -23,7 +24,7 @@ var PictureGame = React.createClass({
       person: GameStateStore.currentItem(),
       status: GameStateStore.status(),
       nextPicture: false,
-      bucketSizes: GameStateStore.bucketSizes()
+      scores: GameStateStore.getScores()
     });
   },
   currentName: function () {
@@ -38,7 +39,7 @@ var PictureGame = React.createClass({
           </div>
           <h1>The Picture Game</h1>
         </header>
-        <ProgressBar bucketSizes={this.state.bucketSizes}/>
+        <ProgressBar scores={this.state.scores}/>
 
         <div className="game-zone">
           <Picture src={this.state.person.imageUrl} />

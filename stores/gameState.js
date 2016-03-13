@@ -40,25 +40,25 @@ GameState.status = function () {
   return state.status;
 };
 
-GameState.bucketSizes = function () {
-  var sizes = [0, 0, 0];
+GameState.getScores = function () {
+  var totals = {};
 
-  Object.keys(state.guessRecords).forEach(key => {
-    var sum = 0
+  Object.keys(state.guessRecords).forEach(function(key) {
+    var sum = 0;
 
-    state.guessRecords[key].guesses.forEach(guess => {
+    state.guessRecords[key].guesses.forEach(function(guess) {
       if (guess.status === "correct") {
-        sum += 1
+        sum += 1;
       } else if (guess.status === "incorrect") {
         sum -= 1;
       }
     });
 
-    var idx = Math.floor((sum + 6) / 5);
-    sizes[idx] += 1;
+    totals[key] = sum;
+    console.log(key);
   });
 
-  return sizes;
+  return totals;
 };
 
 var makeGuess = function (answer) {
