@@ -27744,7 +27744,7 @@
 	}, {
 	  "id": 1177,
 	  "name": "Kurt Brown",
-	  "imageUrl": "http://gravatar.com/avatar/2cfd0edce019a35eede0a5315dba1e8d?secure=false&size=300",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/177/medium/p1756061855-o678456000-4.jpg?1457901655",
 	  "occup": "student"
 	}, {
 	  "id": 1174,
