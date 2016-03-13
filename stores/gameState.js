@@ -6,44 +6,25 @@ module.exports = GameState;
 
 var people = require('../data/people');
 
-/* * * How Buckets Work * * *
- * Buckets store keys to the people object.
- * There are 3 buckets: don't-know, learning, and already-know.
- * There are 2 sets of buckets: "seen" and "current" (unseen)
- * When keys are moved from current to seen:
- * - They are moved up one bucket when you get them right.
- * - They are moved back one bucket when you get them wrong.
- * - They aren't moved when you get them kinda right.
- * When a bucket is empty, you advance to the next bucket.
- * When all current buckets are empty, buckets are replenished from
- *  their corresponding seen buckets, but the don't-know bucket is
- *  replenished more frequently than the learning bucket, and the
- *  learning bucket is replenished more frequently than the already-know
- *  bucket
- * * */
-
 var cycle = "mar16";
 var localStorageKey = "faceGameState-" + cycle;
 var state = {
-  turn: 1,
+  turn: 0,
   status: "guessing",
   remedialGuess: false, // you must get it right before moving on
-  seenBuckets: [[], [], []],
-  currentBuckets: [Object.keys(people), [], []],
-  currentBucketIdx: 0,
-  currentKeyIdx: 0,
+  guessRecords: {},
   currentKey: undefined,
   timestamp: Date.now()
 }
 
-var currentBucket = function () {
-  return state.currentBuckets[state.currentBucketIdx];
+var currentGuessRecord = function () {
+  return state.guessRecords[state.currentKey];
 };
 
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
     case "GUESS_ADDED":
-      addGuess(payload.guess);
+      makeGuess(payload.guess);
       break;
     case "NEXT_ITEM":
       advanceItem();
@@ -60,99 +41,132 @@ GameState.status = function () {
 };
 
 GameState.bucketSizes = function () {
-  return state.currentBuckets.map((bucket, idx) => {
-    return bucket.length + state.seenBuckets[idx].length;
+  var sizes = [0, 0, 0];
+
+  Object.keys(state.guessRecords).forEach(key => {
+    var sum = 0
+
+    state.guessRecords[key].guesses.forEach(guess => {
+      if (guess.status === "correct") {
+        sum += 1
+      } else if (guess.status === "incorrect") {
+        sum -= 1;
+      }
+    });
+
+    var idx = Math.floor((sum + 6) / 5);
+    sizes[idx] += 1;
   });
+
+  return sizes;
 };
 
-var addGuess = function (answer) {
+var makeGuess = function (answer) {
   var guess = FuzzySet([GameState.currentItem().name.toLowerCase()]).get(answer);
 
-  let bucketIdx = state.currentBucketIdx;
-
   if (guess === null) {
-    state.remedialGuess = true;
     state.status = "incorrect";
-    GameState.__emitChange();
-    return;
-  }
-
-  if (guess[0][1] === answer.toLowerCase()) {
-    if (!state.remedialGuess && state.currentBucketIdx !== 2) {
-      bucketIdx += 1;
-    }
+  } else if (guess[0][1] === answer.toLowerCase()) {
     state.status = "correct";
   } else {
     state.status = "close";
   }
 
-  if (state.remedialGuess && state.currentBucketIdx !== 0) {
-    bucketIdx -= 1;
+  if (!state.remedialGuess) {
+    addGuess();
   }
-  state.remedialGuess = false;
 
-  currentBucket().splice(state.currentKeyIdx, 1)[0];
-  state.seenBuckets[bucketIdx].push(state.currentKey);
+  if (state.status === "incorrect") {
+    state.remedialGuess = true
+  } else {
+    state.remedialGuess = false
+  }
 
   GameState.__emitChange();
 };
+
+var addGuess = function () {
+  let guessRecord = currentGuessRecord();
+  guessRecord.guesses.push({
+    turn: state.turn,
+    status: state.status
+  });
+  while (guessRecord.guesses.length > 5) {
+    guessRecord.guesses.shift();
+  }
+}
 
 var advanceItem = function () {
-  //Advance to next non-empty bucket
-  while (currentBucket().length === 0) {
-    advanceBucket();
-  }
-
   state.status = "guessing";
-  if (!state.remedialGuess) setCurrentItemToRandomValidItem();
+  if (!state.remedialGuess) updateCurrentItem();
+  state.turn += 1;
 
   GameState.__emitChange();
 };
 
-var setCurrentItemToRandomValidItem = function () {
-  randomizeCurrentKey();
+var updateCurrentItem = function () {
+  chooseBestKey();
 
   while (!keyIsValid(state.currentKey)) {
-    currentBucket().splice(state.currentKeyIdx, 1);
-    randomizeCurrentKey();
+    delete state.guessRecords[state.currentKey];
+    chooseBestKey();
   }
 };
 
-var randomizeCurrentKey = function () {
-  randomizeCurrentKeyIndex();
-  state.currentKey = currentBucket()[state.currentKeyIdx];
-};
+var chooseBestKey = function () {
+  var bestKey, bestScore = -1
+  Object.keys(state.guessRecords).forEach(key => {
+    var score = scoreItem(state.guessRecords[key]);
+    if (score > bestScore) {
+      bestKey = key;
+      bestScore = score;
+    }
+  });
 
-var randomizeCurrentKeyIndex = function () {
-  state.currentKeyIdx = Math.floor(Math.random() * currentBucket().length);
+  state.currentKey = bestKey;
 };
 
 var keyIsValid = function (key) {
   return people.hasOwnProperty(key);
 };
 
-var advanceBucket = function () {
-  state.currentBucketIdx += 1;
+var scoreItem = function (record) {
+  if (record.guesses.length === 0) return 0.5;
 
-  if (currentBucketsShouldReplenish()) {
-    state.currentBuckets.forEach((bucket, idx) => {
-      state.currentBuckets[idx] = bucket.concat(state.seenBuckets[idx]);
-      state.seenBuckets[idx] = [];
-    });
+  var recentIncorrect = 0, correct = 0;
+  var totalRecords = Object.keys(state.guessRecords).length
 
-    state.currentBucketIdx = 0;
-    state.turn += 1;
+  record.guesses.forEach((guess, i) => {
+    var weight = 1 - (state.turn - guess.turn) / totalRecords;
+    switch(guess.status) {
+      case "correct":
+        correct += 1
+        break;
+      case "incorrect":
+        recentIncorrect += weight;
+        break;
+      case "close":
+        correct += 0.5
+        recentIncorrect += 0.5 * weight;
+        break;
+    }
+  });
+
+  correct = correct / 5;
+  recentIncorrect = Math.max(Math.min(recentIncorrect, 1), 0);
+  var lastTurn = record.guesses[record.guesses.length - 1].turn;
+  var turnsSince = state.turn - lastTurn
+
+  var score = 0.4 * recentIncorrect
+            + 0.2 * (1 - correct)
+            + 0.2 * turnsSince / totalRecords;
+  score = Math.min(1, score);
+
+  if (turnsSince < 15) {
+    score *= turnsSince / 15;
   }
-};
 
-var currentBucketsShouldReplenish = function() {
-  // modulo against the index of the bucket so that the first bucket is
-  // always replenished, the second is replenished every other time, and
-  // the third is replenished every third time.
-  var itsTheRightTurn = (state.turn % (state.currentBucketIdx + 1) !== 0);
-  var allBucketsSeen = (state.currentBucketIdx >= state.currentBuckets.length);
-
-  return (itsTheRightTurn || allBucketsSeen);
+  return score;
 };
 
 /// localStorage persistence ///
@@ -200,36 +214,33 @@ var loadStoredState = function () {
 }
 
 var syncStateWithPeople = function () {
-  removeInvalidKeysFromBuckets(state.seenBuckets);
-  removeInvalidKeysFromBuckets(state.currentBuckets);
-
-  var usedKeys = setOfAllBucketedKeys();
-  var unusedKeys = Object.keys(people).filter(key =>
-    !usedKeys.hasOwnProperty(key)
-  );
-  state.currentBuckets[0] = state.currentBuckets[0].concat(unusedKeys);
+  removeInvalidKeys();
+  addUnusedKeys();
 };
 
-var removeInvalidKeysFromBuckets = function (buckets) {
-  buckets.forEach((bucket, i) => {
-    buckets[i] = bucket.filter(key => keyIsValid(key));
+var removeInvalidKeys = function () {
+  Object.keys(state.guessRecords).forEach(key => {
+    if (!people.hasOwnProperty(key)) {
+      delete state.guessRecords[key];
+    }
   });
 };
 
-var setOfAllBucketedKeys = function() {
-  var bucketedKeys = {};
-  state.seenBuckets.forEach(bucket =>
-    bucket.forEach(key => bucketedKeys[key] = true)
-  );
-  state.currentBuckets.forEach(bucket =>
-    bucket.forEach(key => bucketedKeys[key] = true)
-  );
-  return bucketedKeys;
-};
+var addUnusedKeys = function () {
+  Object.keys(people).forEach(key => {
+    if (!state.guessRecords.hasOwnProperty(key)) {
+      state.guessRecords[key] = {
+        key,
+        guesses: []
+      };
+    }
+  });
+}
 
 /// post-load setup ///
 
 loadStoredState();
 syncStateWithPeople();
-setCurrentItemToRandomValidItem();
+updateCurrentItem();
 GameState.addListener(storeState);
+window.state = state;
