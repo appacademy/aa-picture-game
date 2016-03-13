@@ -19878,6 +19878,12 @@
 	    Dispatcher.dispatch({
 	      actionType: "NEXT_ITEM"
 	    });
+	  },
+	  setItem: function setItem(key) {
+	    Dispatcher.dispatch({
+	      actionType: "SET_ITEM",
+	      key: key
+	    });
 	  }
 	};
 	
@@ -20479,12 +20485,18 @@
 	'use strict';
 	
 	var React = __webpack_require__(1);
+	var guessActions = __webpack_require__(164);
 	var people = __webpack_require__(194);
 	
 	var ProgressBar = React.createClass({
 	  displayName: 'ProgressBar',
 	
+	  onClick: function onClick(key) {
+	    guessActions.setItem(key);
+	  },
 	  render: function render() {
+	    var _this = this;
+	
 	    var scores = this.props.scores;
 	    return React.createElement(
 	      'figure',
@@ -20496,7 +20508,8 @@
 	          var className = 'progress-square score-' + scores[key];
 	          return React.createElement(
 	            'div',
-	            { className: className, key: key },
+	            { className: className, key: key,
+	              onClick: _this.onClick.bind(_this, key) },
 	            React.createElement('img', { src: people[key].imageUrl })
 	          );
 	        })
@@ -20547,6 +20560,9 @@
 	    case "NEXT_ITEM":
 	      advanceItem();
 	      break;
+	    case "SET_ITEM":
+	      setCurrentItem(payload.key);
+	      break;
 	  }
 	};
 	
@@ -20576,6 +20592,11 @@
 	  });
 	
 	  return totals;
+	};
+	
+	var setCurrentItem = function setCurrentItem(key) {
+	  state.currentKey = key;
+	  GameState.__emitChange();
 	};
 	
 	var makeGuess = function makeGuess(answer) {

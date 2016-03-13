@@ -32,6 +32,9 @@ GameState.__onDispatch = function (payload) {
     case "NEXT_ITEM":
       advanceItem();
       break;
+    case "SET_ITEM":
+      setCurrentItem(payload.key);
+      break;
   }
 };
 
@@ -61,6 +64,11 @@ GameState.getScores = function () {
   });
 
   return totals;
+};
+
+var setCurrentItem = function(key) {
+  state.currentKey = key;
+  GameState.__emitChange();
 };
 
 var makeGuess = function (answer) {

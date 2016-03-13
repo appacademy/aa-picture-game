@@ -11,6 +11,12 @@ var guessActions = {
     Dispatcher.dispatch({
       actionType: "NEXT_ITEM"
     });
+  },
+  setItem: function (key) {
+    Dispatcher.dispatch({
+      actionType: "SET_ITEM",
+      key: key
+    });
   }
 };
 
