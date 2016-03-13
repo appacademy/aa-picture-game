@@ -470,6 +470,18 @@ h1 {
   display: block;
 }
 
+.centered {
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.clearfix:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
 .frame {
   position: relative;
   height: 47px;
@@ -496,9 +508,10 @@ h1 {
 }
 
 .game-zone {
+  float: left;
   width: 400px;
   height: 400px;
-  margin: 50px auto;
+  margin: 20px auto;
   background: #5B99C3;
   padding: 30px 20px 150px 20px;
   border-radius: 5px;
@@ -526,76 +539,74 @@ h1 {
   color: green;
 }
 
-.progress-square {
-  width: 20px;
-  height: 20px;
-  float: left;
-  border: 1px solid black;
-}
-
 .progress-square.score--5 {
-  background: #ff0000;
+  background-color: #ff0000;
 }
 
 .progress-square.score--4 {
-  background: #ff3300;
+  background-color: #ff3300;
 }
 
 .progress-square.score--3 {
-  background: #ff6600;
+  background-color: #ff6600;
 }
 
 .progress-square.score--2 {
-  background: #ff9900;
+  background-color: #ff9900;
 }
 
 .progress-square.score--1 {
-  background: #ffcc00;
+  background-color: #ffcc00;
 }
 
 .progress-square.score-0 {
-  background: #ffff00;
+  background-color: #ffff00;
 }
 
 .progress-square.score-1 {
-  background: #ccff00;
+  background-color: #ccff00;
 }
 
 .progress-square.score-2 {
-  background: #99ff00;
+  background-color: #99ff00;
 }
 
 .progress-square.score-3 {
-  background: #66ff00;
+  background-color: #66ff00;
 }
 
 .progress-square.score-4 {
-  background: #33ff00;
+  background-color: #33ff00;
 }
 
 .progress-square.score-5 {
-  background: #00ff00;
+  background-color: #00ff00;
+}
+
+.progress-square {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  float: left;
+  border: 1px solid;
+  border-color: #444 #222 #222 #444;
 }
 
 .progress-bar {
-  /* border: 1px solid black; */
-  height: 30px;
-  position: relative;
-  top: 100px;
-  left: 150px;
-  width: 200px;
+  float: left;
+  width: 100px;
+  padding: 0;
+  margin: 20px;
 }
 
-@media screen and (max-width: 1200px){
+@media screen and (max-width: 800px) {
   .progress-bar {
-    position: absolute;
-    left: 30%;
-    top: 100px;
-    margin-bottom: 20px;
-}
+    float: none;
+    width: 420px;
+    margin: 20px auto;
+  }
 
-.game-zone {
-  position: relative;
-  top: 200px;
-}
+  .game-zone {
+    float: none;
+  }
 }

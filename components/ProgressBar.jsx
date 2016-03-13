@@ -4,7 +4,7 @@ var ProgressBar = React.createClass({
   render: function () {
     var scores = this.props.scores
     return (
-      <figure className="progress-bar">
+      <figure className="progress-bar clearfix">
         {
           Object.keys(scores).map(key => {
             var className = `progress-square score-${scores[key]}`

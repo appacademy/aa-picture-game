@@ -39,16 +39,17 @@ var PictureGame = React.createClass({
           </div>
           <h1>The Picture Game</h1>
         </header>
-        <ProgressBar scores={this.state.scores}/>
-
-        <div className="game-zone">
-          <Picture src={this.state.person.imageUrl} />
-          <Message status={this.state.status}
-            currentName={this.currentName()}
-            currentOcup={GameStateStore.currentItem().occup}/>
-          <Controls
-            status={this.state.status}
-            nextPicture={this.nextPicture}/>
+        <div className="clearfix centered">
+          <section className="game-zone">
+            <Picture src={this.state.person.imageUrl} />
+            <Message status={this.state.status}
+              currentName={this.currentName()}
+              currentOcup={GameStateStore.currentItem().occup}/>
+            <Controls
+              status={this.state.status}
+              nextPicture={this.nextPicture}/>
+          </section>
+          <ProgressBar scores={this.state.scores}/>
         </div>
       </div>
     );
