@@ -584,25 +584,38 @@ h1 {
 }
 
 .progress-square {
-  box-sizing: border-box;
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
   float: left;
-  border: 1px solid;
-  border-color: #444 #222 #222 #444;
+  overflow-y: hidden;
+}
+
+.progress-square img {
+  width: 100%;
+  height: auto;
+  opacity: 0.4;
 }
 
 .progress-bar {
   float: left;
-  width: 100px;
-  padding: 0;
+  width: 131px;
   margin: 20px;
+  padding: 20px;
+  background: #5B99C3;
+  border-radius: 5px;
+}
+
+.progress-bar .container {
+  overflow: hidden;
+  padding: 1px;
+  background-color: white;
+  border: 2px solid #7A8295;
 }
 
 @media screen and (max-width: 800px) {
   .progress-bar {
     float: none;
-    width: 420px;
+    width: 406px;
     margin: 20px auto;
   }
 
