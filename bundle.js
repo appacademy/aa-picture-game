@@ -19678,7 +19678,7 @@
 	      status: "guessing",
 	      nextPicture: false,
 	      person: GameStateStore.currentItem(),
-	      bucketSizes: GameStateStore.bucketSizes()
+	      scores: GameStateStore.getScores()
 	    };
 	  },
 	  componentDidMount: function componentDidMount() {
@@ -19689,7 +19689,7 @@
 	      person: GameStateStore.currentItem(),
 	      status: GameStateStore.status(),
 	      nextPicture: false,
-	      bucketSizes: GameStateStore.bucketSizes()
+	      scores: GameStateStore.getScores()
 	    });
 	  },
 	  currentName: function currentName() {
@@ -19713,17 +19713,21 @@
 	          'The Picture Game'
 	        )
 	      ),
-	      React.createElement(ProgressBar, { bucketSizes: this.state.bucketSizes }),
 	      React.createElement(
 	        'div',
-	        { className: 'game-zone' },
-	        React.createElement(Picture, { src: this.state.person.imageUrl }),
-	        React.createElement(Message, { status: this.state.status,
-	          currentName: this.currentName(),
-	          currentOcup: GameStateStore.currentItem().occup }),
-	        React.createElement(Controls, {
-	          status: this.state.status,
-	          nextPicture: this.nextPicture })
+	        { className: 'clearfix centered' },
+	        React.createElement(
+	          'section',
+	          { className: 'game-zone' },
+	          React.createElement(Picture, { src: this.state.person.imageUrl }),
+	          React.createElement(Message, { status: this.state.status,
+	            currentName: this.currentName(),
+	            currentOcup: GameStateStore.currentItem().occup }),
+	          React.createElement(Controls, {
+	            status: this.state.status,
+	            nextPicture: this.nextPicture })
+	        ),
+	        React.createElement(ProgressBar, { scores: this.state.scores })
 	      )
 	    );
 	  }
@@ -20472,40 +20476,31 @@
 /* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	var React = __webpack_require__(1);
+	var people = __webpack_require__(194);
 	
 	var ProgressBar = React.createClass({
-	  displayName: "ProgressBar",
+	  displayName: 'ProgressBar',
 	
 	  render: function render() {
+	    var scores = this.props.scores;
 	    return React.createElement(
-	      "div",
-	      { className: "progress-bar" },
-	      this.props.bucketSizes.map(function (bucketSize, idx) {
-	        var bucketSquares = [];
-	        var status;
-	        for (var i = 0; i < bucketSize; i++) {
-	          switch (idx) {
-	            case 0:
-	              status = "incorrect";
-	              break;
-	            case 1:
-	              status = "close";
-	              break;
-	            case 2:
-	              status = "correct";
-	              break;
-	          }
-	          bucketSquares.push(React.createElement("div", { className: "bucket-square " + status, key: i }));
-	        }
-	        return React.createElement(
-	          "div",
-	          { className: "bucket-size-container", key: idx },
-	          bucketSquares
-	        );
-	      })
+	      'figure',
+	      { className: 'progress-bar clearfix' },
+	      React.createElement(
+	        'div',
+	        { className: 'container' },
+	        Object.keys(scores).map(function (key) {
+	          var className = 'progress-square score-' + scores[key];
+	          return React.createElement(
+	            'div',
+	            { className: className, key: key },
+	            React.createElement('img', { src: people[key].imageUrl })
+	          );
+	        })
+	      )
 	    );
 	  }
 	});
@@ -20526,44 +20521,28 @@
 	
 	var people = __webpack_require__(194);
 	
-	/* * * How Buckets Work * * *
-	 * Buckets store keys to the people object.
-	 * There are 3 buckets: don't-know, learning, and already-know.
-	 * There are 2 sets of buckets: "seen" and "current" (unseen)
-	 * When keys are moved from current to seen:
-	 * - They are moved up one bucket when you get them right.
-	 * - They are moved back one bucket when you get them wrong.
-	 * - They aren't moved when you get them kinda right.
-	 * When a bucket is empty, you advance to the next bucket.
-	 * When all current buckets are empty, buckets are replenished from
-	 *  their corresponding seen buckets, but the don't-know bucket is
-	 *  replenished more frequently than the learning bucket, and the
-	 *  learning bucket is replenished more frequently than the already-know
-	 *  bucket
-	 * * */
+	// scoring params
+	
+	var RESHOW_PENALTHY_THRESHOLD = 10;
+	var GUESSES_TO_KEEP = 5;
+	
+	// state
 	
 	var cycle = "mar16";
 	var localStorageKey = "faceGameState-" + cycle;
 	var state = {
-	  turn: 1,
+	  turn: 0,
 	  status: "guessing",
-	  remedialGuess: false, // you must get it right before moving on
-	  seenBuckets: [[], [], []],
-	  currentBuckets: [Object.keys(people), [], []],
-	  currentBucketIdx: 0,
-	  currentKeyIdx: 0,
+	  remedialGuess: false,
+	  guessesByKey: {},
 	  currentKey: undefined,
 	  timestamp: Date.now()
-	};
-	
-	var currentBucket = function currentBucket() {
-	  return state.currentBuckets[state.currentBucketIdx];
 	};
 	
 	GameState.__onDispatch = function (payload) {
 	  switch (payload.actionType) {
 	    case "GUESS_ADDED":
-	      addGuess(payload.guess);
+	      makeGuess(payload.guess);
 	      break;
 	    case "NEXT_ITEM":
 	      advanceItem();
@@ -20579,100 +20558,134 @@
 	  return state.status;
 	};
 	
-	GameState.bucketSizes = function () {
-	  return state.currentBuckets.map(function (bucket, idx) {
-	    return bucket.length + state.seenBuckets[idx].length;
+	GameState.getScores = function () {
+	  var totals = {};
+	
+	  Object.keys(state.guessesByKey).forEach(function (key) {
+	    var sum = 0;
+	
+	    state.guessesByKey[key].forEach(function (guess) {
+	      if (guess.status === "correct") {
+	        sum += 1;
+	      } else if (guess.status === "incorrect") {
+	        sum -= 1;
+	      }
+	    });
+	
+	    totals[key] = sum;
 	  });
+	
+	  return totals;
 	};
 	
-	var addGuess = function addGuess(answer) {
+	var makeGuess = function makeGuess(answer) {
 	  var guess = FuzzySet([GameState.currentItem().name.toLowerCase()]).get(answer);
 	
-	  var bucketIdx = state.currentBucketIdx;
-	
 	  if (guess === null) {
-	    state.remedialGuess = true;
 	    state.status = "incorrect";
-	    GameState.__emitChange();
-	    return;
-	  }
-	
-	  if (guess[0][1] === answer.toLowerCase()) {
-	    if (!state.remedialGuess && state.currentBucketIdx !== 2) {
-	      bucketIdx += 1;
-	    }
+	  } else if (guess[0][1] === answer.toLowerCase()) {
 	    state.status = "correct";
 	  } else {
 	    state.status = "close";
 	  }
 	
-	  if (state.remedialGuess && state.currentBucketIdx !== 0) {
-	    bucketIdx -= 1;
+	  if (!state.remedialGuess) {
+	    addGuess();
 	  }
-	  state.remedialGuess = false;
 	
-	  currentBucket().splice(state.currentKeyIdx, 1)[0];
-	  state.seenBuckets[bucketIdx].push(state.currentKey);
+	  if (state.status === "incorrect") {
+	    state.remedialGuess = true;
+	  } else {
+	    state.remedialGuess = false;
+	  }
 	
 	  GameState.__emitChange();
+	};
+	
+	var addGuess = function addGuess() {
+	  var guesses = state.guessesByKey[state.currentKey];
+	  guesses.push({
+	    turn: state.turn,
+	    status: state.status
+	  });
+	  while (guesses.length > GUESSES_TO_KEEP) {
+	    guesses.shift();
+	  }
 	};
 	
 	var advanceItem = function advanceItem() {
-	  //Advance to next non-empty bucket
-	  while (currentBucket().length === 0) {
-	    advanceBucket();
-	  }
-	
 	  state.status = "guessing";
-	  if (!state.remedialGuess) setCurrentItemToRandomValidItem();
+	  if (!state.remedialGuess) {
+	    updateCurrentItem();
+	    state.turn += 1;
+	  }
 	
 	  GameState.__emitChange();
 	};
 	
-	var setCurrentItemToRandomValidItem = function setCurrentItemToRandomValidItem() {
-	  randomizeCurrentKey();
+	var updateCurrentItem = function updateCurrentItem() {
+	  chooseBestKey();
 	
 	  while (!keyIsValid(state.currentKey)) {
-	    currentBucket().splice(state.currentKeyIdx, 1);
-	    randomizeCurrentKey();
+	    delete state.guessesByKey[state.currentKey];
+	    chooseBestKey();
 	  }
 	};
 	
-	var randomizeCurrentKey = function randomizeCurrentKey() {
-	  randomizeCurrentKeyIndex();
-	  state.currentKey = currentBucket()[state.currentKeyIdx];
-	};
+	var chooseBestKey = function chooseBestKey() {
+	  var bestKey,
+	      bestScore = -1;
+	  Object.keys(state.guessesByKey).forEach(function (key) {
+	    var score = scoreItem(state.guessesByKey[key]);
+	    if (score > bestScore) {
+	      bestKey = key;
+	      bestScore = score;
+	    }
+	  });
 	
-	var randomizeCurrentKeyIndex = function randomizeCurrentKeyIndex() {
-	  state.currentKeyIdx = Math.floor(Math.random() * currentBucket().length);
+	  state.currentKey = bestKey;
 	};
 	
 	var keyIsValid = function keyIsValid(key) {
 	  return people.hasOwnProperty(key);
 	};
 	
-	var advanceBucket = function advanceBucket() {
-	  state.currentBucketIdx += 1;
+	var scoreItem = function scoreItem(guesses) {
+	  if (guesses.length === 0) return 0.4 + 0.2 * Math.random();
 	
-	  if (currentBucketsShouldReplenish()) {
-	    state.currentBuckets.forEach(function (bucket, idx) {
-	      state.currentBuckets[idx] = bucket.concat(state.seenBuckets[idx]);
-	      state.seenBuckets[idx] = [];
-	    });
+	  var recentIncorrect = 0,
+	      correct = 0;
+	  var totalRecords = Object.keys(state.guessesByKey).length;
 	
-	    state.currentBucketIdx = 0;
-	    state.turn += 1;
+	  guesses.forEach(function (guess, i) {
+	    var weight = 1 - (state.turn - guess.turn) / totalRecords;
+	    switch (guess.status) {
+	      case "correct":
+	        correct += 1;
+	        break;
+	      case "incorrect":
+	        recentIncorrect += weight;
+	        break;
+	      case "close":
+	        correct += 0.5;
+	        recentIncorrect += 0.5 * weight;
+	        break;
+	    }
+	  });
+	
+	  correct = correct / GUESSES_TO_KEEP;
+	  recentIncorrect = Math.max(Math.min(recentIncorrect, 1), 0);
+	  var lastTurn = guesses[guesses.length - 1].turn;
+	  var turnsSince = state.turn - lastTurn;
+	
+	  var score = 0.4 * recentIncorrect + 0.3 * (1 - correct) + 0.2 * Math.random() + 0.1 * turnsSince / totalRecords;
+	  score = Math.min(1, score);
+	
+	  if (turnsSince < RESHOW_PENALTHY_THRESHOLD) {
+	    score *= turnsSince / RESHOW_PENALTHY_THRESHOLD;
 	  }
-	};
 	
-	var currentBucketsShouldReplenish = function currentBucketsShouldReplenish() {
-	  // modulo against the index of the bucket so that the first bucket is
-	  // always replenished, the second is replenished every other time, and
-	  // the third is replenished every third time.
-	  var itsTheRightTurn = state.turn % (state.currentBucketIdx + 1) !== 0;
-	  var allBucketsSeen = state.currentBucketIdx >= state.currentBuckets.length;
-	
-	  return itsTheRightTurn || allBucketsSeen;
+	  return score;
 	};
 	
 	/// localStorage persistence ///
@@ -20722,44 +20735,31 @@
 	};
 	
 	var syncStateWithPeople = function syncStateWithPeople() {
-	  removeInvalidKeysFromBuckets(state.seenBuckets);
-	  removeInvalidKeysFromBuckets(state.currentBuckets);
-	
-	  var usedKeys = setOfAllBucketedKeys();
-	  var unusedKeys = Object.keys(people).filter(function (key) {
-	    return !usedKeys.hasOwnProperty(key);
-	  });
-	  state.currentBuckets[0] = state.currentBuckets[0].concat(unusedKeys);
+	  removeInvalidKeys();
+	  addUnusedKeys();
 	};
 	
-	var removeInvalidKeysFromBuckets = function removeInvalidKeysFromBuckets(buckets) {
-	  buckets.forEach(function (bucket, i) {
-	    buckets[i] = bucket.filter(function (key) {
-	      return keyIsValid(key);
-	    });
+	var removeInvalidKeys = function removeInvalidKeys() {
+	  Object.keys(state.guessesByKey).forEach(function (key) {
+	    if (!people.hasOwnProperty(key)) {
+	      delete state.guessesByKey[key];
+	    }
 	  });
 	};
 	
-	var setOfAllBucketedKeys = function setOfAllBucketedKeys() {
-	  var bucketedKeys = {};
-	  state.seenBuckets.forEach(function (bucket) {
-	    return bucket.forEach(function (key) {
-	      return bucketedKeys[key] = true;
-	    });
+	var addUnusedKeys = function addUnusedKeys() {
+	  Object.keys(people).forEach(function (key) {
+	    if (!state.guessesByKey.hasOwnProperty(key)) {
+	      state.guessesByKey[key] = [];
+	    }
 	  });
-	  state.currentBuckets.forEach(function (bucket) {
-	    return bucket.forEach(function (key) {
-	      return bucketedKeys[key] = true;
-	    });
-	  });
-	  return bucketedKeys;
 	};
 	
 	/// post-load setup ///
 	
 	loadStoredState();
 	syncStateWithPeople();
-	setCurrentItemToRandomValidItem();
+	updateCurrentItem();
 	GameState.addListener(storeState);
 
 /***/ },
@@ -27885,7 +27885,7 @@
 	  "occup": "TA"
 	}, {
 	  "id": 37,
-	  "name": "Asher King Abramon",
+	  "name": "Asher King Abramson",
 	  "imageUrl": "photos/asher.jpg",
 	  "occup": "instructor"
 	}, {
