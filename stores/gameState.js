@@ -68,6 +68,7 @@ GameState.getScores = function () {
 
 var setCurrentItem = function(key) {
   state.currentKey = key;
+  state.status = "guessing";
   state.remedialGuess = false;
   GameState.__emitChange();
 };
