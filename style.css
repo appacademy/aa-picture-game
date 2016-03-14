@@ -539,48 +539,69 @@ h1 {
   color: green;
 }
 
-.progress-square.score--5 {
-  background-color: #ff0000;
+.progress-square.score--5:before {
+  background-color: red;
+  opacity: 0.75;
 }
 
-.progress-square.score--4 {
-  background-color: #ff3300;
+.progress-square.score--4:before {
+  background-color: red;
+  opacity: 0.6;
 }
 
-.progress-square.score--3 {
-  background-color: #ff6600;
+.progress-square.score--3:before {
+  background-color: red;
+  opacity: 0.45;
 }
 
-.progress-square.score--2 {
-  background-color: #ff9900;
+.progress-square.score--2:before {
+  background-color: red;
+  opacity: 0.3;
 }
 
-.progress-square.score--1 {
-  background-color: #ffcc00;
+.progress-square.score--1:before {
+  background-color: red;
+  opacity: 0.15;
 }
 
-.progress-square.score-0 {
-  background-color: #ffff00;
+.progress-square.score-0:before {
+  background-color: none;
 }
 
-.progress-square.score-1 {
-  background-color: #ccff00;
+.progress-square.score-1:before {
+  background-color: green;
+  opacity: 0.15;
 }
 
-.progress-square.score-2 {
-  background-color: #99ff00;
+.progress-square.score-2:before {
+  background-color: green;
+  opacity: 0.3;
 }
 
-.progress-square.score-3 {
-  background-color: #66ff00;
+.progress-square.score-3:before {
+  background-color: green;
+  opacity: 0.45;
 }
 
-.progress-square.score-4 {
-  background-color: #33ff00;
+.progress-square.score-4:before {
+  background-color: green;
+  opacity: 0.6;
 }
 
-.progress-square.score-5 {
-  background-color: #00ff00;
+.progress-square.score-5:before {
+  background-color: green;
+  opacity: 0.75;
+}
+
+.progress-square:before {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
 }
 
 .progress-square.score-5:after {
@@ -591,6 +612,7 @@ h1 {
   position: absolute;
   bottom: 2px;
   right: 0px;
+  z-index: 2;
   background-image: url("checkmark.png");
   background-size: contain;
 }
@@ -606,7 +628,7 @@ h1 {
 .progress-square img {
   width: 100%;
   height: auto;
-  opacity: 0.4;
+  /*opacity: 0.4;*/
 }
 
 .progress-bar {
