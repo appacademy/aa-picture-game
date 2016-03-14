@@ -20,9 +20,9 @@ var state = {
   status: "guessing",
   remedialGuess: false,
   guessesByKey: {},
-  currentKey: undefined,
+  currentKey: null,
   timestamp: Date.now()
-}
+};
 
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
@@ -68,11 +68,13 @@ GameState.getScores = function () {
 
 var setCurrentItem = function(key) {
   state.currentKey = key;
+  state.remedialGuess = false;
   GameState.__emitChange();
 };
 
 var makeGuess = function (answer) {
-  var guess = FuzzySet([GameState.currentItem().name.toLowerCase()]).get(answer);
+  var correctAnswer = GameState.currentItem().name.toLowerCase();
+  var guess = FuzzySet([correctAnswer]).get(answer);
 
   if (guess === null) {
     state.status = "incorrect";
@@ -87,9 +89,9 @@ var makeGuess = function (answer) {
   }
 
   if (state.status === "incorrect") {
-    state.remedialGuess = true
+    state.remedialGuess = true;
   } else {
-    state.remedialGuess = false
+    state.remedialGuess = false;
   }
 
   GameState.__emitChange();
@@ -104,7 +106,7 @@ var addGuess = function () {
   while (guesses.length > GUESSES_TO_KEEP) {
     guesses.shift();
   }
-}
+};
 
 var advanceItem = function () {
   state.status = "guessing";
@@ -126,7 +128,7 @@ var updateCurrentItem = function () {
 };
 
 var chooseBestKey = function () {
-  var bestKey, bestScore = -1
+  var bestKey, bestScore = -1;
   Object.keys(state.guessesByKey).forEach(key => {
     var score = scoreItem(state.guessesByKey[key]);
     if (score > bestScore) {
@@ -146,19 +148,19 @@ var scoreItem = function (guesses) {
   if (guesses.length === 0) return 0.4 + 0.2 * Math.random();
 
   var recentIncorrect = 0, correct = 0;
-  var totalRecords = Object.keys(state.guessesByKey).length
+  var totalRecords = Object.keys(state.guessesByKey).length;
 
   guesses.forEach((guess, i) => {
     var weight = 1 - (state.turn - guess.turn) / totalRecords;
     switch(guess.status) {
       case "correct":
-        correct += 1
+        correct += 1;
         break;
       case "incorrect":
         recentIncorrect += weight;
         break;
       case "close":
-        correct += 0.5
+        correct += 0.5;
         recentIncorrect += 0.5 * weight;
         break;
     }
@@ -167,7 +169,7 @@ var scoreItem = function (guesses) {
   correct = correct / GUESSES_TO_KEEP;
   recentIncorrect = Math.max(Math.min(recentIncorrect, 1), 0);
   var lastTurn = guesses[guesses.length - 1].turn;
-  var turnsSince = state.turn - lastTurn
+  var turnsSince = state.turn - lastTurn;
 
   var score = 0.4 * recentIncorrect
             + 0.3 * (1 - correct)
@@ -224,7 +226,7 @@ var loadStoredState = function () {
     });
     state.remedialGuess = false; // always start false
   }
-}
+};
 
 var syncStateWithPeople = function () {
   removeInvalidKeys();
@@ -245,7 +247,7 @@ var addUnusedKeys = function () {
       state.guessesByKey[key] = [];
     }
   });
-}
+};
 
 /// post-load setup ///
 
