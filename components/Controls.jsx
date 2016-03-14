@@ -5,9 +5,9 @@ var GuessInput = require('./GuessInput');
 var Controls = React.createClass({
   render: function () {
     if (this.props.status === "guessing") {
-      var control = <GuessInput />
+      var control = <GuessInput />;
     } else {
-      control = <NextItemButton />
+      control = <NextItemButton />;
     }
     return (
       <div>
