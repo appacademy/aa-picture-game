@@ -202,6 +202,8 @@ var removeOldestStoredItem = function () {
 
   for (let i = 0; i < localStorage.length; i++) {
     let key = localStorage.key(i);
+    if (key.slice(0, 14) !== 'faceGameState-') { continue; }
+
     let timestamp = JSON.parse(localStorage.getItem(key)).timestamp || 0;
     if (!timestamp || timestamp < minTimestamp) {
       minTimestamp = timestamp;
