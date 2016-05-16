@@ -1,15 +1,10 @@
+/* eslint max-len:0 */
 module.exports = [
   {
     "id": 13,
     "name": "Jeff Fiddler",
     "imageUrl": "photos/jeff.jpg",
     "occup": "instructor"
-  },
-  {
-    "id": 22,
-    "name": "Haseeb Qureshi",
-    "imageUrl": "photos/haseeb.jpg",
-    "occup": "TA"
   },
   {
     "id": 23,
@@ -81,6 +76,24 @@ module.exports = [
     "id": 47,
     "name": "Claire Rogers",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/977/medium/Rogers.jpg?1446670488",
+    "occup": "TA"
+  },
+  {
+    "id": 55,
+    "name": "Quinn Leong",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/142/medium/Quinn_Leong.jpg?1457739857",
+    "occup": "TA"
+  },
+  {
+    "id": 56,
+    "name": "Samuel Winter",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/146/medium/Samuel_Winter.jpg?1457740367",
+    "occup": "TA"
+  },
+  {
+    "id": 57,
+    "name": "Gage Newman",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/171/medium/Gage_Newman.jpg?1457733683",
     "occup": "TA"
   }
 ];
