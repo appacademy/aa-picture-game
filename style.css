@@ -539,29 +539,24 @@ h1 {
   color: green;
 }
 
-.progress-square.score--5:before {
+.progress-square.score--4:before {
   background-color: red;
   opacity: 0.75;
 }
 
-.progress-square.score--4:before {
-  background-color: red;
-  opacity: 0.6;
-}
-
 .progress-square.score--3:before {
   background-color: red;
-  opacity: 0.45;
+  opacity: 0.56;
 }
 
 .progress-square.score--2:before {
   background-color: red;
-  opacity: 0.3;
+  opacity: 0.37;
 }
 
 .progress-square.score--1:before {
   background-color: red;
-  opacity: 0.15;
+  opacity: 0.18;
 }
 
 .progress-square.score-0:before {
@@ -570,25 +565,20 @@ h1 {
 
 .progress-square.score-1:before {
   background-color: green;
-  opacity: 0.15;
+  opacity: 0.18;
 }
 
 .progress-square.score-2:before {
   background-color: green;
-  opacity: 0.3;
+  opacity: 0.37;
 }
 
 .progress-square.score-3:before {
   background-color: green;
-  opacity: 0.45;
+  opacity: 0.56;
 }
 
 .progress-square.score-4:before {
-  background-color: green;
-  opacity: 0.6;
-}
-
-.progress-square.score-5:before {
   background-color: green;
   opacity: 0.75;
 }
@@ -604,7 +594,7 @@ h1 {
   z-index: 1;
 }
 
-.progress-square.score-5:after {
+.progress-square.score-4:after {
   content: "";
   display: block;
   height: 8px;

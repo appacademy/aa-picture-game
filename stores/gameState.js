@@ -9,7 +9,7 @@ var people = require('../data/people');
 // scoring params
 
 const RESHOW_PENALTHY_THRESHOLD = 10;
-const GUESSES_TO_KEEP = 5;
+const GUESSES_TO_KEEP = 4;
 
 // state
 
