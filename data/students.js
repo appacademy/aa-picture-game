@@ -98,7 +98,7 @@ module.exports = [
   },
   {
     "id": 1290,
-    "name": "Douglas Chenier",
+    "name": "Scott Chenier",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/290/medium/Douglas_Chenier.jpg?1463174057",
     "occup": "student"
   },
