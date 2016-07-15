@@ -95,5 +95,11 @@ module.exports = [
     "name": "Gage Newman",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/171/medium/Gage_Newman.jpg?1457733683",
     "occup": "TA"
+  },
+  {
+    "id": 62,
+    "name": "Shamayel Daoud",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/253/medium/Shamayel_Daoud.jpg?1463175237",
+    "occup": "TA"
   }
 ];
