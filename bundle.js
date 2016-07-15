@@ -20574,7 +20574,7 @@
 	/* eslint max-len:0 */
 	module.exports = [{
 	  "id": 1396,
-	  "name": "Aaron Campbell ",
+	  "name": "Aaron Campbell",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/396/medium/Campbell.jpg?1468537259",
 	  "occup": "student"
 	}, {
@@ -21074,7 +21074,7 @@
 	
 	// state
 	
-	var cycle = "may16";
+	var cycle = "july16";
 	var localStorageKey = "faceGameState-" + cycle;
 	var state = {
 	  turn: 0,
