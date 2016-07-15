@@ -20709,7 +20709,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 1349,
-	  "name": "ICHUNG LIN",
+	  "name": "Ichung Lin",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/349/medium/Lin.jpg?1468538535",
 	  "occup": "student"
 	}, {
@@ -20956,11 +20956,6 @@
 	  "id": 1377,
 	  "name": "Zhe Wang",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/377/medium/Wang_Z.jpg?1468540517",
-	  "occup": "student"
-	}, {
-	  "id": 1407,
-	  "name": "Torah Oglander",
-	  "imageUrl": "http://gravatar.com/avatar/5257451a27aad80487c06ec90c75ac7e?secure=false&size=300",
 	  "occup": "student"
 	}];
 
