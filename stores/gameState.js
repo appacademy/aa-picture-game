@@ -26,8 +26,11 @@ var state = {
 
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
-    case "GUESS_ADDED":
-      makeGuess(payload.guess);
+    case "FULL_NAME_GUESS_ADDED":
+      makeFullNameGuess(payload.guess);
+      break;
+    case "FIRST_NAME_GUESS_ADDED":
+      makeFirstNameGuess(payload.guess);
       break;
     case "NEXT_ITEM":
       advanceItem();
@@ -36,6 +39,54 @@ GameState.__onDispatch = function (payload) {
       setCurrentItem(payload.key);
       break;
   }
+};
+var makeFirstNameGuess = function (answer) {
+  var correctAnswer = GameState.currentItem().name.split(" ")[0].toLowerCase();
+  var guess = FuzzySet([correctAnswer]).get(answer);
+  if (guess === null) {
+    state.status = "incorrect";
+  } else if (guess[0][1] === answer.toLowerCase()) {
+    state.status = "correct";
+  } else {
+    state.status = "close";
+  }
+
+  if (!state.remedialGuess) {
+    addGuess();
+  }
+
+  if (state.status === "incorrect") {
+    state.remedialGuess = true;
+  } else {
+    state.remedialGuess = false;
+  }
+
+  GameState.__emitChange();
+};
+
+var makeFullNameGuess = function (answer) {
+  var correctAnswer = GameState.currentItem().name.toLowerCase();
+  var guess = FuzzySet([correctAnswer]).get(answer);
+
+  if (guess === null) {
+    state.status = "incorrect";
+  } else if (guess[0][1] === answer.toLowerCase()) {
+    state.status = "correct";
+  } else {
+    state.status = "close";
+  }
+
+  if (!state.remedialGuess) {
+    addGuess();
+  }
+
+  if (state.status === "incorrect") {
+    state.remedialGuess = true;
+  } else {
+    state.remedialGuess = false;
+  }
+
+  GameState.__emitChange();
 };
 
 GameState.currentItem = function () {
@@ -70,31 +121,6 @@ var setCurrentItem = function(key) {
   state.currentKey = key;
   state.status = "guessing";
   state.remedialGuess = false;
-  GameState.__emitChange();
-};
-
-var makeGuess = function (answer) {
-  var correctAnswer = GameState.currentItem().name.toLowerCase();
-  var guess = FuzzySet([correctAnswer]).get(answer);
-
-  if (guess === null) {
-    state.status = "incorrect";
-  } else if (guess[0][1] === answer.toLowerCase()) {
-    state.status = "correct";
-  } else {
-    state.status = "close";
-  }
-
-  if (!state.remedialGuess) {
-    addGuess();
-  }
-
-  if (state.status === "incorrect") {
-    state.remedialGuess = true;
-  } else {
-    state.remedialGuess = false;
-  }
-
   GameState.__emitChange();
 };
 

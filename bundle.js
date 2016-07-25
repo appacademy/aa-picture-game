@@ -19843,15 +19843,85 @@
 	var Controls = React.createClass({
 	  displayName: 'Controls',
 	
+	  getInitialState: function getInitialState() {
+	    return { gameType: 'Full Name', selectors: false };
+	  },
+	
+	  handleSelectors: function handleSelectors(e) {
+	    e.preventDefault();
+	    if (this.state.selectors) {
+	      this.setState({ selectors: false });
+	    } else {
+	      this.setState({ selectors: true });
+	    }
+	  },
+	
+	  handleFull: function handleFull(e) {
+	    e.preventDefault();
+	    this.setState({ gameType: "Full Name" });
+	    this.setState({ selectors: false });
+	  },
+	
+	  handleFirst: function handleFirst(e) {
+	    e.preventDefault();
+	    this.setState({ gameType: "First Name" });
+	    this.setState({ selectors: false });
+	  },
+	
+	  createSelectors: function createSelectors() {
+	    var type = void 0;
+	    if (this.state.gameType === "Full Name") {
+	      type = React.createElement(
+	        'div',
+	        null,
+	        React.createElement(
+	          'div',
+	          { className: 'game-type-selector', onClick: this.handleFirst, value: 'First-Name' },
+	          'First Name'
+	        )
+	      );
+	    } else if (this.state.gameType === "First Name") {
+	      type = React.createElement(
+	        'div',
+	        null,
+	        React.createElement(
+	          'div',
+	          { className: 'game-type-selector', onClick: this.handleFull, value: 'Full-Name' },
+	          'Full Name'
+	        )
+	      );
+	    }
+	    return type;
+	  },
+	
 	  render: function render() {
+	    // let selectors = (
+	    //   <div>
+	    //     <div className="game-type-selector"
+	    //       onClick={this.handleFirst} value="First-Name">First Name</div>
+	    //     <div className="game-type-selector"
+	    //       onClick={this.handleFull} value="Full-Name">Full Name</div>
+	    //   </div>
+	    //   );
+	
+	    var selectors = this.createSelectors();
+	
 	    if (this.props.status === "guessing") {
-	      var control = React.createElement(GuessInput, null);
+	      var control = React.createElement(GuessInput, { guessType: this.state.gameType });
 	    } else {
 	      control = React.createElement(NextItemButton, null);
 	    }
 	    return React.createElement(
 	      'div',
 	      null,
+	      React.createElement(
+	        'div',
+	        { onClick: this.handleSelectors,
+	          className: 'game-type' },
+	        'Guess Type: ',
+	        this.state.gameType
+	      ),
+	      this.state.selectors ? selectors : null,
 	      control
 	    );
 	  }
@@ -19900,12 +19970,20 @@
 	var Dispatcher = __webpack_require__(165);
 	
 	var guessActions = {
-	  addGuess: function addGuess(guess) {
+	  addFullNameGuess: function addFullNameGuess(guess) {
 	    Dispatcher.dispatch({
-	      actionType: "GUESS_ADDED",
+	      actionType: "FULL_NAME_GUESS_ADDED",
 	      guess: guess
 	    });
 	  },
+	
+	  addFirstNameGuess: function addFirstNameGuess(guess) {
+	    Dispatcher.dispatch({
+	      actionType: "FIRST_NAME_GUESS_ADDED",
+	      guess: guess
+	    });
+	  },
+	
 	  nextItem: function nextItem() {
 	    Dispatcher.dispatch({
 	      actionType: "NEXT_ITEM"
@@ -20253,13 +20331,20 @@
 	  displayName: 'GuessInput',
 	
 	  mixins: [LinkedStateMixin],
+	
 	  getInitialState: function getInitialState() {
 	    return { guess: '' };
 	  },
+	
 	  checkGuess: function checkGuess(e) {
 	    e.preventDefault();
-	    guessActions.addGuess(this.state.guess);
-	    this.setState({ guess: '' });
+	    if (this.props.guessType === "Full Name") {
+	      guessActions.addFullNameGuess(this.state.guess);
+	      this.setState({ guess: '' });
+	    } else if (this.props.guessType === "First Name") {
+	      guessActions.addFirstNameGuess(this.state.guess);
+	      this.setState({ guess: '' });
+	    }
 	  },
 	
 	  render: function render() {
@@ -21087,8 +21172,11 @@
 	
 	GameState.__onDispatch = function (payload) {
 	  switch (payload.actionType) {
-	    case "GUESS_ADDED":
-	      makeGuess(payload.guess);
+	    case "FULL_NAME_GUESS_ADDED":
+	      makeFullNameGuess(payload.guess);
+	      break;
+	    case "FIRST_NAME_GUESS_ADDED":
+	      makeFirstNameGuess(payload.guess);
 	      break;
 	    case "NEXT_ITEM":
 	      advanceItem();
@@ -21097,6 +21185,54 @@
 	      setCurrentItem(payload.key);
 	      break;
 	  }
+	};
+	var makeFirstNameGuess = function makeFirstNameGuess(answer) {
+	  var correctAnswer = GameState.currentItem().name.split(" ")[0].toLowerCase();
+	  var guess = FuzzySet([correctAnswer]).get(answer);
+	  if (guess === null) {
+	    state.status = "incorrect";
+	  } else if (guess[0][1] === answer.toLowerCase()) {
+	    state.status = "correct";
+	  } else {
+	    state.status = "close";
+	  }
+	
+	  if (!state.remedialGuess) {
+	    addGuess();
+	  }
+	
+	  if (state.status === "incorrect") {
+	    state.remedialGuess = true;
+	  } else {
+	    state.remedialGuess = false;
+	  }
+	
+	  GameState.__emitChange();
+	};
+	
+	var makeFullNameGuess = function makeFullNameGuess(answer) {
+	  var correctAnswer = GameState.currentItem().name.toLowerCase();
+	  var guess = FuzzySet([correctAnswer]).get(answer);
+	
+	  if (guess === null) {
+	    state.status = "incorrect";
+	  } else if (guess[0][1] === answer.toLowerCase()) {
+	    state.status = "correct";
+	  } else {
+	    state.status = "close";
+	  }
+	
+	  if (!state.remedialGuess) {
+	    addGuess();
+	  }
+	
+	  if (state.status === "incorrect") {
+	    state.remedialGuess = true;
+	  } else {
+	    state.remedialGuess = false;
+	  }
+	
+	  GameState.__emitChange();
 	};
 	
 	GameState.currentItem = function () {
@@ -21131,31 +21267,6 @@
 	  state.currentKey = key;
 	  state.status = "guessing";
 	  state.remedialGuess = false;
-	  GameState.__emitChange();
-	};
-	
-	var makeGuess = function makeGuess(answer) {
-	  var correctAnswer = GameState.currentItem().name.toLowerCase();
-	  var guess = FuzzySet([correctAnswer]).get(answer);
-	
-	  if (guess === null) {
-	    state.status = "incorrect";
-	  } else if (guess[0][1] === answer.toLowerCase()) {
-	    state.status = "correct";
-	  } else {
-	    state.status = "close";
-	  }
-	
-	  if (!state.remedialGuess) {
-	    addGuess();
-	  }
-	
-	  if (state.status === "incorrect") {
-	    state.remedialGuess = true;
-	  } else {
-	    state.remedialGuess = false;
-	  }
-	
 	  GameState.__emitChange();
 	};
 	
