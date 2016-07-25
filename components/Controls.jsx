@@ -39,30 +39,26 @@ var Controls = React.createClass({
   },
 
   render: function () {
-    // let selectors = (
-    //   <div>
-    //     <div className="game-type-selector"
-    //       onClick={this.handleFirst} value="First-Name">First Name</div>
-    //     <div className="game-type-selector"
-    //       onClick={this.handleFull} value="Full-Name">Full Name</div>
-    //   </div>
-    //   );
-
     let selectors = this.createSelectors();
 
+    let control;
     if (this.props.status === "guessing") {
-      var control = <GuessInput guessType={this.state.gameType} />;
+      control = <GuessInput guessType={this.state.gameType} />;
     } else {
       control = <NextItemButton />;
     }
+
     return (
       <div>
-        <div onClick={this.handleSelectors}
-          className="game-type">Guess Type: {this.state.gameType}</div>
+        <div className="guess-block">
+          <div onClick={this.handleSelectors}
+            className="game-type">Guess Type: <p>{this.state.gameType}</p></div>
 
-        {this.state.selectors ? selectors : null }
+          {this.state.selectors ? selectors : null }
 
+        </div>
         {control}
+        
       </div>
     );
   }

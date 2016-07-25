@@ -19895,33 +19895,34 @@
 	  },
 	
 	  render: function render() {
-	    // let selectors = (
-	    //   <div>
-	    //     <div className="game-type-selector"
-	    //       onClick={this.handleFirst} value="First-Name">First Name</div>
-	    //     <div className="game-type-selector"
-	    //       onClick={this.handleFull} value="Full-Name">Full Name</div>
-	    //   </div>
-	    //   );
-	
 	    var selectors = this.createSelectors();
 	
+	    var control = void 0;
 	    if (this.props.status === "guessing") {
-	      var control = React.createElement(GuessInput, { guessType: this.state.gameType });
+	      control = React.createElement(GuessInput, { guessType: this.state.gameType });
 	    } else {
 	      control = React.createElement(NextItemButton, null);
 	    }
+	
 	    return React.createElement(
 	      'div',
 	      null,
 	      React.createElement(
 	        'div',
-	        { onClick: this.handleSelectors,
-	          className: 'game-type' },
-	        'Guess Type: ',
-	        this.state.gameType
+	        { className: 'guess-block' },
+	        React.createElement(
+	          'div',
+	          { onClick: this.handleSelectors,
+	            className: 'game-type' },
+	          'Guess Type: ',
+	          React.createElement(
+	            'p',
+	            null,
+	            this.state.gameType
+	          )
+	        ),
+	        this.state.selectors ? selectors : null
 	      ),
-	      this.state.selectors ? selectors : null,
 	      control
 	    );
 	  }
