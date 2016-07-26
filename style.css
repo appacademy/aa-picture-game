@@ -618,7 +618,6 @@ h1 {
 .progress-square img {
   width: 100%;
   height: auto;
-  /*opacity: 0.4;*/
 }
 
 .progress-bar {
@@ -649,15 +648,8 @@ h1 {
   }
 }
 
-/*div.guess-block {
-  border: 2px solid #737B8D;
-  border-radius: 5px;
-}*/
-
 div.guess-block {
   font-size: 18px;
-  /*color: #737B8D;*/
-  /*background: #737B8D;*/
 }
 
 div.guess-block p {
@@ -667,22 +659,16 @@ div.guess-block p {
 div.guess-block p:hover {
   cursor: pointer;
   /*background: #5488AB;*/
-  /*opacity: 0.75;*/
   font-weight: bold;
 }
 
 div.guess-block:hover {
   cursor: pointer;
-  background: #5488AB;
 }
 
-/*div.game-type:hover {
-  background: #5488AB;
-  opacity: 0.75;
-}*/
 div.game-type-selector {
   position: relative;
-  left: 53px;
+  left: 13%;
 }
 
 div.game-type-selector:hover {
