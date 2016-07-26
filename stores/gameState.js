@@ -24,6 +24,21 @@ var state = {
   timestamp: Date.now()
 };
 
+const _resetStoreState = function() {
+  state = {
+    turn: 0,
+    status: "guessing",
+    remedialGuess: false,
+    guessesByKey: {},
+    currentKey: null,
+    timestamp: Date.now()
+  };
+  loadStoredState();
+  syncStateWithPeople();
+  updateCurrentItem();
+  GameState.__emitChange();
+};
+
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
     case "FULL_NAME_GUESS_ADDED":
@@ -37,6 +52,9 @@ GameState.__onDispatch = function (payload) {
       break;
     case "SET_ITEM":
       setCurrentItem(payload.key);
+      break;
+    case "RESET_GAME_STATE":
+      _resetStoreState();
       break;
   }
 };

@@ -6,6 +6,11 @@ var ProgressBar = React.createClass({
   onClick: function(key) {
     guessActions.setItem(key);
   },
+  resetScores: function(e) {
+    e.preventDefault();
+    guessActions.resetGameState();
+  },
+
   render: function () {
     var scores = this.props.scores;
     return (
@@ -21,6 +26,8 @@ var ProgressBar = React.createClass({
             })
           }
         </div>
+        <span onClick={this.resetScores}
+          className="reset-button">Reset Scores</span>
       </figure>
     );
   }

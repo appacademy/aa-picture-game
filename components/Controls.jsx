@@ -1,3 +1,4 @@
+
 var React = require('react');
 var NextItemButton = require('./NextItemButton');
 var GuessInput = require('./GuessInput');
@@ -58,7 +59,7 @@ var Controls = React.createClass({
 
         </div>
         {control}
-        
+
       </div>
     );
   }

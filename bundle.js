@@ -19995,6 +19995,12 @@
 	      actionType: "SET_ITEM",
 	      key: key
 	    });
+	  },
+	
+	  resetGameState: function resetGameState() {
+	    Dispatcher.dispatch({
+	      actionType: "RESET_GAME_STATE"
+	    });
 	  }
 	};
 	
@@ -20612,6 +20618,11 @@
 	  onClick: function onClick(key) {
 	    guessActions.setItem(key);
 	  },
+	  resetScores: function resetScores(e) {
+	    e.preventDefault();
+	    guessActions.resetGameState();
+	  },
+	
 	  render: function render() {
 	    var _this = this;
 	
@@ -20631,6 +20642,12 @@
 	            React.createElement('img', { src: people[key].imageUrl })
 	          );
 	        })
+	      ),
+	      React.createElement(
+	        'span',
+	        { onClick: this.resetScores,
+	          className: 'reset-button' },
+	        'Reset Scores'
 	      )
 	    );
 	  }
@@ -21171,6 +21188,21 @@
 	  timestamp: Date.now()
 	};
 	
+	var _resetStoreState = function _resetStoreState() {
+	  state = {
+	    turn: 0,
+	    status: "guessing",
+	    remedialGuess: false,
+	    guessesByKey: {},
+	    currentKey: null,
+	    timestamp: Date.now()
+	  };
+	  loadStoredState();
+	  syncStateWithPeople();
+	  updateCurrentItem();
+	  GameState.__emitChange();
+	};
+	
 	GameState.__onDispatch = function (payload) {
 	  switch (payload.actionType) {
 	    case "FULL_NAME_GUESS_ADDED":
@@ -21184,6 +21216,9 @@
 	      break;
 	    case "SET_ITEM":
 	      setCurrentItem(payload.key);
+	      break;
+	    case "RESET_GAME_STATE":
+	      _resetStoreState();
 	      break;
 	  }
 	};
