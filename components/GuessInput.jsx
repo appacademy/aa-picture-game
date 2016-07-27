@@ -21,10 +21,18 @@ var GuessInput = React.createClass({
     this.setState({ guess: '' });
   },
 
+  clearErrors: function() {
+    this.setState({ errors: false });
+  },
+
+  componentWillReceiveProps: function() {
+    this.clearErrors();
+  },
+
   render: function () {
     let errors;
-    if(this.state.errors) {
-      errors = <p>{this.state.errors}</p>;
+    if(this.state.errors && this.props.guessType === "First Name") {
+      errors = <p className="first-name-error">{this.state.errors}</p>;
     }
 
     return (

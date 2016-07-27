@@ -674,3 +674,9 @@ div.game-type-selector {
 div.game-type-selector:hover {
   font-weight: bold;
 }
+
+p.first-name-error {
+  color: red;
+  font-size: 18px;
+  margin: 0px;
+}

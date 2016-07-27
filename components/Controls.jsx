@@ -58,7 +58,7 @@ var Controls = React.createClass({
 
         </div>
         {control}
-        
+
       </div>
     );
   }

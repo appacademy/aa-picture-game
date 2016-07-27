@@ -20343,12 +20343,20 @@
 	    this.setState({ guess: '' });
 	  },
 	
+	  clearErrors: function clearErrors() {
+	    this.setState({ errors: false });
+	  },
+	
+	  componentWillReceiveProps: function componentWillReceiveProps() {
+	    this.clearErrors();
+	  },
+	
 	  render: function render() {
 	    var errors = void 0;
-	    if (this.state.errors) {
+	    if (this.state.errors && this.props.guessType === "First Name") {
 	      errors = React.createElement(
 	        'p',
-	        null,
+	        { className: 'first-name-error' },
 	        this.state.errors
 	      );
 	    }
