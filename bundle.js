@@ -19971,16 +19971,10 @@
 	var Dispatcher = __webpack_require__(165);
 	
 	var guessActions = {
-	  addFullNameGuess: function addFullNameGuess(guess) {
+	  addGuess: function addGuess(guessType, guess) {
 	    Dispatcher.dispatch({
-	      actionType: "FULL_NAME_GUESS_ADDED",
-	      guess: guess
-	    });
-	  },
-	
-	  addFirstNameGuess: function addFirstNameGuess(guess) {
-	    Dispatcher.dispatch({
-	      actionType: "FIRST_NAME_GUESS_ADDED",
+	      actionType: "GUESS_ADDED",
+	      guessType: guessType,
 	      guess: guess
 	    });
 	  },
@@ -20339,16 +20333,26 @@
 	
 	  checkGuess: function checkGuess(e) {
 	    e.preventDefault();
-	    if (this.props.guessType === "Full Name") {
-	      guessActions.addFullNameGuess(this.state.guess);
-	      this.setState({ guess: '' });
-	    } else if (this.props.guessType === "First Name") {
-	      guessActions.addFirstNameGuess(this.state.guess);
-	      this.setState({ guess: '' });
+	    if (this.props.guessType === "First Name") {
+	      if (this.state.guess.split(" ").length > 1) {
+	        this.setState({ errors: "First name only" });
+	        return;
+	      }
 	    }
+	    guessActions.addGuess(this.props.guessType, this.state.guess);
+	    this.setState({ guess: '' });
 	  },
 	
 	  render: function render() {
+	    var errors = void 0;
+	    if (this.state.errors) {
+	      errors = React.createElement(
+	        'p',
+	        null,
+	        this.state.errors
+	      );
+	    }
+	
 	    return React.createElement(
 	      'form',
 	      { className: 'user-input', onSubmit: this.checkGuess },
@@ -20359,7 +20363,8 @@
 	          if (input != null) {
 	            input.focus();
 	          }
-	        } })
+	        } }),
+	      errors
 	    );
 	  }
 	});
@@ -21173,46 +21178,25 @@
 	
 	GameState.__onDispatch = function (payload) {
 	  switch (payload.actionType) {
-	    case "FULL_NAME_GUESS_ADDED":
-	      makeFullNameGuess(payload.guess);
-	      break;
-	    case "FIRST_NAME_GUESS_ADDED":
-	      makeFirstNameGuess(payload.guess);
-	      break;
 	    case "NEXT_ITEM":
 	      advanceItem();
 	      break;
 	    case "SET_ITEM":
 	      setCurrentItem(payload.key);
 	      break;
+	    case "GUESS_ADDED":
+	      makeGuess(payload.guessType, payload.guess);
+	      break;
 	  }
 	};
-	var makeFirstNameGuess = function makeFirstNameGuess(answer) {
-	  var correctAnswer = GameState.currentItem().name.split(" ")[0].toLowerCase();
-	  var guess = FuzzySet([correctAnswer]).get(answer);
-	  if (guess === null) {
-	    state.status = "incorrect";
-	  } else if (guess[0][1] === answer.toLowerCase()) {
-	    state.status = "correct";
-	  } else {
-	    state.status = "close";
+	
+	var makeGuess = function makeGuess(guessType, answer) {
+	  var correctAnswer;
+	  if (guessType === "Full Name") {
+	    correctAnswer = GameState.currentItem().name.toLowerCase();
+	  } else if (guessType === "First Name") {
+	    correctAnswer = GameState.currentItem().name.split(" ")[0].toLowerCase();
 	  }
-	
-	  if (!state.remedialGuess) {
-	    addGuess();
-	  }
-	
-	  if (state.status === "incorrect") {
-	    state.remedialGuess = true;
-	  } else {
-	    state.remedialGuess = false;
-	  }
-	
-	  GameState.__emitChange();
-	};
-	
-	var makeFullNameGuess = function makeFullNameGuess(answer) {
-	  var correctAnswer = GameState.currentItem().name.toLowerCase();
 	  var guess = FuzzySet([correctAnswer]).get(answer);
 	
 	  if (guess === null) {
