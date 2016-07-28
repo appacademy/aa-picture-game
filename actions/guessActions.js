@@ -1,16 +1,10 @@
 var Dispatcher = require('../dispatcher');
 
 var guessActions = {
-  addFullNameGuess: function (guess) {
+  addGuess: function(guessType, guess) {
     Dispatcher.dispatch({
-      actionType: "FULL_NAME_GUESS_ADDED",
-      guess: guess
-    });
-  },
-
-  addFirstNameGuess: function(guess) {
-    Dispatcher.dispatch({
-      actionType: "FIRST_NAME_GUESS_ADDED",
+      actionType: "GUESS_ADDED",
+      guessType: guessType,
       guess: guess
     });
   },

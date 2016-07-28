@@ -41,12 +41,6 @@ const _resetStoreState = function() {
 
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
-    case "FULL_NAME_GUESS_ADDED":
-      makeFullNameGuess(payload.guess);
-      break;
-    case "FIRST_NAME_GUESS_ADDED":
-      makeFirstNameGuess(payload.guess);
-      break;
     case "NEXT_ITEM":
       advanceItem();
       break;
@@ -56,34 +50,19 @@ GameState.__onDispatch = function (payload) {
     case "RESET_GAME_STATE":
       _resetStoreState();
       break;
+    case "GUESS_ADDED":
+      makeGuess(payload.guessType, payload.guess);
+      break;
   }
 };
-var makeFirstNameGuess = function (answer) {
-  var correctAnswer = GameState.currentItem().name.split(" ")[0].toLowerCase();
-  var guess = FuzzySet([correctAnswer]).get(answer);
-  if (guess === null) {
-    state.status = "incorrect";
-  } else if (guess[0][1] === answer.toLowerCase()) {
-    state.status = "correct";
-  } else {
-    state.status = "close";
+
+var makeGuess= function(guessType, answer) {
+  var correctAnswer;
+  if (guessType === "Full Name") {
+    correctAnswer = GameState.currentItem().name.toLowerCase();
+  } else if(guessType === "First Name") {
+    correctAnswer = GameState.currentItem().name.split(" ")[0].toLowerCase();
   }
-
-  if (!state.remedialGuess) {
-    addGuess();
-  }
-
-  if (state.status === "incorrect") {
-    state.remedialGuess = true;
-  } else {
-    state.remedialGuess = false;
-  }
-
-  GameState.__emitChange();
-};
-
-var makeFullNameGuess = function (answer) {
-  var correctAnswer = GameState.currentItem().name.toLowerCase();
   var guess = FuzzySet([correctAnswer]).get(answer);
 
   if (guess === null) {

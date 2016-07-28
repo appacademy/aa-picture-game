@@ -11,19 +11,32 @@ var GuessInput = React.createClass({
 
   checkGuess: function (e) {
     e.preventDefault();
-    if(this.props.guessType === "Full Name") {
-      guessActions.addFullNameGuess(this.state.guess);
-      this.setState({ guess: '' });
-    } else if(this.props.guessType === "First Name") {
-      guessActions.addFirstNameGuess(this.state.guess);
-      this.setState({ guess: '' });
+    if(this.props.guessType === "First Name") {
+      if(this.state.guess.split(" ").length > 1) {
+        this.setState({errors: "First name only"});
+        return;
+      }
     }
+    guessActions.addGuess(this.props.guessType, this.state.guess);
+    this.setState({ guess: '' });
+  },
+
+  clearErrors: function() {
+    this.setState({ errors: false });
+  },
+
+  componentWillReceiveProps: function() {
+    this.clearErrors();
   },
 
   render: function () {
+    let errors;
+    if(this.state.errors && this.props.guessType === "First Name") {
+      errors = <p className="first-name-error">{this.state.errors}</p>;
+    }
+
     return (
       <form className="user-input" onSubmit={this.checkGuess}>
-
 
           <input type="text"
             className="answer"
@@ -33,6 +46,8 @@ var GuessInput = React.createClass({
                 input.focus();
               }
             }}/>
+
+          { errors }
       </form>
     );
   }
