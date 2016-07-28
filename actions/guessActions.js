@@ -1,12 +1,14 @@
 var Dispatcher = require('../dispatcher');
 
 var guessActions = {
-  addGuess: function (guess) {
+  addGuess: function(guessType, guess) {
     Dispatcher.dispatch({
       actionType: "GUESS_ADDED",
+      guessType: guessType,
       guess: guess
     });
   },
+
   nextItem: function () {
     Dispatcher.dispatch({
       actionType: "NEXT_ITEM"

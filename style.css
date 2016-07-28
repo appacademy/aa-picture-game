@@ -618,7 +618,6 @@ h1 {
 .progress-square img {
   width: 100%;
   height: auto;
-  /*opacity: 0.4;*/
 }
 
 .progress-bar {
@@ -647,4 +646,37 @@ h1 {
   .game-zone {
     float: none;
   }
+}
+
+div.guess-block {
+  font-size: 18px;
+}
+
+div.guess-block p {
+  display: inline;
+}
+
+div.guess-block p:hover {
+  cursor: pointer;
+  /*background: #5488AB;*/
+  font-weight: bold;
+}
+
+div.guess-block:hover {
+  cursor: pointer;
+}
+
+div.game-type-selector {
+  position: relative;
+  left: 13%;
+}
+
+div.game-type-selector:hover {
+  font-weight: bold;
+}
+
+p.first-name-error {
+  color: red;
+  font-size: 18px;
+  margin: 0px;
 }
