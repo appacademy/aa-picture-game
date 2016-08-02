@@ -20631,6 +20631,7 @@
 	  onClick: function onClick(key) {
 	    guessActions.setItem(key);
 	  },
+	
 	  resetScores: function resetScores(e) {
 	    e.preventDefault();
 	    guessActions.resetGameState();
@@ -21210,7 +21211,7 @@
 	    currentKey: null,
 	    timestamp: Date.now()
 	  };
-	  loadStoredState();
+	  storeState();
 	  syncStateWithPeople();
 	  updateCurrentItem();
 	  GameState.__emitChange();

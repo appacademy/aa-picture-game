@@ -6,6 +6,7 @@ var ProgressBar = React.createClass({
   onClick: function(key) {
     guessActions.setItem(key);
   },
+
   resetScores: function(e) {
     e.preventDefault();
     guessActions.resetGameState();

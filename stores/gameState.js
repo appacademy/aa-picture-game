@@ -33,7 +33,7 @@ const _resetStoreState = function() {
     currentKey: null,
     timestamp: Date.now()
   };
-  loadStoredState();
+  storeState();
   syncStateWithPeople();
   updateCurrentItem();
   GameState.__emitChange();
