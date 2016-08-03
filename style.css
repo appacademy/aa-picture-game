@@ -680,3 +680,8 @@ p.first-name-error {
   font-size: 18px;
   margin: 0px;
 }
+
+span.reset-button:hover {
+  cursor: pointer;
+  font-weight: bold;
+}

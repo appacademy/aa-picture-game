@@ -19,6 +19,12 @@ var guessActions = {
       actionType: "SET_ITEM",
       key: key
     });
+  },
+
+  resetGameState: function() {
+    Dispatcher.dispatch({
+      actionType: "RESET_GAME_STATE"
+    });
   }
 };
 

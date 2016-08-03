@@ -24,6 +24,21 @@ var state = {
   timestamp: Date.now()
 };
 
+const _resetStoreState = function() {
+  state = {
+    turn: 0,
+    status: "guessing",
+    remedialGuess: false,
+    guessesByKey: {},
+    currentKey: null,
+    timestamp: Date.now()
+  };
+  storeState();
+  syncStateWithPeople();
+  updateCurrentItem();
+  GameState.__emitChange();
+};
+
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
     case "NEXT_ITEM":
@@ -31,6 +46,9 @@ GameState.__onDispatch = function (payload) {
       break;
     case "SET_ITEM":
       setCurrentItem(payload.key);
+      break;
+    case "RESET_GAME_STATE":
+      _resetStoreState();
       break;
     case "GUESS_ADDED":
       makeGuess(payload.guessType, payload.guess);
