@@ -19,12 +19,6 @@ module.exports = [
     "occup": "instructor"
   },
   {
-    "id": 30,
-    "name": "Max Schram",
-    "imageUrl": "photos/max.jpg",
-    "occup": "TA"
-  },
-  {
     "id": 34,
     "name": "Anthony Ladson",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/887/medium/anthony_ladson.jpg?1440628437",
@@ -100,6 +94,24 @@ module.exports = [
     "id": 62,
     "name": "Shamayel Daoud",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/253/medium/Shamayel_Daoud.jpg?1463175237",
+    "occup": "TA"
+  },
+  {
+    "id": 66,
+    "name": "Munyo Frey",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/410/medium/Munyo.jpg?1468538596",
+    "occup": "TA"
+  },
+  {
+    "id": 67,
+    "name": "Robert Koeze",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/374/medium/Koeze.jpg?1468540227",
+    "occup": "TA"
+  },
+  {
+    "id": 68,
+    "name": "Jennifer Georgevich",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/394/medium/Georgevich.jpg?1468538868",
     "occup": "TA"
   }
 ];
