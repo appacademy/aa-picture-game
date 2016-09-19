@@ -63,3 +63,4 @@ manually.
 
 1. Check in your changes.
 2. Push to Github.
+3. Email the cohort and let them know it's live!
