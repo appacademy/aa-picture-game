@@ -242,7 +242,7 @@ module.exports = [
   },
   {
     "id": 1493,
-    "name": "Jin  Kwon",
+    "name": "Jin Kwon",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/493/medium/Kwon.jpg?1474063176",
     "occup": "student"
   },
@@ -470,7 +470,7 @@ module.exports = [
   },
   {
     "id": 1558,
-    "name": "Winston  Zhao ",
+    "name": "Winston Zhao",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/558/medium/Zaho.jpg?1474064430",
     "occup": "student"
   },
