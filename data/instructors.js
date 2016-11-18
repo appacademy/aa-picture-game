@@ -25,18 +25,6 @@ module.exports = [
     "occup": "TA"
   },
   {
-    "id": 35,
-    "name": "Brooke Angel",
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/834/medium/brooke_angel.jpg?1440628466",
-    "occup": "TA"
-  },
-  {
-    "id": 36,
-    "name": "Mihir Jham",
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/835/medium/mihir_jham.jpg?1440628925",
-    "occup": "TA"
-  },
-  {
     "id": 37,
     "name": "Asher King Abramson",
     "imageUrl": "photos/asher.jpg",
@@ -112,6 +100,30 @@ module.exports = [
     "id": 68,
     "name": "Jennifer Georgevich",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/394/medium/Georgevich.jpg?1468538868",
+    "occup": "TA"
+  },
+  {
+    "id": 69,
+    "name": 'Debra Fong',
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/492/medium/Fong.jpg?1474062574",
+    "occup": "TA"
+  },
+  {
+    "id": 70,
+    "name": 'Kelly Chung',
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/387/medium/Chung.jpg?1468539222",
+    "occup": "TA"
+  },
+  {
+    "id": 71,
+    "name": 'Louis Cruz',
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/564/medium/Cruz.jpg?1474063391",
+    "occup": "TA"
+  },
+  {
+    "id": 73,
+    "name": 'Luke Wassink',
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/569/medium/Wassink.jpg?1474063438",
     "occup": "TA"
   }
 ];
