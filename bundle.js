@@ -212,103 +212,14 @@
 /***/ function(module, exports) {
 
 	// shim for using process in browser
+	
 	var process = module.exports = {};
-	
-	// cached from whatever global is present so that test runners that stub it
-	// don't break things.  But we need to wrap it in a try catch in case it is
-	// wrapped in strict mode code which doesn't define any globals.  It's inside a
-	// function because try/catches deoptimize in certain engines.
-	
-	var cachedSetTimeout;
-	var cachedClearTimeout;
-	
-	function defaultSetTimout() {
-	    throw new Error('setTimeout has not been defined');
-	}
-	function defaultClearTimeout () {
-	    throw new Error('clearTimeout has not been defined');
-	}
-	(function () {
-	    try {
-	        if (typeof setTimeout === 'function') {
-	            cachedSetTimeout = setTimeout;
-	        } else {
-	            cachedSetTimeout = defaultSetTimout;
-	        }
-	    } catch (e) {
-	        cachedSetTimeout = defaultSetTimout;
-	    }
-	    try {
-	        if (typeof clearTimeout === 'function') {
-	            cachedClearTimeout = clearTimeout;
-	        } else {
-	            cachedClearTimeout = defaultClearTimeout;
-	        }
-	    } catch (e) {
-	        cachedClearTimeout = defaultClearTimeout;
-	    }
-	} ())
-	function runTimeout(fun) {
-	    if (cachedSetTimeout === setTimeout) {
-	        //normal enviroments in sane situations
-	        return setTimeout(fun, 0);
-	    }
-	    // if setTimeout wasn't available but was latter defined
-	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-	        cachedSetTimeout = setTimeout;
-	        return setTimeout(fun, 0);
-	    }
-	    try {
-	        // when when somebody has screwed with setTimeout but no I.E. maddness
-	        return cachedSetTimeout(fun, 0);
-	    } catch(e){
-	        try {
-	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-	            return cachedSetTimeout.call(null, fun, 0);
-	        } catch(e){
-	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-	            return cachedSetTimeout.call(this, fun, 0);
-	        }
-	    }
-	
-	
-	}
-	function runClearTimeout(marker) {
-	    if (cachedClearTimeout === clearTimeout) {
-	        //normal enviroments in sane situations
-	        return clearTimeout(marker);
-	    }
-	    // if clearTimeout wasn't available but was latter defined
-	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-	        cachedClearTimeout = clearTimeout;
-	        return clearTimeout(marker);
-	    }
-	    try {
-	        // when when somebody has screwed with setTimeout but no I.E. maddness
-	        return cachedClearTimeout(marker);
-	    } catch (e){
-	        try {
-	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-	            return cachedClearTimeout.call(null, marker);
-	        } catch (e){
-	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-	            return cachedClearTimeout.call(this, marker);
-	        }
-	    }
-	
-	
-	
-	}
 	var queue = [];
 	var draining = false;
 	var currentQueue;
 	var queueIndex = -1;
 	
 	function cleanUpNextTick() {
-	    if (!draining || !currentQueue) {
-	        return;
-	    }
 	    draining = false;
 	    if (currentQueue.length) {
 	        queue = currentQueue.concat(queue);
@@ -324,7 +235,7 @@
 	    if (draining) {
 	        return;
 	    }
-	    var timeout = runTimeout(cleanUpNextTick);
+	    var timeout = setTimeout(cleanUpNextTick);
 	    draining = true;
 	
 	    var len = queue.length;
@@ -341,7 +252,7 @@
 	    }
 	    currentQueue = null;
 	    draining = false;
-	    runClearTimeout(timeout);
+	    clearTimeout(timeout);
 	}
 	
 	process.nextTick = function (fun) {
@@ -353,7 +264,7 @@
 	    }
 	    queue.push(new Item(fun, args));
 	    if (queue.length === 1 && !draining) {
-	        runTimeout(drainQueue);
+	        setTimeout(drainQueue, 0);
 	    }
 	};
 	
@@ -8043,10 +7954,6 @@
 	  }
 	};
 	
-	function registerNullComponentID() {
-	  ReactEmptyComponentRegistry.registerNullComponentID(this._rootNodeID);
-	}
-	
 	var ReactEmptyComponent = function (instantiate) {
 	  this._currentElement = null;
 	  this._rootNodeID = null;
@@ -8055,7 +7962,7 @@
 	assign(ReactEmptyComponent.prototype, {
 	  construct: function (element) {},
 	  mountComponent: function (rootID, transaction, context) {
-	    transaction.getReactMountReady().enqueue(registerNullComponentID, this);
+	    ReactEmptyComponentRegistry.registerNullComponentID(rootID);
 	    this._rootNodeID = rootID;
 	    return ReactReconciler.mountComponent(this._renderedComponent, rootID, transaction, context);
 	  },
@@ -18778,7 +18685,7 @@
 	
 	'use strict';
 	
-	module.exports = '0.14.8';
+	module.exports = '0.14.7';
 
 /***/ },
 /* 147 */
@@ -20921,11 +20828,6 @@
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/717/medium/Joel_Alvarado.jpg?1479425411",
 	  "occup": "student"
 	}, {
-	  "id": 1671,
-	  "name": "John Nguyen",
-	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/671/medium/John_Nguyen.jpg?1479425564",
-	  "occup": "student"
-	}, {
 	  "id": 1696,
 	  "name": "Joyce Chau",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/696/medium/Joyce_Chau.jpg?1479425572",
@@ -20993,7 +20895,7 @@
 	}, {
 	  "id": 1734,
 	  "name": "Matthew Rivera",
-	  "imageUrl": "http://gravatar.com/avatar/69ab4efb50afd9f4f355909ec8eadeb4?secure=false&size=300",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/734/medium/matthew_rivera.jpg?1480205835",
 	  "occup": "student"
 	}, {
 	  "id": 1678,
@@ -22616,7 +22518,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * Copyright (c) 2014-present, Facebook, Inc.
+	 * Copyright (c) 2014-2015, Facebook, Inc.
 	 * All rights reserved.
 	 *
 	 * This source code is licensed under the BSD-style license found in the
@@ -22625,8 +22527,7 @@
 	 */
 	
 	var fbemitter = {
-	  EventEmitter: __webpack_require__(188),
-	  EmitterSubscription : __webpack_require__(189)
+	  EventEmitter: __webpack_require__(188)
 	};
 	
 	module.exports = fbemitter;
@@ -22637,7 +22538,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright (c) 2014-present, Facebook, Inc.
+	 * Copyright (c) 2014-2015, Facebook, Inc.
 	 * All rights reserved.
 	 *
 	 * This source code is licensed under the BSD-style license found in the
@@ -22834,7 +22735,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
-	 * Copyright (c) 2014-present, Facebook, Inc.
+	 * Copyright (c) 2014-2015, Facebook, Inc.
 	 * All rights reserved.
 	 *
 	 * This source code is licensed under the BSD-style license found in the
@@ -22887,7 +22788,7 @@
 /***/ function(module, exports) {
 
 	/**
-	 * Copyright (c) 2014-present, Facebook, Inc.
+	 * Copyright (c) 2014-2015, Facebook, Inc.
 	 * All rights reserved.
 	 *
 	 * This source code is licensed under the BSD-style license found in the
@@ -22941,7 +22842,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright (c) 2014-present, Facebook, Inc.
+	 * Copyright (c) 2014-2015, Facebook, Inc.
 	 * All rights reserved.
 	 *
 	 * This source code is licensed under the BSD-style license found in the
@@ -23050,7 +22951,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright (c) 2013-present, Facebook, Inc.
+	 * Copyright 2013-2015, Facebook, Inc.
 	 * All rights reserved.
 	 *
 	 * This source code is licensed under the BSD-style license found in the
@@ -23104,18 +23005,17 @@
 /* 193 */
 /***/ function(module, exports) {
 
-	"use strict";
-	
 	/**
-	 * Copyright (c) 2013-present, Facebook, Inc.
+	 * Copyright 2013-2015, Facebook, Inc.
 	 * All rights reserved.
 	 *
 	 * This source code is licensed under the BSD-style license found in the
 	 * LICENSE file in the root directory of this source tree. An additional grant
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 *
-	 * 
 	 */
+	
+	"use strict";
 	
 	function makeEmptyFunction(arg) {
 	  return function () {
@@ -23128,7 +23028,7 @@
 	 * primarily useful idiomatically for overridable function endpoints which
 	 * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
 	 */
-	var emptyFunction = function emptyFunction() {};
+	function emptyFunction() {}
 	
 	emptyFunction.thatReturns = makeEmptyFunction;
 	emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
@@ -23186,7 +23086,7 @@
 	(function (global, factory) {
 	   true ? module.exports = factory() :
 	  typeof define === 'function' && define.amd ? define(factory) :
-	  (global.Immutable = factory());
+	  global.Immutable = factory();
 	}(this, function () { 'use strict';var SLICE$0 = Array.prototype.slice;
 	
 	  function createClass(ctor, superClass) {
@@ -24081,7 +23981,7 @@
 	      }
 	      return 'Range [ ' +
 	        this._start + '...' + this._end +
-	        (this._step !== 1 ? ' by ' + this._step : '') +
+	        (this._step > 1 ? ' by ' + this._step : '') +
 	      ' ]';
 	    };
 	
@@ -24213,9 +24113,6 @@
 	    }
 	    var type = typeof o;
 	    if (type === 'number') {
-	      if (o !== o || o === Infinity) {
-	        return 0;
-	      }
 	      var h = o | 0;
 	      if (h !== o) {
 	        h ^= o * 0xFFFFFFFF;
@@ -24400,17 +24297,6 @@
 	          iter.forEach(function(v, k)  {return map.set(k, v)});
 	        });
 	    }
-	
-	    Map.of = function() {var keyValues = SLICE$0.call(arguments, 0);
-	      return emptyMap().withMutations(function(map ) {
-	        for (var i = 0; i < keyValues.length; i += 2) {
-	          if (i + 1 >= keyValues.length) {
-	            throw new Error('Missing value for key: ' + keyValues[i]);
-	          }
-	          map.set(keyValues[i], keyValues[i + 1]);
-	        }
-	      });
-	    };
 	
 	    Map.prototype.toString = function() {
 	      return this.__toString('Map {', '}');
@@ -26324,11 +26210,7 @@
 	      begin = begin | 0;
 	    }
 	    if (end !== undefined) {
-	      if (end === Infinity) {
-	        end = originalSize;
-	      } else {
-	        end = end | 0;
-	      }
+	      end = end | 0;
 	    }
 	
 	    if (wholeSlice(begin, end, originalSize)) {
@@ -26864,12 +26746,6 @@
 	    Record.prototype.set = function(k, v) {
 	      if (!this.has(k)) {
 	        throw new Error('Cannot set unknown key "' + k + '" on ' + recordName(this));
-	      }
-	      if (this._map && !this._map.has(k)) {
-	        var defaultVal = this._defaultValues[k];
-	        if (v === defaultVal) {
-	          return this;
-	        }
 	      }
 	      var newMap = this._map && this._map.set(k, v);
 	      if (this.__ownerID || newMap === this._map) {
@@ -27554,6 +27430,21 @@
 	      return entry ? entry[1] : notSetValue;
 	    },
 	
+	    findEntry: function(predicate, context) {
+	      var found;
+	      this.__iterate(function(v, k, c)  {
+	        if (predicate.call(context, v, k, c)) {
+	          found = [k, v];
+	          return false;
+	        }
+	      });
+	      return found;
+	    },
+	
+	    findLastEntry: function(predicate, context) {
+	      return this.toSeq().reverse().findEntry(predicate, context);
+	    },
+	
 	    forEach: function(sideEffect, context) {
 	      assertNotInfinite(this.size);
 	      return this.__iterate(context ? sideEffect.bind(context) : sideEffect);
@@ -27664,32 +27555,8 @@
 	      return this.filter(not(predicate), context);
 	    },
 	
-	    findEntry: function(predicate, context, notSetValue) {
-	      var found = notSetValue;
-	      this.__iterate(function(v, k, c)  {
-	        if (predicate.call(context, v, k, c)) {
-	          found = [k, v];
-	          return false;
-	        }
-	      });
-	      return found;
-	    },
-	
-	    findKey: function(predicate, context) {
-	      var entry = this.findEntry(predicate, context);
-	      return entry && entry[0];
-	    },
-	
 	    findLast: function(predicate, context, notSetValue) {
 	      return this.toKeyedSeq().reverse().find(predicate, context, notSetValue);
-	    },
-	
-	    findLastEntry: function(predicate, context, notSetValue) {
-	      return this.toKeyedSeq().reverse().findEntry(predicate, context, notSetValue);
-	    },
-	
-	    findLastKey: function(predicate, context) {
-	      return this.toKeyedSeq().reverse().findKey(predicate, context);
 	    },
 	
 	    first: function() {
@@ -27750,20 +27617,12 @@
 	      return iter.isSubset(this);
 	    },
 	
-	    keyOf: function(searchValue) {
-	      return this.findKey(function(value ) {return is(value, searchValue)});
-	    },
-	
 	    keySeq: function() {
 	      return this.toSeq().map(keyMapper).toIndexedSeq();
 	    },
 	
 	    last: function() {
 	      return this.toSeq().reverse().first();
-	    },
-	
-	    lastKeyOf: function(searchValue) {
-	      return this.toKeyedSeq().reverse().keyOf(searchValue);
 	    },
 	
 	    max: function(comparator) {
@@ -27856,12 +27715,58 @@
 	  IterablePrototype.chain = IterablePrototype.flatMap;
 	  IterablePrototype.contains = IterablePrototype.includes;
 	
+	  // Temporary warning about using length
+	  (function () {
+	    try {
+	      Object.defineProperty(IterablePrototype, 'length', {
+	        get: function () {
+	          if (!Iterable.noLengthWarning) {
+	            var stack;
+	            try {
+	              throw new Error();
+	            } catch (error) {
+	              stack = error.stack;
+	            }
+	            if (stack.indexOf('_wrapObject') === -1) {
+	              console && console.warn && console.warn(
+	                'iterable.length has been deprecated, '+
+	                'use iterable.size or iterable.count(). '+
+	                'This warning will become a silent error in a future version. ' +
+	                stack
+	              );
+	              return this.size;
+	            }
+	          }
+	        }
+	      });
+	    } catch (e) {}
+	  })();
+	
+	
+	
 	  mixin(KeyedIterable, {
 	
 	    // ### More sequential methods
 	
 	    flip: function() {
 	      return reify(this, flipFactory(this));
+	    },
+	
+	    findKey: function(predicate, context) {
+	      var entry = this.findEntry(predicate, context);
+	      return entry && entry[0];
+	    },
+	
+	    findLastKey: function(predicate, context) {
+	      return this.toSeq().reverse().findKey(predicate, context);
+	    },
+	
+	    keyOf: function(searchValue) {
+	      return this.findKey(function(value ) {return is(value, searchValue)});
+	    },
+	
+	    lastKeyOf: function(searchValue) {
+	      return this.findLastKey(function(value ) {return is(value, searchValue)});
 	    },
 	
 	    mapEntries: function(mapper, context) {var this$0 = this;
@@ -27912,13 +27817,16 @@
 	    },
 	
 	    indexOf: function(searchValue) {
-	      var key = this.keyOf(searchValue);
+	      var key = this.toKeyedSeq().keyOf(searchValue);
 	      return key === undefined ? -1 : key;
 	    },
 	
 	    lastIndexOf: function(searchValue) {
-	      var key = this.lastKeyOf(searchValue);
+	      var key = this.toKeyedSeq().reverse().keyOf(searchValue);
 	      return key === undefined ? -1 : key;
+	
+	      // var index =
+	      // return this.toSeq().reverse().indexOf(searchValue);
 	    },
 	
 	    reverse: function() {
@@ -27952,8 +27860,8 @@
 	    // ### More collection methods
 	
 	    findLastIndex: function(predicate, context) {
-	      var entry = this.findLastEntry(predicate, context);
-	      return entry ? entry[0] : -1;
+	      var key = this.toKeyedSeq().findLastKey(predicate, context);
+	      return key === undefined ? -1 : key;
 	    },
 	
 	    first: function() {
@@ -27992,10 +27900,6 @@
 	        interleaved.size = zipped.size * iterables.length;
 	      }
 	      return reify(this, interleaved);
-	    },
-	
-	    keySeq: function() {
-	      return Range(0, this.size);
 	    },
 	
 	    last: function() {
@@ -28046,7 +27950,6 @@
 	  });
 	
 	  SetIterable.prototype.has = IterablePrototype.includes;
-	  SetIterable.prototype.contains = SetIterable.prototype.includes;
 	
 	
 	  // Mixin subclasses
@@ -28083,7 +27986,7 @@
 	  }
 	
 	  function quoteString(value) {
-	    return typeof value === 'string' ? JSON.stringify(value) : String(value);
+	    return typeof value === 'string' ? JSON.stringify(value) : value;
 	  }
 	
 	  function defaultZipper() {

@@ -205,12 +205,6 @@ module.exports = [
       "occup": "student"
     },
     {
-      "id": 1671,
-      "name": "John Nguyen",
-      "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/671/medium/John_Nguyen.jpg?1479425564",
-      "occup": "student"
-    },
-    {
       "id": 1696,
       "name": "Joyce Chau",
       "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/696/medium/Joyce_Chau.jpg?1479425572",
@@ -291,7 +285,7 @@ module.exports = [
     {
       "id": 1734,
       "name": "Matthew Rivera",
-      "imageUrl": "http://gravatar.com/avatar/69ab4efb50afd9f4f355909ec8eadeb4?secure=false&size=300",
+      "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/734/medium/matthew_rivera.jpg?1480205835",
       "occup": "student"
     },
     {
