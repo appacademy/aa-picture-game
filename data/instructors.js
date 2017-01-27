@@ -31,24 +31,6 @@ module.exports = [
     "occup": "instructor"
   },
   {
-    "id": 39,
-    "name": "Winnie Ngo",
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/972/medium/WinnieNgo.jpg?1446666478",
-    "occup": "TA"
-  },
-  {
-    "id": 41,
-    "name": "Ken Tran",
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/957/medium/Tran.jpg?1446679757",
-    "occup": "TA"
-  },
-  {
-    "id": 40,
-    "name": "Ryan Hall",
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/000/939/medium/RyanHall.jpg?1446677509",
-    "occup": "TA"
-  },
-  {
     "id": 46,
     "name": "Kevin McCall",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/087/medium/McCall.jpg?1452217152",
@@ -124,6 +106,18 @@ module.exports = [
     "id": 73,
     "name": 'Luke Wassink',
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/569/medium/Wassink.jpg?1474063438",
+    "occup": "TA"
+  },
+  {
+    "id": 74,
+    "name": 'Adom Hartell',
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/629/medium/Adom_Hartell.jpg?1479424151",
+    "occup": "TA"
+  },
+  {
+    "id": 75,
+    "name": 'Hope Wanroy',
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/727/medium/Hope_Wanroy.jpg?1479425043",
     "occup": "TA"
   }
 ];
