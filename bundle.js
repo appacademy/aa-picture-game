@@ -20847,7 +20847,7 @@
 	}, {
 	  "id": 2132,
 	  "name": "Daniel Pages",
-	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/150/medium/Howard_Feger.jpg?1496695912",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/132/medium/Daniel_Pages.jpg?1496702567",
 	  "occup": "student"
 	}, {
 	  "id": 2110,
@@ -20897,7 +20897,7 @@
 	}, {
 	  "id": 2150,
 	  "name": "Howard Feger",
-	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/132/medium/Daniel_Pages_2.jpg?1496695681",
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/150/medium/Howard_Feger.jpg?1496695912",
 	  "occup": "student"
 	}, {
 	  "id": 2095,
