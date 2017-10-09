@@ -7,34 +7,10 @@ module.exports = [
     "occup": "instructor"
   },
   {
-    "id": 23,
-    "name": "Alex Chebotarev",
-    "imageUrl": "photos/aleksey.jpg",
-    "occup": "software engineer"
-  },
-  {
     "id": 26,
     "name": "Jon Wolverton",
     "imageUrl": "photos/jon.jpg",
     "occup": "instructor"
-  },
-  {
-    "id": 37,
-    "name": "Asher King Abramson",
-    "imageUrl": "photos/asher.jpg",
-    "occup": "software engineer"
-  },
-  {
-    "id": 46,
-    "name": "Kevin McCall",
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/087/medium/McCall.jpg?1452217152",
-    "occup": "product engineer"
-  },
-  {
-    "id": 56,
-    "name": "Samuel Winter",
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/146/medium/Samuel_Winter.jpg?1457740367",
-    "occup": "product engineer"
   },
   {
     "id": 62,
@@ -43,39 +19,9 @@ module.exports = [
     "occup": "TA"
   },
   {
-    "id": 66,
-    "name": "Munyo Frey",
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/410/medium/Munyo.jpg?1468538596",
-    "occup": "TA"
-  },
-  {
-    "id": 67,
-    "name": "Robert Koeze",
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/374/medium/Koeze.jpg?1468540227",
-    "occup": "TA"
-  },
-  {
-    "id": 69,
-    "name": 'Debra Fong',
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/492/medium/Fong.jpg?1474062574",
-    "occup": "TA"
-  },
-  {
     "id": 70,
     "name": 'Kelly Chung',
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/387/medium/Chung.jpg?1468539222",
-    "occup": "TA"
-  },
-  {
-    "id": 71,
-    "name": 'Louis Cruz',
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/564/medium/Cruz.jpg?1474063391",
-    "occup": "TA"
-  },
-  {
-    "id": 73,
-    "name": 'Luke Wassink',
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/569/medium/Wassink.jpg?1474063438",
     "occup": "TA"
   },
   {
@@ -110,8 +56,38 @@ module.exports = [
   },
   {
     "id": 80,
-    "name": 'Julianne Costa',
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/019/medium/Julianne_Costa_1.jpg?1490922251",
+    "name": "Anastassia Bobokalonova",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/121/medium/Anastassia_Bobokalonova.jpg?1496695327",
+    "occup": "TA"
+  },
+  {
+    "id": 81,
+    "name": "Isak Mladenoff",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/152/medium/Isak_Mladenoff_3.jpg?1496695969",
+    "occup": "TA"
+  },
+  {
+    "id": 82,
+    "name": "Stephen Pangburn II",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/141/medium/aa_july2017.jpg?1502421247",
+    "occup": "TA"
+  },
+  {
+    "id": 83,
+    "name": "Andres Alfaro",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/252/medium/Andres_Alfaro_1.jpg?1502406784",
+    "occup": "TA"
+  },
+  {
+    "id": 84,
+    "name": "AJ Ansel",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/295/medium/Andrew_Ansel_1.jpg?1502407446",
+    "occup": "TA"
+  },
+  {
+    "id": 85,
+    "name": "Jesse Wong",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/308/medium/Jesse_Wong_1.jpg?1502406902",
     "occup": "TA"
   }
 ];
