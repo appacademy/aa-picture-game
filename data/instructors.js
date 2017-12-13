@@ -1,40 +1,16 @@
 /* eslint max-len:0 */
 module.exports = [
   {
-    "id": 13,
-    "name": "Jeff Fiddler",
-    "imageUrl": "photos/jeff.jpg",
-    "occup": "instructor"
-  },
-  {
     "id": 26,
     "name": "Jon Wolverton",
     "imageUrl": "photos/jon.jpg",
-    "occup": "instructor"
+    "occup": "selection manager"
   },
   {
     "id": 62,
     "name": "Shamayel Daoud",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/253/medium/Shamayel_Daoud.jpg?1463175237",
-    "occup": "TA"
-  },
-  {
-    "id": 70,
-    "name": 'Kelly Chung',
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/387/medium/Chung.jpg?1468539222",
-    "occup": "TA"
-  },
-  {
-    "id": 75,
-    "name": 'Hope Wanroy',
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/727/medium/Hope_Wanroy.jpg?1479425043",
-    "occup": "TA"
-  },
-  {
-    "id": 76,
-    "name": 'Dallas Hall',
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/841/medium/Dallas_Hall.jpg?1485479466",
-    "occup": "TA"
+    "occup": "instructional manager"
   },
   {
     "id": 77,
@@ -88,6 +64,18 @@ module.exports = [
     "id": 85,
     "name": "Jesse Wong",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/308/medium/Jesse_Wong_1.jpg?1502406902",
+    "occup": "TA"
+  }, 
+  {
+    "id": 86, 
+    "name": "Ryan Mease",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/415/medium/Ryan_Mease_1.jpg?1507582668",
+    "occup": "TA"
+  }, 
+  {
+    "id": 87,
+    "name": "Cynthia Ma",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/383/medium/Cynthia_Ma_1.jpg?1507581364",
     "occup": "TA"
   }
 ];
