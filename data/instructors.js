@@ -7,21 +7,9 @@ module.exports = [
     "occup": "selection manager"
   },
   {
-    "id": 62,
-    "name": "Shamayel Daoud",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/253/medium/Shamayel_Daoud.jpg?1463175237",
-    "occup": "instructional manager"
-  },
-  {
     "id": 77,
     "name": 'Aaron Wayne',
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/957/medium/Aaron_Wayne_1.jpg?1490998414",
-    "occup": "TA"
-  },
-  {
-    "id": 78,
-    "name": 'David Dobrynin',
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/970/medium/David_Dobrynin_1.jpg?1490920206",
     "occup": "TA"
   },
   {
@@ -67,15 +55,21 @@ module.exports = [
     "occup": "TA"
   }, 
   {
-    "id": 86, 
-    "name": "Ryan Mease",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/415/medium/Ryan_Mease_1.jpg?1507582668",
-    "occup": "TA"
-  }, 
-  {
     "id": 87,
     "name": "Cynthia Ma",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/383/medium/Cynthia_Ma_1.jpg?1507581364",
     "occup": "TA"
+  }, 
+  {
+    "id": 88, 
+    "name": "David Webster", 
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/347/medium/David_Webster.JPG?1504552515",
+    "occup": "TA"
+  },
+  { 
+    "id": 89, 
+    "name": "Tommy Duek", 
+    "imageUrl": "https://www.appacademy.io/assets/staff/TommyDuek-c89e0dd62db427748194c5940bf698bafd9fe5a523bba20c79403958834d5f50.jpg", 
+    "occup": "Instructor"
   }
 ];
