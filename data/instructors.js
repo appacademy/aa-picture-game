@@ -19,12 +19,6 @@ module.exports = [
     "occup": "TA"
   },
   {
-    "id": 80,
-    "name": "Anastassia Bobokalonova",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/121/medium/Anastassia_Bobokalonova.jpg?1496695327",
-    "occup": "TA"
-  },
-  {
     "id": 81,
     "name": "Isak Mladenoff",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/152/medium/Isak_Mladenoff_3.jpg?1496695969",
@@ -65,11 +59,17 @@ module.exports = [
     "name": "David Webster", 
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/347/medium/David_Webster.JPG?1504552515",
     "occup": "TA"
+  }, 
+  {
+    "id": 89,
+    "name": "Liz Houle",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/667/medium/Elizabeth_Houle_1.jpg?1518571064",
+    "occup": "TA"
   },
-  { 
-    "id": 89, 
-    "name": "Tommy Duek", 
-    "imageUrl": "https://www.appacademy.io/assets/staff/TommyDuek-c89e0dd62db427748194c5940bf698bafd9fe5a523bba20c79403958834d5f50.jpg", 
-    "occup": "Instructor"
+  {
+    "id": 90,
+    "name": "Andy Wynkoop",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/686/medium/Andrew_Wynkoop_1.jpg?1518570066",
+    "occup": "TA"
   }
 ];
