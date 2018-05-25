@@ -154,6 +154,14 @@ small {
   font-size: 80%;
 }
 
+span {
+  padding: 0 10px;
+}
+
+span.selected {
+  background: grey;
+}
+
 /**
  * Prevent `sub` and `sup` affecting `line-height` in all browsers.
  */

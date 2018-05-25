@@ -19764,33 +19764,62 @@
 	var Message = __webpack_require__(161);
 	var Controls = __webpack_require__(162);
 	var ProgressBar = __webpack_require__(174);
-	var GameStateStore = __webpack_require__(178);
-	var FuzzySet = __webpack_require__(179);
+	var CitySwitcher = __webpack_require__(175);
+	var SFStateStore = __webpack_require__(176);
+	var NYStateStore = __webpack_require__(198);
+	var FuzzySet = __webpack_require__(177);
+	var sfPeople = __webpack_require__(195);
+	var nyPeople = __webpack_require__(199);
 	
 	var PictureGame = React.createClass({
 	  displayName: 'PictureGame',
 	
 	  getInitialState: function getInitialState() {
 	    return {
+	      cityStore: SFStateStore,
+	      city: "SF",
 	      status: "guessing",
 	      nextPicture: false,
-	      person: GameStateStore.currentItem(),
-	      scores: GameStateStore.getScores()
+	      people: sfPeople,
+	      person: SFStateStore.currentItem(),
+	      scores: SFStateStore.getScores()
 	    };
 	  },
 	  componentDidMount: function componentDidMount() {
-	    GameStateStore.addListener(this.updateItem);
+	    SFStateStore.addListener(this.updateItem);
+	    NYStateStore.addListener(this.updateItem);
 	  },
 	  updateItem: function updateItem() {
 	    this.setState({
-	      person: GameStateStore.currentItem(),
-	      status: GameStateStore.status(),
+	      person: this.state.cityStore.currentItem(),
+	      status: this.state.cityStore.status(),
 	      nextPicture: false,
-	      scores: GameStateStore.getScores()
+	      scores: this.state.cityStore.getScores()
+	    });
+	  },
+	  switchCity: function switchCity() {
+	    var newStore = void 0;
+	    var people = void 0;
+	    var city = void 0;
+	    if (this.state.cityStore === SFStateStore) {
+	      newStore = NYStateStore;
+	      people = nyPeople;
+	      city = "NYC";
+	    } else {
+	      newStore = SFStateStore;
+	      people = sfPeople;
+	      city = "SF";
+	    }
+	    this.setState({
+	      cityStore: newStore,
+	      people: people,
+	      person: newStore.currentItem(),
+	      scores: newStore.getScores(),
+	      city: city
 	    });
 	  },
 	  currentName: function currentName() {
-	    return this.state.person.name + " (" + GameStateStore.currentItem().occup + ")";
+	    return this.state.person.name + " (" + this.state.cityStore.currentItem().occup + ")";
 	  },
 	  render: function render() {
 	    return React.createElement(
@@ -19819,12 +19848,14 @@
 	          React.createElement(Picture, { src: this.state.person.imageUrl }),
 	          React.createElement(Message, { status: this.state.status,
 	            currentName: this.currentName(),
-	            currentOcup: GameStateStore.currentItem().occup }),
+	            currentOcup: this.state.cityStore.currentItem().occup }),
 	          React.createElement(Controls, {
+	            city: this.state.city,
 	            status: this.state.status,
 	            nextPicture: this.nextPicture })
 	        ),
-	        React.createElement(ProgressBar, { scores: this.state.scores })
+	        React.createElement(ProgressBar, { scores: this.state.scores, people: this.state.people, city: this.state.city }),
+	        React.createElement(CitySwitcher, { switchCity: this.switchCity })
 	      )
 	    );
 	  }
@@ -19964,9 +19995,9 @@
 	
 	    var control = void 0;
 	    if (this.props.status === "guessing") {
-	      control = React.createElement(GuessInput, { guessType: this.state.gameType });
+	      control = React.createElement(GuessInput, { city: this.props.city, guessType: this.state.gameType });
 	    } else {
-	      control = React.createElement(NextItemButton, null);
+	      control = React.createElement(NextItemButton, { city: this.props.city });
 	    }
 	
 	    return React.createElement(
@@ -20008,7 +20039,7 @@
 	  displayName: 'NextItemButton',
 	
 	  advance: function advance() {
-	    guessActions.nextItem();
+	    guessActions.nextItem(this.props.city);
 	  },
 	  render: function render() {
 	    return React.createElement(
@@ -20036,29 +20067,29 @@
 	var Dispatcher = __webpack_require__(165);
 	
 	var guessActions = {
-	  addGuess: function addGuess(guessType, guess) {
+	  addGuess: function addGuess(guessType, guess, city) {
 	    Dispatcher.dispatch({
-	      actionType: "GUESS_ADDED",
+	      actionType: city + "_GUESS_ADDED",
 	      guessType: guessType,
 	      guess: guess
 	    });
 	  },
 	
-	  nextItem: function nextItem() {
+	  nextItem: function nextItem(city) {
 	    Dispatcher.dispatch({
-	      actionType: "NEXT_ITEM"
+	      actionType: city + "_NEXT_ITEM"
 	    });
 	  },
-	  setItem: function setItem(key) {
+	  setItem: function setItem(key, city) {
 	    Dispatcher.dispatch({
-	      actionType: "SET_ITEM",
+	      actionType: city + "_SET_ITEM",
 	      key: key
 	    });
 	  },
 	
-	  resetGameState: function resetGameState() {
+	  resetGameState: function resetGameState(city) {
 	    Dispatcher.dispatch({
-	      actionType: "RESET_GAME_STATE"
+	      actionType: city + "_RESET_GAME_STATE"
 	    });
 	  }
 	};
@@ -20410,7 +20441,7 @@
 	        return;
 	      }
 	    }
-	    guessActions.addGuess(this.props.guessType, this.state.guess);
+	    guessActions.addGuess(this.props.guessType, this.state.guess, this.props.city);
 	    this.setState({ guess: '' });
 	  },
 	
@@ -20688,18 +20719,17 @@
 	
 	var React = __webpack_require__(1);
 	var guessActions = __webpack_require__(164);
-	var people = __webpack_require__(175);
 	
 	var ProgressBar = React.createClass({
 	  displayName: 'ProgressBar',
 	
-	  onClick: function onClick(key) {
-	    guessActions.setItem(key);
+	  onClick: function onClick(key, city) {
+	    guessActions.setItem(key, city);
 	  },
 	
 	  resetScores: function resetScores(e) {
 	    e.preventDefault();
-	    guessActions.resetGameState();
+	    guessActions.resetGameState(this.props.city);
 	  },
 	
 	  render: function render() {
@@ -20717,8 +20747,8 @@
 	          return React.createElement(
 	            'div',
 	            { className: className, key: key,
-	              onClick: _this.onClick.bind(_this, key) },
-	            React.createElement('img', { src: people[key].imageUrl })
+	              onClick: _this.onClick.bind(_this, key, _this.props.city) },
+	            React.createElement('img', { src: _this.props.people[key].imageUrl })
 	          );
 	        })
 	      ),
@@ -20738,316 +20768,64 @@
 /* 175 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	'use strict';
+	"use strict";
 	
-	var students = __webpack_require__(176);
-	var instructors = __webpack_require__(177);
+	var React = __webpack_require__(1);
 	
-	instructors.concat(students).forEach(function (person) {
-	  exports[person.occup + '-' + person.id] = person;
+	var CitySwitcher = React.createClass({
+	  displayName: "CitySwitcher",
+	
+	  getInitialState: function getInitialState() {
+	    return {
+	      currentCity: "SF"
+	    };
+	  },
+	
+	  selectCity: function selectCity(e) {
+	    this.props.switchCity();
+	    this.setState({ currentCity: e.currentTarget.innerText });
+	  },
+	
+	  render: function render() {
+	    var _this = this;
+	
+	    var citySpans = ["SF", "NYC"].map(function (city, i) {
+	      var selected = "";
+	      if (city === _this.state.currentCity) {
+	        selected = "selected";
+	      }
+	      return React.createElement(
+	        "span",
+	        {
+	          key: i,
+	          className: selected,
+	          onClick: _this.selectCity },
+	        city
+	      );
+	    });
+	    return React.createElement(
+	      "div",
+	      null,
+	      citySpans
+	    );
+	  }
 	});
+	
+	module.exports = CitySwitcher;
 
 /***/ }),
 /* 176 */
-/***/ (function(module, exports) {
-
-	"use strict";
-	
-	/* eslint max-len:0 */
-	module.exports = [{
-	  "id": 2780,
-	  "name": "Aakash Sarang",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/780/medium/Akash_Sarang_2.jpg?1523987411",
-	  "occup": "student"
-	}, {
-	  "id": 2773,
-	  "name": "Alex Gonzalez",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/773/medium/Alex_Gonzalez_3.jpg?1523987406",
-	  "occup": "student"
-	}, {
-	  "id": 2783,
-	  "name": "Alfred Dale (Alfred) Alejandrino",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/783/medium/Alfred_Dale_Alejandrino_2.jpg?1523987419",
-	  "occup": "student"
-	}, {
-	  "id": 2789,
-	  "name": "Andzu Schaefer",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/789/medium/Andzu_Schaefer_2.jpg?1523987428",
-	  "occup": "student"
-	}, {
-	  "id": 2769,
-	  "name": "Archana Kannan",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/769/medium/Archana_Kannan_2.jpg?1523987441",
-	  "occup": "student"
-	}, {
-	  "id": 2767,
-	  "name": "Bryan Lin",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/767/medium/Bryan_Lin_1.jpg?1523987450",
-	  "occup": "student"
-	}, {
-	  "id": 2800,
-	  "name": "Carey Johnson",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/800/medium/Carey_Johnson_1.jpg?1523987462",
-	  "occup": "student"
-	}, {
-	  "id": 2770,
-	  "name": "Charles (Charlie) Thomas",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/770/medium/Charlie_Thomas_1.jpg?1523987473",
-	  "occup": "student"
-	}, {
-	  "id": 2794,
-	  "name": "Dan Luo",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/794/medium/Dan_Luo_1.jpg?1523987486",
-	  "occup": "student"
-	}, {
-	  "id": 2771,
-	  "name": "Daniel Chen",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/771/medium/Daniel_CHen_2.jpg?1523987495",
-	  "occup": "student"
-	}, {
-	  "id": 2782,
-	  "name": "Edmund (Ed) Ho",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/782/medium/Edmund_Ho_2.jpg?1523987510",
-	  "occup": "student"
-	}, {
-	  "id": 2786,
-	  "name": "Erika Barrero",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/786/medium/Erika_Barrero_2.jpg?1523987520",
-	  "occup": "student"
-	}, {
-	  "id": 2796,
-	  "name": "Farah Quader",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/796/medium/Farah_Quader_1.jpg?1523987529",
-	  "occup": "student"
-	}, {
-	  "id": 2778,
-	  "name": "Felix Alvarado",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/778/medium/Felix_Alvarado_1.jpg?1523987541",
-	  "occup": "student"
-	}, {
-	  "id": 2784,
-	  "name": "Gurpreet Kaur",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/784/medium/Gurpreet_Kaur_2.jpg?1523987554",
-	  "occup": "student"
-	}, {
-	  "id": 2787,
-	  "name": "Henry Nguyen",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/787/medium/Henry_Nguyen_2.jpg?1523987566",
-	  "occup": "student"
-	}, {
-	  "id": 2795,
-	  "name": "Hyun (Stephan) Kang",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/795/medium/Hyun_Stephen_Kung_2.jpg?1523987577",
-	  "occup": "student"
-	}, {
-	  "id": 2792,
-	  "name": "Jacob Barlow",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/792/medium/Jacob_Barlow_1.jpg?1523987596",
-	  "occup": "student"
-	}, {
-	  "id": 2803,
-	  "name": "Kahaan Patel",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/803/medium/Kahaan_Patel_1.jpg?1523987612",
-	  "occup": "student"
-	}, {
-	  "id": 2798,
-	  "name": "Kartikeya (Kartik) Parihar",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/798/medium/Kartikeya_Parihar_2.jpg?1523987649",
-	  "occup": "student"
-	}, {
-	  "id": 2805,
-	  "name": "Ken Chan",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/805/medium/Ken_Chan_2.jpg?1523987664",
-	  "occup": "student"
-	}, {
-	  "id": 2801,
-	  "name": "Marshall Cheng",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/801/medium/Marshall_Cheng_1.jpg?1523987694",
-	  "occup": "student"
-	}, {
-	  "id": 2785,
-	  "name": "Matthew (Matt) Wojick",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/785/medium/Matt_Wojick_2.jpg?1523987705",
-	  "occup": "student"
-	}, {
-	  "id": 2764,
-	  "name": "Maxim Grebennikov",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/764/medium/Maxim_Grebennikov_1.jpg?1523987714",
-	  "occup": "student"
-	}, {
-	  "id": 2765,
-	  "name": "Meenakshi Anand Narayan",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/765/medium/Meenakshi_Anandnarayan_1.jpg?1523987726",
-	  "occup": "student"
-	}, {
-	  "id": 2777,
-	  "name": "Melissa Ho",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/777/medium/Melissa_Ho_2.jpg?1523987738",
-	  "occup": "student"
-	}, {
-	  "id": 2804,
-	  "name": "Mitchell Underwood",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/804/medium/Mitchell_Underwood_2.jpg?1523987750",
-	  "occup": "student"
-	}, {
-	  "id": 2775,
-	  "name": "Nathaniel (Nate) Cunha",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/775/medium/Nathaniel_Cunna_2.jpg?1523988134",
-	  "occup": "student"
-	}, {
-	  "id": 2772,
-	  "name": "Nicholas (Nick) Halloran",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/772/medium/Nicholas_Halloran_2.jpg?1523988146",
-	  "occup": "student"
-	}, {
-	  "id": 2776,
-	  "name": "Patrick Wang",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/776/medium/Patrick_Wang_2.jpg?1523988156",
-	  "occup": "student"
-	}, {
-	  "id": 2788,
-	  "name": "Qi (Kee) Huang",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/788/medium/Qi_Huang_2.jpg?1523988262",
-	  "occup": "student"
-	}, {
-	  "id": 2790,
-	  "name": "Robin Sunny",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/790/medium/Robin_Sunny_1.jpg?1523988286",
-	  "occup": "student"
-	}, {
-	  "id": 2802,
-	  "name": "Ryan Alejandro",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/802/medium/Ryan_Alejandro_2.jpg?1523988647",
-	  "occup": "student"
-	}, {
-	  "id": 2774,
-	  "name": "Ryan Meyer",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/774/medium/Ryan_Meyer_2.jpg?1523988661",
-	  "occup": "student"
-	}, {
-	  "id": 2768,
-	  "name": "Shashank (Shasha) Racherla",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/768/medium/Shashank_Rachesta_3.jpg?1523989027",
-	  "occup": "student"
-	}, {
-	  "id": 2766,
-	  "name": "Shawn Salat",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/766/medium/Shawn_Salat_1.jpg?1523989013",
-	  "occup": "student"
-	}, {
-	  "id": 2793,
-	  "name": "Sheldon Chan",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/793/medium/Sheldon_Chan_1.jpg?1523989003",
-	  "occup": "student"
-	}, {
-	  "id": 2799,
-	  "name": "Tiffany Tang",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/799/medium/Tiffany_Tang_2.jpg?1523989054",
-	  "occup": "student"
-	}, {
-	  "id": 2791,
-	  "name": "Timmy Jing",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/791/medium/Timmy_Jung_1.jpg?1523989074",
-	  "occup": "student"
-	}, {
-	  "id": 2781,
-	  "name": "Travis Nguyen",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/781/medium/Travis_Nguyen_2.jpg?1523989088",
-	  "occup": "student"
-	}, {
-	  "id": 2763,
-	  "name": "Valerie Sui",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/763/medium/Valerie_Sui_1.jpg?1523989101",
-	  "occup": "student"
-	}, {
-	  "id": 2797,
-	  "name": "Xiangyu (Bob) An",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/797/medium/Xiangyu_An_1.jpg?1523989118",
-	  "occup": "student"
-	}];
-
-/***/ }),
-/* 177 */
-/***/ (function(module, exports) {
-
-	"use strict";
-	
-	/* eslint max-len:0 */
-	module.exports = [{
-	  "id": 26,
-	  "name": "Jon Wolverton",
-	  "imageUrl": "photos/jon.jpg",
-	  "occup": "selection manager"
-	}, {
-	  "id": 77,
-	  "name": 'Aaron Wayne',
-	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/957/medium/Aaron_Wayne_1.jpg?1490998414",
-	  "occup": "TA"
-	}, {
-	  "id": 79,
-	  "name": 'Elliot Humphrey',
-	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/991/medium/Elliot_Humphrey_1.jpg?1491341118",
-	  "occup": "TA"
-	}, {
-	  "id": 81,
-	  "name": "Isak Mladenoff",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/152/medium/Isak_Mladenoff_3.jpg?1496695969",
-	  "occup": "TA"
-	}, {
-	  "id": 82,
-	  "name": "Stephen Pangburn II",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/141/medium/aa_july2017.jpg?1502421247",
-	  "occup": "TA"
-	}, {
-	  "id": 83,
-	  "name": "Andres Alfaro",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/252/medium/Andres_Alfaro_1.jpg?1502406784",
-	  "occup": "TA"
-	}, {
-	  "id": 84,
-	  "name": "AJ Ansel",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/295/medium/Andrew_Ansel_1.jpg?1502407446",
-	  "occup": "TA"
-	}, {
-	  "id": 85,
-	  "name": "Jesse Wong",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/308/medium/Jesse_Wong_1.jpg?1502406902",
-	  "occup": "TA"
-	}, {
-	  "id": 87,
-	  "name": "Cynthia Ma",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/383/medium/Cynthia_Ma_1.jpg?1507581364",
-	  "occup": "TA"
-	}, {
-	  "id": 88,
-	  "name": "David Webster",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/347/medium/David_Webster.JPG?1504552515",
-	  "occup": "TA"
-	}, {
-	  "id": 89,
-	  "name": "Liz Houle",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/667/medium/Elizabeth_Houle_1.jpg?1518571064",
-	  "occup": "TA"
-	}, {
-	  "id": 90,
-	  "name": "Andy Wynkoop",
-	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/686/medium/Andrew_Wynkoop_1.jpg?1518570066",
-	  "occup": "TA"
-	}];
-
-/***/ }),
-/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var FuzzySet = __webpack_require__(179);
+	var FuzzySet = __webpack_require__(177);
 	var Dispatcher = __webpack_require__(165);
-	var Store = __webpack_require__(180).Store;
+	var Store = __webpack_require__(178).Store;
 	var GameState = new Store(Dispatcher);
 	module.exports = GameState;
 	
-	var people = __webpack_require__(175);
+	var people = __webpack_require__(195);
 	
 	// scoring params
 	
@@ -21084,16 +20862,16 @@
 	
 	GameState.__onDispatch = function (payload) {
 	  switch (payload.actionType) {
-	    case "NEXT_ITEM":
+	    case "SF_NEXT_ITEM":
 	      advanceItem();
 	      break;
-	    case "SET_ITEM":
+	    case "SF_SET_ITEM":
 	      setCurrentItem(payload.key);
 	      break;
-	    case "RESET_GAME_STATE":
+	    case "SF_RESET_GAME_STATE":
 	      _resetStoreState();
 	      break;
-	    case "GUESS_ADDED":
+	    case "SF_GUESS_ADDED":
 	      makeGuess(payload.guessType, payload.guess);
 	      break;
 	  }
@@ -21327,7 +21105,7 @@
 	GameState.addListener(storeState);
 
 /***/ }),
-/* 179 */
+/* 177 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -21605,7 +21383,7 @@
 	module.exports = FuzzySet;
 
 /***/ }),
-/* 180 */
+/* 178 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -21617,15 +21395,15 @@
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 */
 	
-	module.exports.Container = __webpack_require__(181);
-	module.exports.MapStore = __webpack_require__(184);
-	module.exports.Mixin = __webpack_require__(196);
-	module.exports.ReduceStore = __webpack_require__(185);
-	module.exports.Store = __webpack_require__(186);
+	module.exports.Container = __webpack_require__(179);
+	module.exports.MapStore = __webpack_require__(182);
+	module.exports.Mixin = __webpack_require__(194);
+	module.exports.ReduceStore = __webpack_require__(183);
+	module.exports.Store = __webpack_require__(184);
 
 
 /***/ }),
-/* 181 */
+/* 179 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21647,10 +21425,10 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var FluxStoreGroup = __webpack_require__(182);
+	var FluxStoreGroup = __webpack_require__(180);
 	
 	var invariant = __webpack_require__(168);
-	var shallowEqual = __webpack_require__(183);
+	var shallowEqual = __webpack_require__(181);
 	
 	var DEFAULT_OPTIONS = {
 	  pure: true,
@@ -21808,7 +21586,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 182 */
+/* 180 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21889,7 +21667,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 183 */
+/* 181 */
 /***/ (function(module, exports) {
 
 	/**
@@ -21944,7 +21722,7 @@
 	module.exports = shallowEqual;
 
 /***/ }),
-/* 184 */
+/* 182 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21965,8 +21743,8 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var FluxReduceStore = __webpack_require__(185);
-	var Immutable = __webpack_require__(195);
+	var FluxReduceStore = __webpack_require__(183);
+	var Immutable = __webpack_require__(193);
 	
 	var invariant = __webpack_require__(168);
 	
@@ -22094,7 +21872,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 185 */
+/* 183 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -22115,9 +21893,9 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var FluxStore = __webpack_require__(186);
+	var FluxStore = __webpack_require__(184);
 	
-	var abstractMethod = __webpack_require__(194);
+	var abstractMethod = __webpack_require__(192);
 	var invariant = __webpack_require__(168);
 	
 	var FluxReduceStore = (function (_FluxStore) {
@@ -22201,7 +21979,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 186 */
+/* 184 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -22220,7 +21998,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var _require = __webpack_require__(187);
+	var _require = __webpack_require__(185);
 	
 	var EventEmitter = _require.EventEmitter;
 	
@@ -22384,7 +22162,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 187 */
+/* 185 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -22397,15 +22175,15 @@
 	 */
 	
 	var fbemitter = {
-	  EventEmitter: __webpack_require__(188),
-	  EmitterSubscription : __webpack_require__(189)
+	  EventEmitter: __webpack_require__(186),
+	  EmitterSubscription : __webpack_require__(187)
 	};
 	
 	module.exports = fbemitter;
 
 
 /***/ }),
-/* 188 */
+/* 186 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -22424,11 +22202,11 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var EmitterSubscription = __webpack_require__(189);
-	var EventSubscriptionVendor = __webpack_require__(191);
+	var EmitterSubscription = __webpack_require__(187);
+	var EventSubscriptionVendor = __webpack_require__(189);
 	
-	var emptyFunction = __webpack_require__(193);
-	var invariant = __webpack_require__(192);
+	var emptyFunction = __webpack_require__(191);
+	var invariant = __webpack_require__(190);
 	
 	/**
 	 * @class BaseEventEmitter
@@ -22602,7 +22380,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 189 */
+/* 187 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -22623,7 +22401,7 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var EventSubscription = __webpack_require__(190);
+	var EventSubscription = __webpack_require__(188);
 	
 	/**
 	 * EmitterSubscription represents a subscription with listener and context data.
@@ -22655,7 +22433,7 @@
 	module.exports = EmitterSubscription;
 
 /***/ }),
-/* 190 */
+/* 188 */
 /***/ (function(module, exports) {
 
 	/**
@@ -22709,7 +22487,7 @@
 	module.exports = EventSubscription;
 
 /***/ }),
-/* 191 */
+/* 189 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -22728,7 +22506,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var invariant = __webpack_require__(192);
+	var invariant = __webpack_require__(190);
 	
 	/**
 	 * EventSubscriptionVendor stores a set of EventSubscriptions that are
@@ -22818,7 +22596,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 192 */
+/* 190 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -22877,7 +22655,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 193 */
+/* 191 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -22918,7 +22696,7 @@
 	module.exports = emptyFunction;
 
 /***/ }),
-/* 194 */
+/* 192 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -22945,7 +22723,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 195 */
+/* 193 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/**
@@ -27927,7 +27705,7 @@
 	}));
 
 /***/ }),
-/* 196 */
+/* 194 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -27944,7 +27722,7 @@
 	
 	'use strict';
 	
-	var FluxStoreGroup = __webpack_require__(182);
+	var FluxStoreGroup = __webpack_require__(180);
 	
 	var invariant = __webpack_require__(168);
 	
@@ -28048,6 +27826,844 @@
 	
 	module.exports = FluxMixinLegacy;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+
+/***/ }),
+/* 195 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var students = __webpack_require__(196);
+	var instructors = __webpack_require__(197);
+	
+	instructors.concat(students).forEach(function (person) {
+	  exports[person.occup + '-' + person.id] = person;
+	});
+
+/***/ }),
+/* 196 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	/* eslint max-len:0 */
+	module.exports = [{
+	  "id": 2780,
+	  "name": "Aakash Sarang",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/780/medium/Akash_Sarang_2.jpg?1523987411",
+	  "occup": "student"
+	}, {
+	  "id": 2773,
+	  "name": "Alex Gonzalez",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/773/medium/Alex_Gonzalez_3.jpg?1523987406",
+	  "occup": "student"
+	}, {
+	  "id": 2783,
+	  "name": "Alfred Dale (Alfred) Alejandrino",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/783/medium/Alfred_Dale_Alejandrino_2.jpg?1523987419",
+	  "occup": "student"
+	}, {
+	  "id": 2789,
+	  "name": "Andzu Schaefer",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/789/medium/Andzu_Schaefer_2.jpg?1523987428",
+	  "occup": "student"
+	}, {
+	  "id": 2769,
+	  "name": "Archana Kannan",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/769/medium/Archana_Kannan_2.jpg?1523987441",
+	  "occup": "student"
+	}, {
+	  "id": 2767,
+	  "name": "Bryan Lin",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/767/medium/Bryan_Lin_1.jpg?1523987450",
+	  "occup": "student"
+	}, {
+	  "id": 2800,
+	  "name": "Carey Johnson",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/800/medium/Carey_Johnson_1.jpg?1523987462",
+	  "occup": "student"
+	}, {
+	  "id": 2770,
+	  "name": "Charles (Charlie) Thomas",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/770/medium/Charlie_Thomas_1.jpg?1523987473",
+	  "occup": "student"
+	}, {
+	  "id": 2794,
+	  "name": "Dan Luo",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/794/medium/Dan_Luo_1.jpg?1523987486",
+	  "occup": "student"
+	}, {
+	  "id": 2771,
+	  "name": "Daniel Chen",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/771/medium/Daniel_CHen_2.jpg?1523987495",
+	  "occup": "student"
+	}, {
+	  "id": 2782,
+	  "name": "Edmund (Ed) Ho",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/782/medium/Edmund_Ho_2.jpg?1523987510",
+	  "occup": "student"
+	}, {
+	  "id": 2786,
+	  "name": "Erika Barrero",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/786/medium/Erika_Barrero_2.jpg?1523987520",
+	  "occup": "student"
+	}, {
+	  "id": 2796,
+	  "name": "Farah Quader",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/796/medium/Farah_Quader_1.jpg?1523987529",
+	  "occup": "student"
+	}, {
+	  "id": 2778,
+	  "name": "Felix Alvarado",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/778/medium/Felix_Alvarado_1.jpg?1523987541",
+	  "occup": "student"
+	}, {
+	  "id": 2784,
+	  "name": "Gurpreet Kaur",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/784/medium/Gurpreet_Kaur_2.jpg?1523987554",
+	  "occup": "student"
+	}, {
+	  "id": 2787,
+	  "name": "Henry Nguyen",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/787/medium/Henry_Nguyen_2.jpg?1523987566",
+	  "occup": "student"
+	}, {
+	  "id": 2795,
+	  "name": "Hyun (Stephan) Kang",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/795/medium/Hyun_Stephen_Kung_2.jpg?1523987577",
+	  "occup": "student"
+	}, {
+	  "id": 2792,
+	  "name": "Jacob Barlow",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/792/medium/Jacob_Barlow_1.jpg?1523987596",
+	  "occup": "student"
+	}, {
+	  "id": 2803,
+	  "name": "Kahaan Patel",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/803/medium/Kahaan_Patel_1.jpg?1523987612",
+	  "occup": "student"
+	}, {
+	  "id": 2798,
+	  "name": "Kartikeya (Kartik) Parihar",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/798/medium/Kartikeya_Parihar_2.jpg?1523987649",
+	  "occup": "student"
+	}, {
+	  "id": 2805,
+	  "name": "Ken Chan",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/805/medium/Ken_Chan_2.jpg?1523987664",
+	  "occup": "student"
+	}, {
+	  "id": 2801,
+	  "name": "Marshall Cheng",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/801/medium/Marshall_Cheng_1.jpg?1523987694",
+	  "occup": "student"
+	}, {
+	  "id": 2785,
+	  "name": "Matthew (Matt) Wojick",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/785/medium/Matt_Wojick_2.jpg?1523987705",
+	  "occup": "student"
+	}, {
+	  "id": 2764,
+	  "name": "Maxim Grebennikov",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/764/medium/Maxim_Grebennikov_1.jpg?1523987714",
+	  "occup": "student"
+	}, {
+	  "id": 2765,
+	  "name": "Meenakshi Anand Narayan",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/765/medium/Meenakshi_Anandnarayan_1.jpg?1523987726",
+	  "occup": "student"
+	}, {
+	  "id": 2777,
+	  "name": "Melissa Ho",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/777/medium/Melissa_Ho_2.jpg?1523987738",
+	  "occup": "student"
+	}, {
+	  "id": 2804,
+	  "name": "Mitchell Underwood",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/804/medium/Mitchell_Underwood_2.jpg?1523987750",
+	  "occup": "student"
+	}, {
+	  "id": 2775,
+	  "name": "Nathaniel (Nate) Cunha",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/775/medium/Nathaniel_Cunna_2.jpg?1523988134",
+	  "occup": "student"
+	}, {
+	  "id": 2772,
+	  "name": "Nicholas (Nick) Halloran",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/772/medium/Nicholas_Halloran_2.jpg?1523988146",
+	  "occup": "student"
+	}, {
+	  "id": 2776,
+	  "name": "Patrick Wang",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/776/medium/Patrick_Wang_2.jpg?1523988156",
+	  "occup": "student"
+	}, {
+	  "id": 2788,
+	  "name": "Qi (Kee) Huang",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/788/medium/Qi_Huang_2.jpg?1523988262",
+	  "occup": "student"
+	}, {
+	  "id": 2790,
+	  "name": "Robin Sunny",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/790/medium/Robin_Sunny_1.jpg?1523988286",
+	  "occup": "student"
+	}, {
+	  "id": 2802,
+	  "name": "Ryan Alejandro",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/802/medium/Ryan_Alejandro_2.jpg?1523988647",
+	  "occup": "student"
+	}, {
+	  "id": 2774,
+	  "name": "Ryan Meyer",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/774/medium/Ryan_Meyer_2.jpg?1523988661",
+	  "occup": "student"
+	}, {
+	  "id": 2768,
+	  "name": "Shashank (Shasha) Racherla",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/768/medium/Shashank_Rachesta_3.jpg?1523989027",
+	  "occup": "student"
+	}, {
+	  "id": 2766,
+	  "name": "Shawn Salat",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/766/medium/Shawn_Salat_1.jpg?1523989013",
+	  "occup": "student"
+	}, {
+	  "id": 2793,
+	  "name": "Sheldon Chan",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/793/medium/Sheldon_Chan_1.jpg?1523989003",
+	  "occup": "student"
+	}, {
+	  "id": 2799,
+	  "name": "Tiffany Tang",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/799/medium/Tiffany_Tang_2.jpg?1523989054",
+	  "occup": "student"
+	}, {
+	  "id": 2791,
+	  "name": "Timmy Jing",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/791/medium/Timmy_Jung_1.jpg?1523989074",
+	  "occup": "student"
+	}, {
+	  "id": 2781,
+	  "name": "Travis Nguyen",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/781/medium/Travis_Nguyen_2.jpg?1523989088",
+	  "occup": "student"
+	}, {
+	  "id": 2763,
+	  "name": "Valerie Sui",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/763/medium/Valerie_Sui_1.jpg?1523989101",
+	  "occup": "student"
+	}, {
+	  "id": 2797,
+	  "name": "Xiangyu (Bob) An",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/797/medium/Xiangyu_An_1.jpg?1523989118",
+	  "occup": "student"
+	}];
+
+/***/ }),
+/* 197 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	/* eslint max-len:0 */
+	module.exports = [{
+	  "id": 26,
+	  "name": "Jon Wolverton",
+	  "imageUrl": "photos/jon.jpg",
+	  "occup": "selection manager"
+	}, {
+	  "id": 77,
+	  "name": 'Aaron Wayne',
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/957/medium/Aaron_Wayne_1.jpg?1490998414",
+	  "occup": "TA"
+	}, {
+	  "id": 79,
+	  "name": 'Elliot Humphrey',
+	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/991/medium/Elliot_Humphrey_1.jpg?1491341118",
+	  "occup": "TA"
+	}, {
+	  "id": 81,
+	  "name": "Isak Mladenoff",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/152/medium/Isak_Mladenoff_3.jpg?1496695969",
+	  "occup": "TA"
+	}, {
+	  "id": 82,
+	  "name": "Stephen Pangburn II",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/141/medium/aa_july2017.jpg?1502421247",
+	  "occup": "TA"
+	}, {
+	  "id": 83,
+	  "name": "Andres Alfaro",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/252/medium/Andres_Alfaro_1.jpg?1502406784",
+	  "occup": "TA"
+	}, {
+	  "id": 84,
+	  "name": "AJ Ansel",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/295/medium/Andrew_Ansel_1.jpg?1502407446",
+	  "occup": "TA"
+	}, {
+	  "id": 85,
+	  "name": "Jesse Wong",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/308/medium/Jesse_Wong_1.jpg?1502406902",
+	  "occup": "TA"
+	}, {
+	  "id": 87,
+	  "name": "Cynthia Ma",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/383/medium/Cynthia_Ma_1.jpg?1507581364",
+	  "occup": "TA"
+	}, {
+	  "id": 88,
+	  "name": "David Webster",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/347/medium/David_Webster.JPG?1504552515",
+	  "occup": "TA"
+	}, {
+	  "id": 89,
+	  "name": "Liz Houle",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/667/medium/Elizabeth_Houle_1.jpg?1518571064",
+	  "occup": "TA"
+	}, {
+	  "id": 90,
+	  "name": "Andy Wynkoop",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/686/medium/Andrew_Wynkoop_1.jpg?1518570066",
+	  "occup": "TA"
+	}];
+
+/***/ }),
+/* 198 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var FuzzySet = __webpack_require__(177);
+	var Dispatcher = __webpack_require__(165);
+	var Store = __webpack_require__(178).Store;
+	var GameState = new Store(Dispatcher);
+	module.exports = GameState;
+	
+	var people = __webpack_require__(199);
+	
+	// scoring params
+	
+	var RESHOW_PENALTHY_THRESHOLD = 10;
+	var GUESSES_TO_KEEP = 4;
+	
+	// state
+	
+	var CYCLE = "18-04-16";
+	var localStorageKey = "faceGameState-" + CYCLE;
+	var state = {
+	  turn: 0,
+	  status: "guessing",
+	  remedialGuess: false,
+	  guessesByKey: {},
+	  currentKey: null,
+	  timestamp: Date.now()
+	};
+	
+	var _resetStoreState = function _resetStoreState() {
+	  state = {
+	    turn: 0,
+	    status: "guessing",
+	    remedialGuess: false,
+	    guessesByKey: {},
+	    currentKey: null,
+	    timestamp: Date.now()
+	  };
+	  storeState();
+	  syncStateWithPeople();
+	  updateCurrentItem();
+	  GameState.__emitChange();
+	};
+	
+	GameState.__onDispatch = function (payload) {
+	  switch (payload.actionType) {
+	    case "NYC_NEXT_ITEM":
+	      advanceItem();
+	      break;
+	    case "NYC_SET_ITEM":
+	      setCurrentItem(payload.key);
+	      break;
+	    case "NYC_RESET_GAME_STATE":
+	      _resetStoreState();
+	      break;
+	    case "NYC_GUESS_ADDED":
+	      makeGuess(payload.guessType, payload.guess);
+	      break;
+	  }
+	};
+	
+	var makeGuess = function makeGuess(guessType, answer) {
+	  var correctAnswer;
+	  if (guessType === "Full Name") {
+	    correctAnswer = GameState.currentItem().name.toLowerCase();
+	  } else if (guessType === "First Name") {
+	    correctAnswer = GameState.currentItem().name.split(" ")[0].toLowerCase();
+	  }
+	  var guess = FuzzySet([correctAnswer]).get(answer);
+	
+	  if (guess === null) {
+	    state.status = "incorrect";
+	  } else if (guess[0][1] === answer.toLowerCase()) {
+	    state.status = "correct";
+	  } else {
+	    state.status = "close";
+	  }
+	
+	  if (!state.remedialGuess) {
+	    addGuess();
+	  }
+	
+	  if (state.status === "incorrect") {
+	    state.remedialGuess = true;
+	  } else {
+	    state.remedialGuess = false;
+	  }
+	
+	  GameState.__emitChange();
+	};
+	
+	GameState.currentItem = function () {
+	  return people[state.currentKey];
+	};
+	
+	GameState.status = function () {
+	  return state.status;
+	};
+	
+	GameState.getScores = function () {
+	  var totals = {};
+	
+	  Object.keys(state.guessesByKey).forEach(function (key) {
+	    var sum = 0;
+	
+	    state.guessesByKey[key].forEach(function (guess) {
+	      if (guess.status === "correct") {
+	        sum += 1;
+	      } else if (guess.status === "incorrect") {
+	        sum -= 1;
+	      }
+	    });
+	
+	    totals[key] = sum;
+	  });
+	
+	  return totals;
+	};
+	
+	var setCurrentItem = function setCurrentItem(key) {
+	  state.currentKey = key;
+	  state.status = "guessing";
+	  state.remedialGuess = false;
+	  GameState.__emitChange();
+	};
+	
+	var addGuess = function addGuess() {
+	  var guesses = state.guessesByKey[state.currentKey];
+	  guesses.push({
+	    turn: state.turn,
+	    status: state.status
+	  });
+	  while (guesses.length > GUESSES_TO_KEEP) {
+	    guesses.shift();
+	  }
+	};
+	
+	var advanceItem = function advanceItem() {
+	  state.status = "guessing";
+	  if (!state.remedialGuess) {
+	    updateCurrentItem();
+	    state.turn += 1;
+	  }
+	
+	  GameState.__emitChange();
+	};
+	
+	var updateCurrentItem = function updateCurrentItem() {
+	  chooseBestKey();
+	
+	  while (!keyIsValid(state.currentKey)) {
+	    delete state.guessesByKey[state.currentKey];
+	    chooseBestKey();
+	  }
+	};
+	
+	var chooseBestKey = function chooseBestKey() {
+	  var bestKey,
+	      bestScore = -1;
+	  Object.keys(state.guessesByKey).forEach(function (key) {
+	    var score = scoreItem(state.guessesByKey[key]);
+	    if (score > bestScore) {
+	      bestKey = key;
+	      bestScore = score;
+	    }
+	  });
+	
+	  state.currentKey = bestKey;
+	};
+	
+	var keyIsValid = function keyIsValid(key) {
+	  return people.hasOwnProperty(key);
+	};
+	
+	var scoreItem = function scoreItem(guesses) {
+	  if (guesses.length === 0) return 0.4 + 0.2 * Math.random();
+	
+	  var recentIncorrect = 0,
+	      correct = 0;
+	  var totalRecords = Object.keys(state.guessesByKey).length;
+	
+	  guesses.forEach(function (guess, i) {
+	    var weight = 1 - (state.turn - guess.turn) / totalRecords;
+	    switch (guess.status) {
+	      case "correct":
+	        correct += 1;
+	        break;
+	      case "incorrect":
+	        recentIncorrect += weight;
+	        break;
+	      case "close":
+	        correct += 0.5;
+	        recentIncorrect += 0.5 * weight;
+	        break;
+	    }
+	  });
+	
+	  correct = correct / GUESSES_TO_KEEP;
+	  recentIncorrect = Math.max(Math.min(recentIncorrect, 1), 0);
+	  var lastTurn = guesses[guesses.length - 1].turn;
+	  var turnsSince = state.turn - lastTurn;
+	
+	  var score = 0.4 * recentIncorrect + 0.3 * (1 - correct) + 0.2 * Math.random() + 0.1 * turnsSince / totalRecords;
+	  score = Math.min(1, score);
+	
+	  if (turnsSince < RESHOW_PENALTHY_THRESHOLD) {
+	    score *= turnsSince / RESHOW_PENALTHY_THRESHOLD;
+	  }
+	
+	  return score;
+	};
+	
+	/// localStorage persistence ///
+	
+	var storeState = function storeState() {
+	  state.timestamp = Date.now();
+	  localStorage.setItem(localStorageKey, JSON.stringify(state));
+	
+	  if (localStorage.length > 3) {
+	    removeOldestStoredItem();
+	  }
+	};
+	
+	var removeOldestStoredItem = function removeOldestStoredItem() {
+	  var keyToRemove = null;
+	  var minTimestamp = Date.now();
+	
+	  for (var i = 0; i < localStorage.length; i++) {
+	    var key = localStorage.key(i);
+	    if (key.slice(0, 14) !== 'faceGameState-') {
+	      continue;
+	    }
+	
+	    var timestamp = JSON.parse(localStorage.getItem(key)).timestamp || 0;
+	    if (!timestamp || timestamp < minTimestamp) {
+	      minTimestamp = timestamp;
+	      keyToRemove = key;
+	    }
+	  }
+	
+	  if (keyToRemove) {
+	    localStorage.removeItem(keyToRemove);
+	    console.log(keyToRemove + " garbage collected");
+	  }
+	};
+	
+	var loadStoredState = function loadStoredState() {
+	  var encodedState = localStorage.getItem(localStorageKey);
+	  if (encodedState) {
+	    var storedState = JSON.parse(encodedState);
+	
+	    Object.keys(state).forEach(function (key) {
+	      if (storedState.hasOwnProperty(key)) {
+	        state[key] = storedState[key];
+	      }
+	    });
+	    state.remedialGuess = false; // always start false
+	  }
+	};
+	
+	var syncStateWithPeople = function syncStateWithPeople() {
+	  removeInvalidKeys();
+	  addUnusedKeys();
+	};
+	
+	var removeInvalidKeys = function removeInvalidKeys() {
+	  Object.keys(state.guessesByKey).forEach(function (key) {
+	    if (!people.hasOwnProperty(key)) {
+	      delete state.guessesByKey[key];
+	    }
+	  });
+	};
+	
+	var addUnusedKeys = function addUnusedKeys() {
+	  Object.keys(people).forEach(function (key) {
+	    if (!state.guessesByKey.hasOwnProperty(key)) {
+	      state.guessesByKey[key] = [];
+	    }
+	  });
+	};
+	
+	/// post-load setup ///
+	
+	loadStoredState();
+	syncStateWithPeople();
+	updateCurrentItem();
+	GameState.addListener(storeState);
+
+/***/ }),
+/* 199 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var students = __webpack_require__(200);
+	var instructors = __webpack_require__(201);
+	
+	instructors.concat(students).forEach(function (person) {
+	  exports[person.occup + '-' + person.id] = person;
+	});
+
+/***/ }),
+/* 200 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	/* eslint max-len:0 */
+	module.exports = [{
+	  "id": 2806,
+	  "name": "Dan Moisoff",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/806/medium/Dan.JPG?1526937766",
+	  "occup": "student"
+	}, {
+	  "id": 2809,
+	  "name": "Simcha Cohen",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/809/original/Simcha.JPG?1527023834",
+	  "occup": "student"
+	}, {
+	  "id": 2810,
+	  "name": "Alex Plyushchay",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/810/original/Alex.JPG?1526937541",
+	  "occup": "student"
+	}, {
+	  "id": 2815,
+	  "name": "Christine Ma",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/815/original/Christine_Ma.JPG?1526937740",
+	  "occup": "student"
+	}, {
+	  "id": 2817,
+	  "name": "Nosson Huebner",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/817/original/Nathan.JPG?1527024300",
+	  "occup": "student"
+	}, {
+	  "id": 2820,
+	  "name": "Matt Mintzer",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/820/original/Matt.JPG?1526938085",
+	  "occup": "student"
+	}, {
+	  "id": 2816,
+	  "name": "Ethan Flood",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/816/original/Ethan.JPG?1526937970",
+	  "occup": "student"
+	}, {
+	  "id": 2818,
+	  "name": "Chris Cavalea",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/818/original/Chris.JPG?1526937754",
+	  "occup": "student"
+	}, {
+	  "id": 2819,
+	  "name": "Gurpreet Kaur",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/819/original/Gupreet.JPG?1526937989",
+	  "occup": "student"
+	}, {
+	  "id": 2821,
+	  "name": "Alejandro Marquez",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/821/original/Alejandro.JPG?1526937531",
+	  "occup": "student"
+	}, {
+	  "id": 2823,
+	  "name": "Bogdan Bobletec",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/823/original/Bogdan.JPG?1526937653",
+	  "occup": "student"
+	}, {
+	  "id": 2822,
+	  "name": "Nick Newhouse",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/822/original/Nick.JPG?1526938176",
+	  "occup": "student"
+	}, {
+	  "id": 2824,
+	  "name": "Jamaica Fredericks",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/824/original/Jamaica.JPG?1526938016",
+	  "occup": "student"
+	}, {
+	  "id": 2825,
+	  "name": "Brikend Behrami",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/825/original/Brikend.JPG?1526937727",
+	  "occup": "student"
+	}, {
+	  "id": 2826,
+	  "name": "Jyot Patel",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/826/original/Jyot.JPG?1526938065",
+	  "occup": "student"
+	}, {
+	  "id": 2829,
+	  "name": "Derick Castillo",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/829/original/Derick.JPG?1526937899",
+	  "occup": "student"
+	}, {
+	  "id": 2830,
+	  "name": "Daniel Park",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/830/original/Daniel.JPG?1526937807",
+	  "occup": "student"
+	}, {
+	  "id": 2832,
+	  "name": "Doug Uretsky",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/832/original/Doug.JPG?1526937913",
+	  "occup": "student"
+	}, {
+	  "id": 2831,
+	  "name": "Alan Uraz",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/831/original/Alan.JPG?1526937587",
+	  "occup": "student"
+	}, {
+	  "id": 2833,
+	  "name": "Jackie LiPera",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/833/original/Jackie.JPG?1526938002",
+	  "occup": "student"
+	}, {
+	  "id": 2834,
+	  "name": "Dennis Moon",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/834/original/Dennis.JPG?1526937888",
+	  "occup": "student"
+	}, {
+	  "id": 2835,
+	  "name": "Monte Montalbano",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/835/original/Michael.JPG?1526938095",
+	  "occup": "student"
+	}, {
+	  "id": 2836,
+	  "name": "Sasha Boginsky",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/836/original/Sasha.JPG?1526938404",
+	  "occup": "student"
+	}, {
+	  "id": 2837,
+	  "name": "Won-Bae Seo",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/837/original/Won-Bae.JPG?1526938425",
+	  "occup": "student"
+	}, {
+	  "id": 2807,
+	  "name": "Andrew Dong",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/807/original/Andrew.JPG?1526937642",
+	  "occup": "student"
+	}, {
+	  "id": 2843,
+	  "name": "Oliver Ball",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/843/original/Oliver.JPG?1526938188",
+	  "occup": "student"
+	}, {
+	  "id": 2840,
+	  "name": "Alexa Marshall",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/840/original/Alexa.JPG?1526937630",
+	  "occup": "student"
+	}, {
+	  "id": 2845,
+	  "name": "Brian Kwok",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/845/original/Brian.JPG?1526937665",
+	  "occup": "student"
+	}, {
+	  "id": 2846,
+	  "name": "Kirill Langer",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/846/original/Kirill.JPG?1526938074",
+	  "occup": "student"
+	}, {
+	  "id": 2848,
+	  "name": "Saul Ackerman",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/848/original/Saul.JPG?1526938415",
+	  "occup": "student"
+	}, {
+	  "id": 2847,
+	  "name": "Aaron Hardowar",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/847/original/Aaron.JPG?1526937510",
+	  "occup": "student"
+	}, {
+	  "id": 2814,
+	  "name": "Spencer Fink",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/814/original/Spencer.JPG?1526938203",
+	  "occup": "student"
+	}, {
+	  "id": 2849,
+	  "name": "Rowan Littlefield",
+	  "imageUrl": "https:////s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/849/original/Rowan_Littlefield.JPG?1526938297",
+	  "occup": "student"
+	}];
+
+/***/ }),
+/* 201 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	/* eslint max-len:0 */
+	module.exports = [{
+	  "id": 2,
+	  "name": "Tommy Duek",
+	  "imageUrl": "https://media.licdn.com/dms/image/C5603AQF85Cq6GdOb_w/profile-displayphoto-shrink_800_800/0?e=1532563200&v=beta&t=B2BXS8K4GQKriGinvE91myWb6pAscLEAA64Q-Z1MD2M",
+	  "occup": "NY Manager"
+	}, {
+	  "id": 59,
+	  "name": 'Maurice Roach',
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/216/medium/Maurice_Roach.jpg?1460493382",
+	  "occup": "Instructor"
+	}, {
+	  "id": 63,
+	  "name": 'Kurstie Ozuna',
+	  "imageUrl": "https://media.licdn.com/dms/image/C5103AQG6QhRwwFRpIg/profile-displayphoto-shrink_800_800/0?e=1532563200&v=beta&t=wZjih_Pg4ZUaUpnsbXUeflY8o3xihh_vxuOF6k8FOKg",
+	  "occup": "Operations Manager"
+	}, {
+	  "id": 65,
+	  "name": "Oscar Alvarez",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/321/medium/Oscar_Alvarez.JPG?1466032047",
+	  "occup": "Instructor"
+	}, {
+	  "id": 79,
+	  "name": "Danny Catalano",
+	  "imageUrl": "https://media.licdn.com/dms/image/C5603AQHziojuH7HyNA/profile-displayphoto-shrink_800_800/0?e=1532563200&v=beta&t=d4hdpir8ds4BG4weFeSzXwNVyf9JG4CSy_DVU0EUVSU",
+	  "occup": "Placements"
+	}, {
+	  "id": 90,
+	  "name": "Matthew Haws",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/943/medium/Matthew_Haws.jpg?1488226592",
+	  "occup": "Placements"
+	}, {
+	  "id": 100,
+	  "name": "Matthias Jenny",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/175/medium/Matthias_Jenny.JPG?1499112274",
+	  "occup": "Instructor"
+	}, {
+	  "id": 101,
+	  "name": "Mashu Duek",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/203/medium/Matthew_Duek.JPG?1499112242",
+	  "occup": "Instructor"
+	}, {
+	  "id": 115,
+	  "name": "Brian Crawford Scott",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/475/medium/Brian_Scott.jpg?1510004521",
+	  "occup": "Instructor"
+	}, {
+	  "id": 116,
+	  "name": "Abigail Hersh",
+	  "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/506/medium/Abigail.jpg?1510002940",
+	  "occup": "Instructor"
+	}];
 
 /***/ })
 /******/ ]);

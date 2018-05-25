@@ -1,29 +1,29 @@
 var Dispatcher = require('../dispatcher');
 
 var guessActions = {
-  addGuess: function(guessType, guess) {
+  addGuess: function(guessType, guess, city) {
     Dispatcher.dispatch({
-      actionType: "GUESS_ADDED",
+      actionType: city + "_GUESS_ADDED",
       guessType: guessType,
       guess: guess
     });
   },
 
-  nextItem: function () {
+  nextItem: function (city) {
     Dispatcher.dispatch({
-      actionType: "NEXT_ITEM"
+      actionType: city + "_NEXT_ITEM"
     });
   },
-  setItem: function (key) {
+  setItem: function (key, city) {
     Dispatcher.dispatch({
-      actionType: "SET_ITEM",
+      actionType: city + "_SET_ITEM",
       key: key
     });
   },
 
-  resetGameState: function() {
+  resetGameState: function(city) {
     Dispatcher.dispatch({
-      actionType: "RESET_GAME_STATE"
+      actionType: city + "_RESET_GAME_STATE"
     });
   }
 };

@@ -3,31 +3,60 @@ var Picture = require('./Picture');
 var Message = require('./Message');
 var Controls = require('./Controls');
 var ProgressBar = require('./ProgressBar');
-var GameStateStore = require('../stores/gameState');
+var CitySwitcher = require('./CitySwitcher');
+var SFStateStore = require('../stores/sfState');
+var NYStateStore = require('../stores/nyState');
 var FuzzySet = require('../util/fuzzyset');
+var sfPeople = require('../data/sfPeople');
+var nyPeople = require('../data/nyPeople');
 
 var PictureGame = React.createClass({
   getInitialState: function () {
     return {
+      cityStore: SFStateStore,
+      city: "SF",
       status: "guessing",
       nextPicture: false,
-      person: GameStateStore.currentItem(),
-      scores: GameStateStore.getScores()
+      people: sfPeople,
+      person: SFStateStore.currentItem(),
+      scores: SFStateStore.getScores()
     };
   },
   componentDidMount : function () {
-    GameStateStore.addListener(this.updateItem);
+    SFStateStore.addListener(this.updateItem);
+    NYStateStore.addListener(this.updateItem);
   },
   updateItem: function () {
     this.setState({
-      person: GameStateStore.currentItem(),
-      status: GameStateStore.status(),
+      person: this.state.cityStore.currentItem(),
+      status: this.state.cityStore.status(),
       nextPicture: false,
-      scores: GameStateStore.getScores()
+      scores: this.state.cityStore.getScores()
+    });
+  },
+  switchCity: function() {
+    let newStore;
+    let people;
+    let city;
+    if (this.state.cityStore === SFStateStore) {
+      newStore = NYStateStore;
+      people = nyPeople;
+      city = "NYC";
+    } else {
+      newStore = SFStateStore;
+      people = sfPeople;
+      city = "SF";
+    }
+    this.setState({
+      cityStore: newStore,
+      people: people,
+      person: newStore.currentItem(),
+      scores: newStore.getScores(),
+      city: city
     });
   },
   currentName: function () {
-    return this.state.person.name + " (" + GameStateStore.currentItem().occup + ")";
+    return this.state.person.name + " (" + this.state.cityStore.currentItem().occup + ")";
   },
   render: function () {
     return (
@@ -43,12 +72,14 @@ var PictureGame = React.createClass({
             <Picture src={this.state.person.imageUrl} />
             <Message status={this.state.status}
               currentName={this.currentName()}
-              currentOcup={GameStateStore.currentItem().occup}/>
+              currentOcup={this.state.cityStore.currentItem().occup}/>
             <Controls
+              city={this.state.city}
               status={this.state.status}
               nextPicture={this.nextPicture}/>
           </section>
-          <ProgressBar scores={this.state.scores}/>
+          <ProgressBar scores={this.state.scores} people={this.state.people} city={this.state.city}/>
+          <CitySwitcher switchCity={this.switchCity}/>
         </div>
       </div>
     );

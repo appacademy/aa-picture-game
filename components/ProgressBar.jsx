@@ -1,15 +1,14 @@
 var React = require('react');
 var guessActions = require('../actions/guessActions');
-var people = require('../data/people');
 
 var ProgressBar = React.createClass({
-  onClick: function(key) {
-    guessActions.setItem(key);
+  onClick: function(key, city) {
+    guessActions.setItem(key, city);
   },
 
   resetScores: function(e) {
     e.preventDefault();
-    guessActions.resetGameState();
+    guessActions.resetGameState(this.props.city);
   },
 
   render: function () {
@@ -21,8 +20,8 @@ var ProgressBar = React.createClass({
             Object.keys(scores).map(key => {
               var className = `progress-square score-${scores[key]}`;
               return (<div className={className} key={key}
-                           onClick={this.onClick.bind(this, key)}>
-                <img src={people[key].imageUrl}></img>
+                           onClick={this.onClick.bind(this, key, this.props.city)}>
+                <img src={this.props.people[key].imageUrl}></img>
               </div>);
             })
           }

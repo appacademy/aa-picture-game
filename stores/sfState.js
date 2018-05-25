@@ -4,7 +4,7 @@ var Store = require('flux/utils').Store;
 var GameState = new Store(Dispatcher);
 module.exports = GameState;
 
-var people = require('../data/people');
+var people = require('../data/sfPeople');
 
 // scoring params
 
@@ -41,16 +41,16 @@ const _resetStoreState = function() {
 
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
-    case "NEXT_ITEM":
+    case "SF_NEXT_ITEM":
       advanceItem();
       break;
-    case "SET_ITEM":
+    case "SF_SET_ITEM":
       setCurrentItem(payload.key);
       break;
-    case "RESET_GAME_STATE":
+    case "SF_RESET_GAME_STATE":
       _resetStoreState();
       break;
-    case "GUESS_ADDED":
+    case "SF_GUESS_ADDED":
       makeGuess(payload.guessType, payload.guess);
       break;
   }

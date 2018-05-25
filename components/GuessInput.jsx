@@ -17,7 +17,7 @@ var GuessInput = React.createClass({
         return;
       }
     }
-    guessActions.addGuess(this.props.guessType, this.state.guess);
+    guessActions.addGuess(this.props.guessType, this.state.guess, this.props.city);
     this.setState({ guess: '' });
   },
 
