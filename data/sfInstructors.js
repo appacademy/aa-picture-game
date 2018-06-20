@@ -31,12 +31,6 @@ module.exports = [
     "occup": "TA"
   },
   {
-    "id": 83,
-    "name": "Andres Alfaro",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/252/medium/Andres_Alfaro_1.jpg?1502406784",
-    "occup": "TA"
-  },
-  {
     "id": 84,
     "name": "AJ Ansel",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/295/medium/Andrew_Ansel_1.jpg?1502407446",
