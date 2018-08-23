@@ -35,6 +35,8 @@ add them to the name game.
 3. Copy the logged text and paste it into `data/students.js`. Make sure
   that you maintain the file's module pattern when you do this.
 
+4. Make sure each students' imageUrl begins with `http://` (instead of just `//`)
+
 ### Update the instructor data.
 
 Look through the `data/instructors.js` file. Remove any instructors who
@@ -51,7 +53,7 @@ manually.
 
 ### Test it.
 
-1. Run `webpack`.
+1. Run `npm run webpack`.
 2. `open index.html`
 3. Make sure all the pictures display properly.
 4. Try typing a name for one of the new photos.

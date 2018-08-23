@@ -4,7 +4,8 @@
   "description": "Helps students and instructors at App Academy learn each other's names",
   "main": "fuzzyset.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "webpack": "webpack"
   },
   "repository": {
     "type": "git",
