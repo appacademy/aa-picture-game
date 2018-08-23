@@ -7,33 +7,15 @@ module.exports = [
     "occup": "selection manager"
   },
   {
-    "id": 77,
-    "name": 'Aaron Wayne',
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/957/medium/Aaron_Wayne_1.jpg?1490998414",
-    "occup": "TA"
-  },
-  {
     "id": 79,
     "name": 'Elliot Humphrey',
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/991/medium/Elliot_Humphrey_1.jpg?1491341118",
     "occup": "TA"
   },
   {
-    "id": 81,
-    "name": "Isak Mladenoff",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/152/medium/Isak_Mladenoff_3.jpg?1496695969",
-    "occup": "TA"
-  },
-  {
     "id": 82,
     "name": "Stephen Pangburn II",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/141/medium/aa_july2017.jpg?1502421247",
-    "occup": "TA"
-  },
-  {
-    "id": 84,
-    "name": "AJ Ansel",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/295/medium/Andrew_Ansel_1.jpg?1502407446",
     "occup": "TA"
   },
   {
@@ -64,6 +46,30 @@ module.exports = [
     "id": 90,
     "name": "Andy Wynkoop",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/686/medium/Andrew_Wynkoop_1.jpg?1518570066",
+    "occup": "TA"
+  },
+  {
+    "id": 91,
+    "name": "Rose Koron",
+    "imageUrl":"https://d1qb2nb5cznatu.cloudfront.net/users/7771375-large?1524415099",
+    "occup": "TA"
+  },
+  {
+    "id": 92,
+    "name": "Ryan Mapa",
+    "imageUrl":"https://media.licdn.com/dms/image/C5103AQHbDW4UZXSmdA/profile-displayphoto-shrink_200_200/0?e=1538611200&v=beta&t=_ofrizJcdsenLvaEXbswjJXkFjeI7igiVQJeJgzTT9M",
+    "occup": "TA"
+  },
+  {
+    "id": 93,
+    "name": "Ronil Bhatia",
+    "imageUrl":"https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/852/medium/Ronil_Bhatia.jpg?1529521442",
+    "occup": "TA"
+  },
+  {
+    "id": 94,
+    "name": "Jennifer Kennedy",
+    "imageUrl":"https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/875/medium/Jennifer_Kennedy.jpg?1529520806",
     "occup": "TA"
   }
 ];
