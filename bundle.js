@@ -27864,7 +27864,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 2993,
-	  "name": "Amanpriya (Riya) Kulkarni",
+	  "name": "Riya Kulkarni",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/993/medium/Amanpriya_%28Riya%29_Kularni_.jpg?1534882533",
 	  "occup": "student"
 	}, {
@@ -27874,7 +27874,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3021,
-	  "name": "Andrew (AJ) Gosling",
+	  "name": "AJ Gosling",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/021/medium/AJ_Gosling.jpg?1534882563",
 	  "occup": "student"
 	}, {
@@ -27919,17 +27919,17 @@
 	  "occup": "student"
 	}, {
 	  "id": 2991,
-	  "name": "Christopher (Chris) Mcdonald",
+	  "name": "Chris Mcdonald",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/991/medium/Chris_Mcdonald_2.jpg?1534882688",
 	  "occup": "student"
 	}, {
 	  "id": 3029,
-	  "name": "Christopher (Chris) Yee",
+	  "name": "Chris Yee",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/029/medium/Chris_Yee_2.jpg?1534882711",
 	  "occup": "student"
 	}, {
 	  "id": 3024,
-	  "name": "Christopher (Chris) Yip",
+	  "name": "Chris Yip",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/024/medium/Chris_Yip_2.jpg?1534882723",
 	  "occup": "student"
 	}, {
@@ -27939,7 +27939,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3019,
-	  "name": "Cornelis (Dirk) Haupt",
+	  "name": "Dirk Haupt",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/019/medium/ID7B4103.jpg?1534882760",
 	  "occup": "student"
 	}, {
@@ -27984,7 +27984,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3003,
-	  "name": "Duo (Danny) Xu",
+	  "name": "Danny Xu",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/003/medium/Danny_Xu_2.jpg?1534883015",
 	  "occup": "student"
 	}, {
@@ -27994,7 +27994,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3014,
-	  "name": "Eric (E.J.) Conway",
+	  "name": "EJ Conway",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/014/medium/EricConway2.jpg?1534883211",
 	  "occup": "student"
 	}, {
@@ -28009,7 +28009,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3008,
-	  "name": "Francis (Miles) Lo",
+	  "name": "Miles Lo",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/008/medium/Miles_Lo.jpg?1534892153",
 	  "occup": "student"
 	}, {
@@ -28054,7 +28054,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3001,
-	  "name": "Jinying (jin) Wu",
+	  "name": "Jin Wu",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/001/medium/Jin_Wu_2.jpg?1534886942",
 	  "occup": "student"
 	}, {
@@ -28074,7 +28074,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3025,
-	  "name": "Jookwang (Justin) Han",
+	  "name": "Justin Han",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/025/medium/Justin_Han_2.jpg?1534887049",
 	  "occup": "student"
 	}, {
@@ -28084,17 +28084,17 @@
 	  "occup": "student"
 	}, {
 	  "id": 3018,
-	  "name": "Joseph (Brett) Kalbacher",
+	  "name": "Brett Kalbacher",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/018/medium/Joseph_Kalbacher_2.jpg?1534887084",
 	  "occup": "student"
 	}, {
 	  "id": 2989,
-	  "name": "Joseph (Joe) Olivier",
+	  "name": "Joe Olivier",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/989/medium/Joseph_Oliver_2.jpg?1534887096",
 	  "occup": "student"
 	}, {
 	  "id": 3002,
-	  "name": "Joseph (Manny) Rato",
+	  "name": "Manny Rato",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/002/medium/Joseph_Rato.jpg?1534887149",
 	  "occup": "student"
 	}, {
@@ -28124,12 +28124,12 @@
 	  "occup": "student"
 	}, {
 	  "id": 2986,
-	  "name": "Matthew (Matt) Voorhees",
+	  "name": "Matt Voorhees",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/986/medium/Mathew_Voorhees_3.jpg?1534887420",
 	  "occup": "student"
 	}, {
 	  "id": 3004,
-	  "name": "Michael (Mike) Gee",
+	  "name": "Mike Gee",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/004/medium/Mike_Gee.jpg?1534887434",
 	  "occup": "student"
 	}, {
@@ -28139,12 +28139,12 @@
 	  "occup": "student"
 	}, {
 	  "id": 2978,
-	  "name": "Nicholas (Nick) Horton",
+	  "name": "Nick Horton",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/978/medium/Nick_Horton_2.jpg?1534887465",
 	  "occup": "student"
 	}, {
 	  "id": 3016,
-	  "name": "Nicholas (Nico) Lauria",
+	  "name": "Nico Lauria",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/016/medium/Nico_Lauria_2.jpg?1534887491",
 	  "occup": "student"
 	}, {
@@ -28159,7 +28159,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 2984,
-	  "name": "Ruijia (Rika) Sun",
+	  "name": "Rika Sun",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/984/medium/Rika_Sun.jpg?1534891004",
 	  "occup": "student"
 	}, {
@@ -28184,7 +28184,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 2969,
-	  "name": "Tianyou (Tim) Song",
+	  "name": "Tim Song",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/969/medium/Tianyou_Song.jpg?1534891169",
 	  "occup": "student"
 	}, {
@@ -28209,7 +28209,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 2997,
-	  "name": "Xiaoyun (Alice) Yang",
+	  "name": "Alice Yang",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/997/medium/Xiaoyun_Yang_2.jpg?1534891240",
 	  "occup": "student"
 	}];
@@ -28253,9 +28253,9 @@
 	  "occup": "TA"
 	}, {
 	  "id": 89,
-	  "name": "Liz Houle (Joob)",
+	  "name": "Liz Houle",
 	  "imageUrl": "https://josephkasprzyk.files.wordpress.com/2015/07/lizhoule.jpg",
-	  "occup": "TA"
+	  "occup": "TA/ JOOB-Search Coach"
 	}, {
 	  "id": 90,
 	  "name": "Andy Wynkoop",
