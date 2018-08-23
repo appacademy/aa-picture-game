@@ -40,7 +40,7 @@ module.exports = [
     "id": 89,
     "name": "Liz Houle",
     "imageUrl": "https://josephkasprzyk.files.wordpress.com/2015/07/lizhoule.jpg",
-    "occup": "TA"
+    "occup": "TA/ JOOB-Search Coach"
   },
   {
     "id": 90,
