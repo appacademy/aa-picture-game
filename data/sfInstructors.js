@@ -39,13 +39,13 @@ module.exports = [
   {
     "id": 89,
     "name": "Liz Houle",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/667/medium/Elizabeth_Houle_1.jpg?1518571064",
+    "imageUrl": "https://josephkasprzyk.files.wordpress.com/2015/07/lizhoule.jpg",
     "occup": "TA"
   },
   {
     "id": 90,
     "name": "Andy Wynkoop",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/686/medium/Andrew_Wynkoop_1.jpg?1518570066",
+    "imageUrl": "https://s3-us-west-1.amazonaws.com/spacebook-assets/13113244_1299623806718826_1306617861_o.jpg",
     "occup": "TA"
   },
   {
@@ -63,13 +63,13 @@ module.exports = [
   {
     "id": 93,
     "name": "Ronil Bhatia",
-    "imageUrl":"https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/852/medium/Ronil_Bhatia.jpg?1529521442",
+    "imageUrl":"https://pbs.twimg.com/profile_images/714207363004252162/a1DaqeKP_400x400.jpg",
     "occup": "TA"
   },
   {
     "id": 94,
     "name": "Jennifer Kennedy",
-    "imageUrl":"https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/875/medium/Jennifer_Kennedy.jpg?1529520806",
+    "imageUrl":"https://media.licdn.com/dms/image/C4E03AQH9o_GgKApYwA/profile-displayphoto-shrink_200_200/0?e=1540425600&v=beta&t=JnDVc1_h0rkHaSy6-EBT0vUlzzzb_vmcJfL-bjhtRD4",
     "occup": "TA"
   }
 ];
