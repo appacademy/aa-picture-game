@@ -13,29 +13,17 @@ module.exports = [
     "occup": "TA"
   },
   {
-    "id": 82,
-    "name": "Stephen Pangburn II",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/141/medium/aa_july2017.jpg?1502421247",
-    "occup": "TA"
-  },
-  {
     "id": 85,
     "name": "Jesse Wong",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/308/medium/Jesse_Wong_1.jpg?1502406902",
     "occup": "TA"
-  }, 
+  },
   {
     "id": 87,
     "name": "Cynthia Ma",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/383/medium/Cynthia_Ma_1.jpg?1507581364",
     "occup": "TA"
-  }, 
-  {
-    "id": 88, 
-    "name": "David Webster", 
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/347/medium/David_Webster.JPG?1504552515",
-    "occup": "TA"
-  }, 
+  },
   {
     "id": 89,
     "name": "Liz Houle",
@@ -57,7 +45,7 @@ module.exports = [
   {
     "id": 92,
     "name": "Ryan Mapa",
-    "imageUrl":"https://media.licdn.com/dms/image/C5103AQHbDW4UZXSmdA/profile-displayphoto-shrink_200_200/0?e=1538611200&v=beta&t=_ofrizJcdsenLvaEXbswjJXkFjeI7igiVQJeJgzTT9M",
+    "imageUrl":"https://s3-us-west-1.amazonaws.com/eventliter-prod/portrait.jpg",
     "occup": "TA"
   },
   {
@@ -70,6 +58,12 @@ module.exports = [
     "id": 94,
     "name": "Jennifer Kennedy",
     "imageUrl":"https://media.licdn.com/dms/image/C4E03AQH9o_GgKApYwA/profile-displayphoto-shrink_200_200/0?e=1540425600&v=beta&t=JnDVc1_h0rkHaSy6-EBT0vUlzzzb_vmcJfL-bjhtRD4",
+    "occup": "TA"
+  },
+  {
+    "id": 95,
+    "name": "Carly Schaaf",
+    "imageUrl":"https://s3-us-west-1.amazonaws.com/eventliter-prod/Carly_Schaaf.jpg",
     "occup": "TA"
   }
 ];
