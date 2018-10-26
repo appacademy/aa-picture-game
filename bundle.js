@@ -28184,7 +28184,7 @@
 	}, {
 	  "id": 94,
 	  "name": "Jennifer Kennedy",
-	  "imageUrl": "https://media.licdn.com/dms/image/C4E03AQH9o_GgKApYwA/profile-displayphoto-shrink_200_200/0?e=1540425600&v=beta&t=JnDVc1_h0rkHaSy6-EBT0vUlzzzb_vmcJfL-bjhtRD4",
+	  "imageUrl": "https://s3-us-west-1.amazonaws.com/eventliter-prod/headshot.jpg",
 	  "occup": "TA"
 	}, {
 	  "id": 95,
