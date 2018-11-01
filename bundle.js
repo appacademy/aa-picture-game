@@ -20881,7 +20881,6 @@
 	};
 	
 	var chooseBestKey = function chooseBestKey() {
-	  console.log(state.learningKeys.size, state.knownKeys.size);
 	  var eligibleKeys = void 0;
 	  if (state.learningKeys.size < LEARNING_GROUP_SIZE) {
 	    eligibleKeys = Object.keys(people);

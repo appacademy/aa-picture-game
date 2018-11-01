@@ -157,7 +157,6 @@ const updateCurrentKey = function () {
 };
 
 const chooseBestKey = function () {
-  console.log(state.learningKeys.size, state.knownKeys.size);
   let eligibleKeys;
   if (state.learningKeys.size < LEARNING_GROUP_SIZE) {
     eligibleKeys = Object.keys(people);
