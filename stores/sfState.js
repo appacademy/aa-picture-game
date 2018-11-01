@@ -8,34 +8,34 @@ var people = require('../data/sfPeople');
 
 // scoring params
 
-const RESHOW_PENALTHY_THRESHOLD = 10;
+const LEARNING_GROUP_SIZE = 3;
+const RESHOW_PENALTHY_THRESHOLD = 6;
 const GUESSES_TO_KEEP = 4;
 
 // state
 
-const CYCLE = "22-10-18";
-var localStorageKey = "faceGameState-" + CYCLE;
-var state = {
-  turn: 0,
-  status: "guessing",
-  remedialGuess: false,
-  guessesByKey: {},
-  currentKey: null,
-  timestamp: Date.now()
-};
-
-const _resetStoreState = function() {
-  state = {
+const createBlankState = function() {
+  return {
     turn: 0,
     status: "guessing",
     remedialGuess: false,
     guessesByKey: {},
+    learningKeys: new Set(),
+    knownKeys: new Set(),
     currentKey: null,
     timestamp: Date.now()
   };
+};
+
+const CYCLE = "22-10-18";
+var localStorageKey = "faceGameState-" + CYCLE;
+var state = createBlankState();
+
+const _resetStoreState = function() {
+  state = createBlankState();
   storeState();
   syncStateWithPeople();
-  updateCurrentItem();
+  updateCurrentKey();
   GameState.__emitChange();
 };
 
@@ -56,7 +56,7 @@ GameState.__onDispatch = function (payload) {
   }
 };
 
-var makeGuess= function(guessType, answer) {
+const makeGuess = function(guessType, answer) {
   var correctAnswer;
   if (guessType === "Full Name") {
     correctAnswer = GameState.currentItem().name.toLowerCase();
@@ -114,14 +114,14 @@ GameState.getScores = function () {
   return totals;
 };
 
-var setCurrentItem = function(key) {
+const setCurrentItem = function(key) {
   state.currentKey = key;
   state.status = "guessing";
   state.remedialGuess = false;
   GameState.__emitChange();
 };
 
-var addGuess = function () {
+const addGuess = function () {
   let guesses = state.guessesByKey[state.currentKey];
   guesses.push({
     turn: state.turn,
@@ -130,45 +130,55 @@ var addGuess = function () {
   while (guesses.length > GUESSES_TO_KEEP) {
     guesses.shift();
   }
+  if (state.status === 'correct') {
+    state.learningKeys.delete(state.currentKey);
+    state.knownKeys.add(state.currentKey);
+  } else if (state.status === 'incorrect') {
+    state.knownKeys.delete(state.currentKey);
+    state.learningKeys.add(state.currentKey);
+  }
 };
 
-var advanceItem = function () {
+const advanceItem = function () {
   state.status = "guessing";
   if (!state.remedialGuess) {
-    updateCurrentItem();
+    updateCurrentKey();
     state.turn += 1;
   }
 
   GameState.__emitChange();
 };
 
-var updateCurrentItem = function () {
-  chooseBestKey();
-
-  while (!keyIsValid(state.currentKey)) {
-    delete state.guessesByKey[state.currentKey];
-    chooseBestKey();
+const updateCurrentKey = function () {
+  state.currentKey = chooseBestKey();
+  if (!state.knownKeys.has(state.currentKey)) {
+    state.learningKeys.add(state.currentKey);
   }
 };
 
-var chooseBestKey = function () {
-  var bestKey, bestScore = -1;
-  Object.keys(state.guessesByKey).forEach(key => {
-    var score = scoreItem(state.guessesByKey[key]);
+const chooseBestKey = function () {
+  console.log(state.learningKeys.size, state.knownKeys.size);
+  let eligibleKeys;
+  if (state.learningKeys.size < LEARNING_GROUP_SIZE) {
+    eligibleKeys = Object.keys(people);
+  } else {
+    eligibleKeys = new Set(state.knownKeys);
+    state.learningKeys.forEach(key => eligibleKeys.add(key));
+  }
+
+  let bestKey, bestScore = -1;
+  eligibleKeys.forEach(key => {
+    const score = scoreItem(state.guessesByKey[key]);
     if (score > bestScore) {
       bestKey = key;
       bestScore = score;
     }
   });
 
-  state.currentKey = bestKey;
+  return bestKey;
 };
 
-var keyIsValid = function (key) {
-  return people.hasOwnProperty(key);
-};
-
-var scoreItem = function (guesses) {
+const scoreItem = function (guesses) {
   if (guesses.length === 0) return 0.4 + 0.2 * Math.random();
 
   var recentIncorrect = 0, correct = 0;
@@ -196,8 +206,8 @@ var scoreItem = function (guesses) {
   var turnsSince = state.turn - lastTurn;
 
   var score = 0.4 * recentIncorrect
-            + 0.3 * (1 - correct)
-            + 0.2 * Math.random()
+            + 0.4 * (1 - correct)
+            + 0.1 * Math.random()
             + 0.1 * turnsSince / totalRecords;
   score = Math.min(1, score);
 
@@ -210,16 +220,19 @@ var scoreItem = function (guesses) {
 
 /// localStorage persistence ///
 
-var storeState = function () {
-  state.timestamp = Date.now();
-  localStorage.setItem(localStorageKey, JSON.stringify(state));
+const storeState = function () {
+  const storeageState = Object.assign({}, state);
+  storeageState.timestamp = Date.now();
+  storeageState.learningKeys = Array.from(state.learningKeys);
+  storeageState.knownKeys = Array.from(state.knownKeys);
+  localStorage.setItem(localStorageKey, JSON.stringify(storeageState));
 
   if (localStorage.length > 3) {
     removeOldestStoredItem();
   }
 };
 
-var removeOldestStoredItem = function () {
+const removeOldestStoredItem = function () {
   var keyToRemove = null;
   var minTimestamp = Date.now();
 
@@ -240,26 +253,31 @@ var removeOldestStoredItem = function () {
   }
 };
 
-var loadStoredState = function () {
+const loadStoredState = function () {
   let encodedState = localStorage.getItem(localStorageKey);
   if (encodedState) {
-    let storedState = JSON.parse(encodedState);
+    let storageState = JSON.parse(encodedState);
+
 
     Object.keys(state).forEach(key => {
-      if (storedState.hasOwnProperty(key)) {
-        state[key] = storedState[key];
+      if (storageState.hasOwnProperty(key)) {
+        if (key === 'learningKeys' || key === 'knownKeys') {
+          state[key] = new Set(storageState[key]);
+        } else {
+          state[key] = storageState[key];
+        }
       }
     });
     state.remedialGuess = false; // always start false
   }
 };
 
-var syncStateWithPeople = function () {
+const syncStateWithPeople = function () {
   removeInvalidKeys();
   addUnusedKeys();
 };
 
-var removeInvalidKeys = function () {
+const removeInvalidKeys = function () {
   Object.keys(state.guessesByKey).forEach(key => {
     if (!people.hasOwnProperty(key)) {
       delete state.guessesByKey[key];
@@ -267,7 +285,7 @@ var removeInvalidKeys = function () {
   });
 };
 
-var addUnusedKeys = function () {
+const addUnusedKeys = function () {
   Object.keys(people).forEach(key => {
     if (!state.guessesByKey.hasOwnProperty(key)) {
       state.guessesByKey[key] = [];
@@ -279,5 +297,6 @@ var addUnusedKeys = function () {
 
 loadStoredState();
 syncStateWithPeople();
-updateCurrentItem();
 GameState.addListener(storeState);
+updateCurrentKey();
+
