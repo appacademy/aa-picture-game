@@ -14,8 +14,8 @@ module.exports = [
   },
   {
     "id": 136,
-    "name": 'Rebecca Odorisio',
-    "imageUrl": "",
+    "name": 'Bex Odorisio',
+    "imageUrl": "https://cdn.buttercms.com/EVvtDos0SoadMOLOKTBq",
     "occup": "Operations Manager"
   },
   {
