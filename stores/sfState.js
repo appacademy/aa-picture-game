@@ -27,7 +27,7 @@ const createBlankState = function() {
   };
 };
 
-const CYCLE = "22-10-18";
+const CYCLE = "7-1-19";
 var localStorageKey = "faceGameState-" + CYCLE;
 var state = createBlankState();
 
