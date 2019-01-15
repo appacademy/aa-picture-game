@@ -27867,7 +27867,7 @@
 	/* eslint max-len:0 */
 	module.exports = [{
 	  "id": 3337,
-	  "name": "Abhishek (Abhi) Gupta",
+	  "name": "Abhi Gupta",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/337/medium/Abhishek_Gupta.jpg?1546973901",
 	  "occup": "student"
 	}, {
@@ -27882,17 +27882,17 @@
 	  "occup": "student"
 	}, {
 	  "id": 3299,
-	  "name": "Andrew (Drew) Engelstein",
+	  "name": "Drew Engelstein",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/299/medium/Andrew_Engelstein.jpg?1546973951",
 	  "occup": "student"
 	}, {
 	  "id": 3292,
-	  "name": "Andrew (Andy) Minucos",
+	  "name": "Andy Minucos",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/292/medium/Andrew_Minucos.jpg?1546973954",
 	  "occup": "student"
 	}, {
 	  "id": 3083,
-	  "name": "Andrew (Drew) Rodrigues",
+	  "name": "Drew Rodrigues",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/083/medium/Andrew_Rodriguez.jpg?1546973966",
 	  "occup": "student"
 	}, {
@@ -27902,7 +27902,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3276,
-	  "name": "Aurash (Ari) Ghlichloo",
+	  "name": "Ari Ghlichloo",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/276/medium/Ari_Ghuchloo.jpg?1546991748",
 	  "occup": "student"
 	}, {
@@ -27977,12 +27977,12 @@
 	  "occup": "student"
 	}, {
 	  "id": 3340,
-	  "name": "Hei Man (Dave) Chan",
+	  "name": "Dave Chan",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/340/medium/Heimen_Chan.jpg?1546990937",
 	  "occup": "student"
 	}, {
 	  "id": 3279,
-	  "name": "Hongyang (Hong) Gao",
+	  "name": "Hong Gao",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/279/medium/Hong_Yang_Gao.jpg?1546990957",
 	  "occup": "student"
 	}, {
@@ -28007,7 +28007,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3304,
-	  "name": "Jonathan (Yoni) Hartmayer",
+	  "name": "Yoni Hartmayer",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/304/medium/Jonathan_Hartmayer.jpg?1546991027",
 	  "occup": "student"
 	}, {
@@ -28052,17 +28052,17 @@
 	  "occup": "student"
 	}, {
 	  "id": 3338,
-	  "name": "Michael (Mike) Madsen",
+	  "name": "Mike Madsen",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/338/medium/Mike_Madsen_2.jpg?1546991184",
 	  "occup": "student"
 	}, {
 	  "id": 3288,
-	  "name": "Nicholas (Nick) Howlett",
+	  "name": "Nick Howlett",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/288/medium/Nick_Howlett.jpg?1546991199",
 	  "occup": "student"
 	}, {
 	  "id": 3356,
-	  "name": "Nicholas (Nick) Karsant",
+	  "name": "Nick Karsant",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/356/medium/Nick_Karsant.jpg?1546991211",
 	  "occup": "student"
 	}, {
@@ -28077,7 +28077,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3342,
-	  "name": "Rodolfo (Rudy) Rodriguez",
+	  "name": "Rudy Rodriguez",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/342/medium/Rodolfo_Rodriguez_2.jpg?1546991273",
 	  "occup": "student"
 	}, {
@@ -28097,12 +28097,12 @@
 	  "occup": "student"
 	}, {
 	  "id": 3277,
-	  "name": "Samuel (Sam) Ardrey",
+	  "name": "Sam Ardrey",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/277/medium/Sam_Ardrey.jpg?1546991355",
 	  "occup": "student"
 	}, {
 	  "id": 3233,
-	  "name": "Shijie (Alec) Ning",
+	  "name": "Alec Ning",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/233/medium/Alec_Ning.jpg?1546991441",
 	  "occup": "student"
 	}, {
@@ -28122,7 +28122,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3284,
-	  "name": "Vishavpreet (Vishal) Sandhu",
+	  "name": "Vishal Sandhu",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/284/medium/Vishavpreet_Sandhu.jpg?1546991403",
 	  "occup": "student"
 	}, {
@@ -28132,7 +28132,7 @@
 	  "occup": "student"
 	}, {
 	  "id": 3289,
-	  "name": "Yingjhen (Cindy) Ke",
+	  "name": "Cindy Ke",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/289/medium/YingJhen_Ke.jpg?1546991476",
 	  "occup": "student"
 	}, {
@@ -28142,17 +28142,17 @@
 	  "occup": "student"
 	}, {
 	  "id": 3291,
-	  "name": "Yulia (Lia) Tsernant",
+	  "name": "Lia Tsernant",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/291/medium/yulia_Tsernant.jpg?1546991485",
 	  "occup": "student"
 	}, {
 	  "id": 3285,
-	  "name": "Zachary (Zach) Oliver",
+	  "name": "Zach Oliver",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/285/medium/Zachary_Oliver.jpg?1546991492",
 	  "occup": "student"
 	}, {
 	  "id": 3295,
-	  "name": "Ziheng (Kevin) Bai",
+	  "name": "Kevin Bai",
 	  "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/295/medium/Zihenj_%28Kevin%29_Bai.jpg?1546991775",
 	  "occup": "student"
 	}];
