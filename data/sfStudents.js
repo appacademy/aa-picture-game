@@ -272,7 +272,7 @@ module.exports = [
   },
   {
     "id": 3283,
-    "name": "Sam O’donnell",
+    "name": "Sam O'donnell",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/283/medium/Sam_O'Donnell_2.jpg?1546991346",
     "occup": "student"
   },
