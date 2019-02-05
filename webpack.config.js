@@ -4,17 +4,17 @@ module.exports = {
   context: __dirname,
   entry: "./aa-picture-game.jsx",
   output: {
-    path: '',
+    path: __dirname,
     filename: "bundle.js",
     devtoolModuleFilenameTemplate: '[resourcePath]',
     devtoolFallbackModuleFilenameTemplate: '[resourcePath]?[hash]'
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel',
+        loader: 'babel-loader',
         query: {
           presets: ['react', "es2015"]
         }
@@ -23,6 +23,6 @@ module.exports = {
   },
   devtool: 'source-maps',
   resolve: {
-    extensions: ["", ".js", ".jsx" ]
+    extensions: [".js", ".jsx" ]
   }
 };

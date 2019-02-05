@@ -3,7 +3,7 @@ module.exports = [
   {
     "id": 2,
     "name": "Tommy Duek",
-    "imageUrl": "https://media.licdn.com/dms/image/C5603AQF85Cq6GdOb_w/profile-displayphoto-shrink_800_800/0?e=1543449600&v=beta&t=F8kizMgKzfWe4Yh3wuAtgqCyjeMTxMtOvn6zZc28hSk",
+    "imageUrl": "https://cdn.buttercms.com/hfVVTOQRKqSTr7VsZqjA",
     "occup": "NY Manager"
   },
   {
@@ -27,7 +27,7 @@ module.exports = [
   {
     "id": 79,
     "name": "Danny Catalano",
-    "imageUrl": "https://media.licdn.com/dms/image/C5603AQHziojuH7HyNA/profile-displayphoto-shrink_800_800/0?e=1543449600&v=beta&t=Qywx8okS3_4meNi9mKti72zRZyQ9sR0v9bQtE8qWLu0",
+    "imageUrl": "https://cdn.buttercms.com/vI4cjox8SuuUOQ9tOx6K",
     "occup": "Placements"
   },
   {
@@ -50,7 +50,7 @@ module.exports = [
   },
   {
     "id": 116,
-    "name": "Abigail Hersh",
+    "name": "Abby Hersh",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/506/medium/Abigail.jpg?1510002940",
     "occup": "Instructor"
   },
@@ -77,5 +77,17 @@ module.exports = [
     "name": "Michael Schwartz",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/947/medium/DSC00212_copy.JPG?1532380329",
     "occup": "Instructor"
-  }
+  },
+  {
+    "id": 185,
+    "name": "Adam Liang",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/182/medium/DSC00320.JPG?1543341731",
+    "occup": "Instructor"
+  },
+  {
+    "id": 184,
+    "name": "Joshua (Josh) Liversidge",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/213/medium/DSC00304.JPG?1543269331",
+    "occup": "Instructor"
+  },
 ];
