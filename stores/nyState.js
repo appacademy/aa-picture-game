@@ -13,7 +13,7 @@ const GUESSES_TO_KEEP = 4;
 
 // state
 
-const CYCLE = "19-02-04";
+const CYCLE = "19-04-08";
 var localStorageKey = "faceGameState-" + CYCLE;
 var state = {
   turn: 0,
