@@ -27,6 +27,9 @@
     "react": "^0.14.6",
     "react-addons-linked-state-mixin": "^0.14.6",
     "react-dom": "^0.14.6",
-    "webpack": "^1.12.10"
+    "webpack": "^4.29.6"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.3.1"
   }
 }

@@ -37,12 +37,6 @@ module.exports = [
     "occup": "TA"
   },
   {
-    "id": 91,
-    "name": "Rose Koron",
-    "imageUrl":"https://d1qb2nb5cznatu.cloudfront.net/users/7771375-large?1524415099",
-    "occup": "TA"
-  },
-  {
     "id": 92,
     "name": "Ryan Mapa",
     "imageUrl":"https://s3-us-west-1.amazonaws.com/eventliter-prod/portrait.jpg",
@@ -63,7 +57,25 @@ module.exports = [
   {
     "id": 95,
     "name": "Carly Schaaf",
-    "imageUrl":"https://s3-us-west-1.amazonaws.com/eventliter-prod/Carly_Schaaf.jpg",
+    "imageUrl": "https://s3-us-west-1.amazonaws.com/eventliter-prod/Carly_Schaaf.jpg",
+    "occup": "TA"
+  },
+  {
+    "id": 96,
+    "name": "Dean Lacap",
+    "imageUrl": "https://s3-us-west-1.amazonaws.com/eventliter-prod/Dean.jpg",
+    "occup": "TA"
+  },
+  {
+    "id": 97,
+    "name": "Mike Madsen",
+    "imageUrl": "https://s3-us-west-1.amazonaws.com/eventliter-prod/Mike+Madsen.jpg",
+    "occup": "TA"
+  },
+  {
+    "id": 98,
+    "name": "Andy Minucos",
+    "imageUrl": "https://s3-us-west-1.amazonaws.com/eventliter-prod/Andy.jpg",
     "occup": "TA"
   }
 ];
