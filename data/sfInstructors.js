@@ -69,13 +69,13 @@ module.exports = [
   {
     "id": 197,
     "name": "Angela Topchev",
-    "imageUrl": "",
+    "imageUrl": "https://github.com/appacademy/aa-picture-game/blob/gh-pages/photos/angela.jpg",
     "occup": "TA"
   },
   {
     "id": 196,
     "name": "Carlos Garcia",
-    "imageUrl": "",
+    "imageUrl": "https://github.com/appacademy/aa-picture-game/blob/gh-pages/photos/carlos.png",
     "occup": "TA"
   }
 ];
