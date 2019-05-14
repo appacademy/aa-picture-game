@@ -32,19 +32,36 @@ add them to the name game.
   console.log(JSON.stringify(students, undefined, 2));
   ```
 
-3. Copy the logged text and paste it into `data/students.js`. Make sure
+3. Copy the logged text and paste it into `data/xxStudents.js`. Make sure
   that you maintain the file's module pattern when you do this.
 
 4. Make sure each students' imageUrl begins with `http://` (instead of just `//`)
 
 ### Update the instructor data.
 
-Look through the `data/instructors.js` file. Remove any instructors who
+Look through the `data/xxInstructors.js` file. Remove any instructors who
 have moved on and add any who are new. You can find the relevant data
 [here](http://progress.appacademy.io/instructors).
 
 Sorry, there's no script for this. You'll have to put the data together
-manually.
+manually. 
+
+  ```javascript
+  let instructors = [];
+  $(".classmate-block.block").each(function () {
+    const $link = $(this).find("strong a");
+    const segments = $link.attr("href").split('/');
+
+    const id = parseInt(segments[segments.length - 1]);
+    const name = $link.text();
+    const imageUrl = $(this).find("figure img").attr("src");
+
+    student = {id, name, imageUrl, occup: "student"};
+    instructors.push(student);
+  });
+  console.log(JSON.stringify(instructors, undefined, 2));
+  ```
+
 
 ### Update the cycle prefix.
 
