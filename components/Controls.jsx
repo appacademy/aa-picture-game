@@ -52,8 +52,10 @@ var Controls = React.createClass({
     return (
       <div>
         <div className="guess-block">
-          <div onClick={this.handleSelectors}
-            className="game-type">Guess Type: <p>{this.state.gameType}</p></div>
+          <div onClick={this.handleSelectors} className="game-type">
+            <p className="guess-type-txt">guess type:</p>
+            <p className="game-type-txt">{this.state.gameType}</p>
+          </div>
 
           {this.state.selectors ? selectors : null }
 

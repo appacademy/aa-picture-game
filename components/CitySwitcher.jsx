@@ -28,7 +28,7 @@ const CitySwitcher = React.createClass({
       );
     });
     return (
-      <div>{citySpans}</div>
+      <div className="city-spans">{citySpans}</div>
     );
   }
 });

@@ -159,7 +159,16 @@ span {
 }
 
 span.selected {
-  background: grey;
+  background-color: red;
+  border-radius: 500px;
+  box-shadow: 1px 1px 5px #333435;
+  color:aliceblue;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: .5em;
+  padding: 5px 10px;
+  padding-left: 18px;
+  text-transform: uppercase;
 }
 
 /**
@@ -262,7 +271,7 @@ input,
 optgroup,
 select,
 textarea {
-  color: inherit; /* 1 */
+  color: #4e6475; /* 1 */
   font: inherit; /* 2 */
   margin: 0; /* 3 */
 }
@@ -516,9 +525,10 @@ h1 {
 }
 
 .game-zone {
+  color: aliceblue;
   float: left;
   width: 400px;
-  height: 400px;
+  height: 460px;
   margin: 20px auto;
   background: #5B99C3;
   padding: 30px 20px 150px 20px;
@@ -528,8 +538,9 @@ h1 {
 .game-zone img {
   height: 400px;
   width: 300px;
-  border: 2px solid #7A8295;
+  border: 2px solid #4e6475;
   object-fit: cover;
+  border-radius: inherit;
 }
 
 .loading {
@@ -537,7 +548,7 @@ h1 {
 }
 
 .incorrect {
-  color: red;
+  color: #fb6d6dd4;
 }
 
 .close {
@@ -545,7 +556,7 @@ h1 {
 }
 
 .correct {
-  color: green;
+  color: #17ff00;
 }
 
 .progress-square.score--4:before {
@@ -635,17 +646,17 @@ h1 {
 .progress-bar {
   float: left;
   width: 131px;
-  margin: 20px;
   padding: 20px;
   background: #5B99C3;
   border-radius: 5px;
 }
 
 .progress-bar .container {
+  margin-bottom: 15px;
   overflow: hidden;
   padding: 1px;
   background-color: white;
-  border: 2px solid #7A8295;
+  border: 2px solid #4e6475;
 }
 
 @media screen and (max-width: 800px) {
@@ -666,12 +677,18 @@ div.guess-block {
 
 div.guess-block p {
   display: inline;
+  text-transform: uppercase;
+  font-weight: 500;
+  box-shadow: 1px 1px 5px #333435;
+  border-radius: 500px;
+  padding: 5px 13px;
 }
 
 div.guess-block p:hover {
   cursor: pointer;
-  /*background: #5488AB;*/
-  font-weight: bold;
+  font-weight: 900;
+  letter-spacing: .03em;
+  font-style: italic; 
 }
 
 div.guess-block:hover {
@@ -679,13 +696,37 @@ div.guess-block:hover {
 }
 
 div.game-type-selector {
-  position: relative;
-  left: 13%;
+    position: absolute;
+    left: 40%;
+    top: 79%;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: .03em;
+    line-height: 20px;
 }
 
 div.game-type-selector:hover {
-  font-weight: bold;
+  font-weight: bolder;
+  text-transform: uppercase;
+  font-style: italic; 
 }
+
+.game-time:hover {
+  opacity: .5;
+}
+
+.game-type {
+  font-size: 18px;
+  font-weight: 300;
+  letter-spacing: .03em;
+  line-height: 20px;
+  margin: 15px auto;
+  text-align: center;
+  text-transform: uppercase;
+  padding-bottom: 25px;
+}
+
 
 p.first-name-error {
   color: red;
@@ -693,7 +734,50 @@ p.first-name-error {
   margin: 0px;
 }
 
+.reset-button {
+  /* background-color: #45464aa3; */
+  border-radius: 500px;
+  box-shadow: 1px 1px 5px #333435;
+  color:aliceblue;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  padding: 5px 13px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 span.reset-button:hover {
   cursor: pointer;
-  font-weight: bold;
+  font-size: 11px;
+  opacity: .8;
+}
+
+.progress-bar.clearfix {
+  margin-bottom: 40px;
+  margin: 20px;
+}
+
+.message-display {
+  text-shadow: 1px 1px 10px black;
+  font-weight: 700;
+}
+
+.message-display.guessing {
+  margin: 10px auto;
+  letter-spacing: 0.04em;
+  line-height: 33px;
+}
+
+.next {
+  border-radius: 500px;
+  color: #333435;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  padding: 5px 13px;
+  text-align: center;
+  text-transform: uppercase;
+  background-color: aliceblue;
+  border: none;
 }
