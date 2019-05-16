@@ -135,6 +135,7 @@ dfn {
 h1 {
   font-size: 2em;
   margin: 0;
+  font-family: Nunito, sans-serif;
 }
 
 /**
@@ -767,6 +768,7 @@ span.reset-button:hover {
   margin: 10px auto;
   letter-spacing: 0.04em;
   line-height: 33px;
+  font-family: Nunito, sans-serif;
 }
 
 .next {
