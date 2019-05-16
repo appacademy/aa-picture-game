@@ -51,7 +51,7 @@ module.exports = [
   {
     "id": 96,
     "name": "Dean Lacap",
-    "imageUrl": "https://s3-us-west-1.amazonaws.com/eventliter-prod/Dean.jpg",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/353/medium/Dean_Lacap.jpg?1546983954",
     "occup": "TA"
   },
   {
@@ -82,6 +82,8 @@ module.exports = [
     "id": 101,
     "name": "Andrew (Drew) Rodrigues",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/083/medium/Andrew_Rodriguez.jpg?1546973966",
-    "occup": "student"
+    "occup": "student",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/438/medium/Carlos_Garcia.jpg?1552418945",
+    "occup": "TA"
   },
 ];

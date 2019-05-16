@@ -43,24 +43,7 @@ Look through the `data/xxInstructors.js` file. Remove any instructors who
 have moved on and add any who are new. You can find the relevant data
 [here](http://progress.appacademy.io/instructors).
 
-Sorry, there's no script for this. You'll have to put the data together
-manually. 
-
-  ```javascript
-  let instructors = [];
-  $(".classmate-block.block").each(function () {
-    const $link = $(this).find("strong a");
-    const segments = $link.attr("href").split('/');
-
-    const id = parseInt(segments[segments.length - 1]);
-    const name = $link.text();
-    const imageUrl = $(this).find("figure img").attr("src");
-
-    student = {id, name, imageUrl, occup: "student"};
-    instructors.push(student);
-  });
-  console.log(JSON.stringify(instructors, undefined, 2));
-  ```
+There's no script for this. You'll have to navigate to the previous cohort (where the new TA's student picture lives) and run the script from above there. Copy over the relevant person's information.
 
 
 ### Update the cycle prefix.
