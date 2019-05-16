@@ -51,7 +51,7 @@ module.exports = [
   {
     "id": 96,
     "name": "Dean Lacap",
-    "imageUrl": "https://s3-us-west-1.amazonaws.com/eventliter-prod/Dean.jpg",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/353/medium/Dean_Lacap.jpg?1546983954",
     "occup": "TA"
   },
   {
@@ -67,15 +67,21 @@ module.exports = [
     "occup": "TA"
   },
   {
-    "id": 197,
+    "id": 99,
     "name": "Angela Topchev",
-    "imageUrl": "https://github.com/appacademy/aa-picture-game/blob/gh-pages/photos/angela.jpg",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/510/medium/Angela_Topchev_2.jpg?1552418206",
     "occup": "TA"
   },
   {
-    "id": 196,
+    "id": 100,
     "name": "Carlos Garcia",
-    "imageUrl": "https://github.com/appacademy/aa-picture-game/blob/gh-pages/photos/carlos.png",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/438/medium/Carlos_Garcia.jpg?1552418945",
     "occup": "TA"
-  }
+  },
+  {
+    "id": 101,
+    "name": "Andrew (Drew) Engelstein",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/299/medium/Andrew_Engelstein.jpg?1546973951",
+    "occup": "TA"
+  },
 ];
