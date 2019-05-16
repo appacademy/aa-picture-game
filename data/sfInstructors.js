@@ -67,15 +67,21 @@ module.exports = [
     "occup": "TA"
   },
   {
-    "id": 197,
+    "id": 99,
     "name": "Angela Topchev",
-    "imageUrl": "https://github.com/appacademy/aa-picture-game/blob/gh-pages/photos/angela.jpg",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/510/medium/Angela_Topchev_2.jpg?1552418206",
     "occup": "TA"
   },
   {
-    "id": 196,
+    "id": 100,
     "name": "Carlos Garcia",
-    "imageUrl": "https://github.com/appacademy/aa-picture-game/blob/gh-pages/photos/carlos.png",
-    "occup": "TA"
-  }
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/438/medium/Carlos_Garcia.jpg?1552418945",
+    "occup": "student"
+  },
+  {
+    "id": 101,
+    "name": "Andrew (Drew) Rodrigues",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/083/medium/Andrew_Rodriguez.jpg?1546973966",
+    "occup": "student"
+  },
 ];
