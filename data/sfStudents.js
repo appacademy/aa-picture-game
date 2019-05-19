@@ -408,4 +408,4 @@ module.exports = [
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/650/medium/YveZhu1.jpg?1557849905",
     "occup": "student"
   }
-]
+];

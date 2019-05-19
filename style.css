@@ -548,15 +548,15 @@ h1 {
 }
 
 .incorrect {
-  color: #fb6d6dd4;
+  color: #a33;
 }
 
 .close {
-  color: yellow;
+  color: #fc0;
 }
 
 .correct {
-  color: #17ff00;
+  color: #383;
 }
 
 .progress-square.score--4:before {
@@ -688,7 +688,7 @@ div.guess-block p:hover {
   cursor: pointer;
   font-weight: 900;
   letter-spacing: .03em;
-  font-style: italic; 
+  font-style: italic;
 }
 
 div.guess-block:hover {
@@ -709,7 +709,7 @@ div.game-type-selector {
 div.game-type-selector:hover {
   font-weight: bolder;
   text-transform: uppercase;
-  font-style: italic; 
+  font-style: italic;
 }
 
 .game-time:hover {
@@ -759,7 +759,7 @@ span.reset-button:hover {
 }
 
 .message-display {
-  text-shadow: 1px 1px 10px black;
+  /* text-shadow: 1px 1px 10px black; */
   font-weight: 700;
 }
 
