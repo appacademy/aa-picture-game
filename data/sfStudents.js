@@ -14,13 +14,13 @@ module.exports = [
   },
   {
     "id": 3586,
-    "name": "Alexander (Alex) Crisel",
+    "name": "Alex Crisel",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/586/medium/AlexanderCrisel.jpg?1557848538",
     "occup": "student"
   },
   {
     "id": 3634,
-    "name": "Alexander (Alex) Yang",
+    "name": "Alex Yang",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/634/medium/AlexYang.jpg?1557848560",
     "occup": "student"
   },
@@ -68,7 +68,7 @@ module.exports = [
   },
   {
     "id": 3614,
-    "name": "David Dabin (David) Song",
+    "name": "David Song",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/614/medium/DavidSong.jpg?1557848734",
     "occup": "student"
   },
@@ -128,7 +128,7 @@ module.exports = [
   },
   {
     "id": 3605,
-    "name": "Gregory (Greg) Wathen",
+    "name": "Greg Wathen",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/605/medium/GregWathon1.jpg?1557848981",
     "occup": "student"
   },
@@ -176,7 +176,7 @@ module.exports = [
   },
   {
     "id": 3654,
-    "name": "Jiyoung (Calla) Lee",
+    "name": "Calla Lee",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/654/medium/CallaLee.jpg?1557849942",
     "occup": "student"
   },
@@ -194,7 +194,7 @@ module.exports = [
   },
   {
     "id": 3632,
-    "name": "Joseph (Joe) Bumbaca",
+    "name": "Joe Bumbaca",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/632/medium/JoeBumbaca.jpg?1557849205",
     "occup": "student"
   },
@@ -260,7 +260,7 @@ module.exports = [
   },
   {
     "id": 3608,
-    "name": "Matthew (Matt) Deshaw",
+    "name": "Matt Deshaw",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/608/medium/MattDeshaw.jpg?1557849459",
     "occup": "student"
   },
@@ -284,7 +284,7 @@ module.exports = [
   },
   {
     "id": 3609,
-    "name": "Nicolas (Nick or Nicolas) Piper",
+    "name": "Nick Piper",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/609/medium/NicolasPiper.jpg?1557849524",
     "occup": "student"
   },
@@ -320,7 +320,7 @@ module.exports = [
   },
   {
     "id": 3606,
-    "name": "Phillip (Phil) Krasnick",
+    "name": "Phil Krasnick",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/606/medium/PhillipKrasnick.jpg?1557849689",
     "occup": "student"
   },
@@ -338,7 +338,7 @@ module.exports = [
   },
   {
     "id": 3610,
-    "name": "Robert (Rob) Roy",
+    "name": "Rob Roy",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/610/medium/RobRoy2.jpg?1557849729",
     "occup": "student"
   },
@@ -350,19 +350,19 @@ module.exports = [
   },
   {
     "id": 3649,
-    "name": "Samuel (Sam) Hecht",
+    "name": "Sam Hecht",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/649/medium/Sam_Hecht3.jpg?1557849761",
     "occup": "student"
   },
   {
     "id": 3598,
-    "name": "Samuel (Sam) Walker",
+    "name": "Sam Walker",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/598/medium/SamuelWalker.jpg?1557849774",
     "occup": "student"
   },
   {
     "id": 3630,
-    "name": "Samuel (Sam) Yoon",
+    "name": "Sam Yoon",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/630/medium/SamYoon.jpg?1557849787",
     "occup": "student"
   },
@@ -380,7 +380,7 @@ module.exports = [
   },
   {
     "id": 3635,
-    "name": "Sin Han (Sophia) Cheung",
+    "name": "Sophia Cheung",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/635/medium/SophiaChewng.jpg?1557849855",
     "occup": "student"
   },
@@ -392,7 +392,7 @@ module.exports = [
   },
   {
     "id": 3638,
-    "name": "Vladimir (Vlad) Bulvakhter",
+    "name": "Vlad Bulvakhter",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/638/medium/VloidBulrakhter1.jpg?1557849879",
     "occup": "student"
   },
@@ -404,7 +404,7 @@ module.exports = [
   },
   {
     "id": 3650,
-    "name": "Yue (Julian) Zhu",
+    "name": "Julian Zhu",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/650/medium/YveZhu1.jpg?1557849905",
     "occup": "student"
   }
