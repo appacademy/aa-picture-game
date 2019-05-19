@@ -3,7 +3,7 @@ var guessActions = require('../actions/guessActions');
 
 var NextItemButton = React.createClass({
   advance: function () {
-    guessActions.nextItem(this.props.city);
+    guessActions.nextItem();
   },
   render: function () {
     return (

@@ -1,21 +1,15 @@
 const React = require('react');
 
 const CitySwitcher = React.createClass({
-  getInitialState: function() {
-    return {
-      currentCity: "SF"
-    };
-  },
 
   selectCity: function(e) {
-    this.props.switchCity();
-    this.setState({ currentCity: e.currentTarget.innerText });
+    this.props.switchCity(e.currentTarget.innerText);
   },
 
   render: function() {
     const citySpans = ["SF", "NYC"].map((city, i) => {
       let selected = "";
-      if (city === this.state.currentCity) {
+      if (city === this.props.city) {
         selected = "selected";
       }
       return (

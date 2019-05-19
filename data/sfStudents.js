@@ -1,4 +1,5 @@
 /* eslint max-len:0 */
+const COHORT = '2019-05-13';
 module.exports = [
   {
     "id": 3633,
@@ -409,3 +410,4 @@ module.exports = [
     "occup": "student"
   }
 ];
+module.exports.cohort = COHORT;

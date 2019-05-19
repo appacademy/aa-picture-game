@@ -1,10 +1,12 @@
-var FuzzySet = require('../util/fuzzyset');
-var Dispatcher = require('../dispatcher');
+/* global Set:false */
+
+var FuzzySet = require('./util/fuzzyset');
+var Dispatcher = require('./dispatcher');
 var Store = require('flux/utils').Store;
 var GameState = new Store(Dispatcher);
 module.exports = GameState;
 
-var people = require('../data/sfPeople');
+var _people, _localStorageKey;
 
 // scoring params
 
@@ -12,7 +14,18 @@ const LEARNING_GROUP_SIZE = 3;
 const RESHOW_PENALTHY_THRESHOLD = 6;
 const GUESSES_TO_KEEP = 4;
 
-// state
+// initialization
+
+module.exports.initialize = function(people) {
+  _people = Object.assign({}, people);
+  delete _people.cohort;
+  _localStorageKey = "faceGameState-" + people.cohort;
+  loadStoredState();
+  syncStateWithPeople();
+  updateCurrentKey();
+};
+
+// _state
 
 const createBlankState = function() {
   return {
@@ -27,12 +40,10 @@ const createBlankState = function() {
   };
 };
 
-const CYCLE = "13-5-19";
-var localStorageKey = "faceGameState-" + CYCLE;
-var state = createBlankState();
+var _state = createBlankState();
 
 const _resetStoreState = function() {
-  state = createBlankState();
+  _state = createBlankState();
   storeState();
   syncStateWithPeople();
   updateCurrentKey();
@@ -41,16 +52,16 @@ const _resetStoreState = function() {
 
 GameState.__onDispatch = function (payload) {
   switch(payload.actionType) {
-    case "SF_NEXT_ITEM":
+    case "NEXT_ITEM":
       advanceItem();
       break;
-    case "SF_SET_ITEM":
+    case "SET_ITEM":
       setCurrentItem(payload.key);
       break;
-    case "SF_RESET_GAME_STATE":
+    case "RESET_GAME_STATE":
       _resetStoreState();
       break;
-    case "SF_GUESS_ADDED":
+    case "GUESS_ADDED":
       makeGuess(payload.guessType, payload.guess);
       break;
   }
@@ -66,41 +77,41 @@ const makeGuess = function(guessType, answer) {
   var guess = FuzzySet([correctAnswer]).get(answer);
 
   if (guess === null) {
-    state.status = "incorrect";
+    _state.status = "incorrect";
   } else if (guess[0][1] === answer.toLowerCase()) {
-    state.status = "correct";
+    _state.status = "correct";
   } else {
-    state.status = "close";
+    _state.status = "close";
   }
 
-  if (!state.remedialGuess) {
+  if (!_state.remedialGuess) {
     addGuess();
   }
 
-  if (state.status === "incorrect") {
-    state.remedialGuess = true;
+  if (_state.status === "incorrect") {
+    _state.remedialGuess = true;
   } else {
-    state.remedialGuess = false;
+    _state.remedialGuess = false;
   }
 
   GameState.__emitChange();
 };
 
 GameState.currentItem = function () {
-  return people[state.currentKey];
+  return _people[_state.currentKey];
 };
 
 GameState.status = function () {
-  return state.status;
+  return _state.status;
 };
 
 GameState.getScores = function () {
   var totals = {};
 
-  Object.keys(state.guessesByKey).forEach(function(key) {
+  Object.keys(_state.guessesByKey).forEach(function(key) {
     var sum = 0;
 
-    state.guessesByKey[key].forEach(function(guess) {
+    _state.guessesByKey[key].forEach(function(guess) {
       if (guess.status === "correct") {
         sum += 1;
       } else if (guess.status === "incorrect") {
@@ -115,59 +126,59 @@ GameState.getScores = function () {
 };
 
 const setCurrentItem = function(key) {
-  state.currentKey = key;
-  state.status = "guessing";
-  state.remedialGuess = false;
+  _state.currentKey = key;
+  _state.status = "guessing";
+  _state.remedialGuess = false;
   GameState.__emitChange();
 };
 
 const addGuess = function () {
-  let guesses = state.guessesByKey[state.currentKey];
+  let guesses = _state.guessesByKey[_state.currentKey];
   guesses.push({
-    turn: state.turn,
-    status: state.status
+    turn: _state.turn,
+    status: _state.status
   });
   while (guesses.length > GUESSES_TO_KEEP) {
     guesses.shift();
   }
-  if (state.status === 'correct') {
-    state.learningKeys.delete(state.currentKey);
-    state.knownKeys.add(state.currentKey);
-  } else if (state.status === 'incorrect') {
-    state.knownKeys.delete(state.currentKey);
-    state.learningKeys.add(state.currentKey);
+  if (_state.status === 'correct') {
+    _state.learningKeys.delete(_state.currentKey);
+    _state.knownKeys.add(_state.currentKey);
+  } else if (_state.status === 'incorrect') {
+    _state.knownKeys.delete(_state.currentKey);
+    _state.learningKeys.add(_state.currentKey);
   }
 };
 
 const advanceItem = function () {
-  state.status = "guessing";
-  if (!state.remedialGuess) {
+  _state.status = "guessing";
+  if (!_state.remedialGuess) {
     updateCurrentKey();
-    state.turn += 1;
+    _state.turn += 1;
   }
 
   GameState.__emitChange();
 };
 
 const updateCurrentKey = function () {
-  state.currentKey = chooseBestKey();
-  if (!state.knownKeys.has(state.currentKey)) {
-    state.learningKeys.add(state.currentKey);
+  _state.currentKey = chooseBestKey();
+  if (!_state.knownKeys.has(_state.currentKey)) {
+    _state.learningKeys.add(_state.currentKey);
   }
 };
 
 const chooseBestKey = function () {
   let eligibleKeys;
-  if (state.learningKeys.size < LEARNING_GROUP_SIZE) {
-    eligibleKeys = Object.keys(people);
+  if (_state.learningKeys.size < LEARNING_GROUP_SIZE) {
+    eligibleKeys = Object.keys(_people);
   } else {
-    eligibleKeys = new Set(state.knownKeys);
-    state.learningKeys.forEach(key => eligibleKeys.add(key));
+    eligibleKeys = new Set(_state.knownKeys);
+    _state.learningKeys.forEach(key => eligibleKeys.add(key));
   }
 
   let bestKey, bestScore = -1;
   eligibleKeys.forEach(key => {
-    const score = scoreItem(state.guessesByKey[key]);
+    const score = scoreItem(_state.guessesByKey[key]);
     if (score > bestScore) {
       bestKey = key;
       bestScore = score;
@@ -181,10 +192,10 @@ const scoreItem = function (guesses) {
   if (guesses.length === 0) return 0.4 + 0.2 * Math.random();
 
   var recentIncorrect = 0, correct = 0;
-  var totalRecords = Object.keys(state.guessesByKey).length;
+  var totalRecords = Object.keys(_state.guessesByKey).length;
 
   guesses.forEach((guess, i) => {
-    var weight = 1 - (state.turn - guess.turn) / totalRecords;
+    var weight = 1 - (_state.turn - guess.turn) / totalRecords;
     switch(guess.status) {
       case "correct":
         correct += 1;
@@ -202,7 +213,7 @@ const scoreItem = function (guesses) {
   correct = correct / GUESSES_TO_KEEP;
   recentIncorrect = Math.max(Math.min(recentIncorrect, 1), 0);
   var lastTurn = guesses[guesses.length - 1].turn;
-  var turnsSince = state.turn - lastTurn;
+  var turnsSince = _state.turn - lastTurn;
 
   var score = 0.4 * recentIncorrect
             + 0.4 * (1 - correct)
@@ -220,11 +231,11 @@ const scoreItem = function (guesses) {
 /// localStorage persistence ///
 
 const storeState = function () {
-  const storeageState = Object.assign({}, state);
+  const storeageState = Object.assign({}, _state);
   storeageState.timestamp = Date.now();
-  storeageState.learningKeys = Array.from(state.learningKeys);
-  storeageState.knownKeys = Array.from(state.knownKeys);
-  localStorage.setItem(localStorageKey, JSON.stringify(storeageState));
+  storeageState.learningKeys = Array.from(_state.learningKeys);
+  storeageState.knownKeys = Array.from(_state.knownKeys);
+  localStorage.setItem(_localStorageKey, JSON.stringify(storeageState));
 
   if (localStorage.length > 3) {
     removeOldestStoredItem();
@@ -253,49 +264,53 @@ const removeOldestStoredItem = function () {
 };
 
 const loadStoredState = function () {
-  let encodedState = localStorage.getItem(localStorageKey);
+  let encodedState = localStorage.getItem(_localStorageKey);
   if (encodedState) {
+    _state = createBlankState();
     let storageState = JSON.parse(encodedState);
 
-
-    Object.keys(state).forEach(key => {
+    Object.keys(_state).forEach(key => {
       if (storageState.hasOwnProperty(key)) {
         if (key === 'learningKeys' || key === 'knownKeys') {
-          state[key] = new Set(storageState[key]);
+          _state[key] = new Set(storageState[key]);
         } else {
-          state[key] = storageState[key];
+          _state[key] = storageState[key];
         }
       }
     });
-    state.remedialGuess = false; // always start false
+    _state.remedialGuess = false; // always start false
   }
 };
 
 const syncStateWithPeople = function () {
-  removeInvalidKeys();
-  addUnusedKeys();
+  removeInvalidGuessKeys();
+  addUnusedGuessKeys();
+  removeInvalidLearningKeys(_state.learningKeys);
+  removeInvalidLearningKeys(_state.knownKeys);
 };
 
-const removeInvalidKeys = function () {
-  Object.keys(state.guessesByKey).forEach(key => {
-    if (!people.hasOwnProperty(key)) {
-      delete state.guessesByKey[key];
+const removeInvalidGuessKeys = function () {
+  Object.keys(_state.guessesByKey).forEach(key => {
+    if (!_people.hasOwnProperty(key)) {
+      delete _state.guessesByKey[key];
     }
   });
 };
 
-const addUnusedKeys = function () {
-  Object.keys(people).forEach(key => {
-    if (!state.guessesByKey.hasOwnProperty(key)) {
-      state.guessesByKey[key] = [];
+const addUnusedGuessKeys = function () {
+  Object.keys(_people).forEach(key => {
+    if (!_state.guessesByKey.hasOwnProperty(key)) {
+      _state.guessesByKey[key] = [];
     }
   });
 };
 
-/// post-load setup ///
+const removeInvalidLearningKeys = function (set) {
+  set.forEach(key => {
+    if (!_people.hasOwnProperty(key)) {
+      set.delete(key);
+    }
+  });
+};
 
-loadStoredState();
-syncStateWithPeople();
 GameState.addListener(storeState);
-updateCurrentKey();
-

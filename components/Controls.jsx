@@ -44,9 +44,9 @@ var Controls = React.createClass({
 
     let control;
     if (this.props.status === "guessing") {
-      control = <GuessInput city={this.props.city} guessType={this.state.gameType} />;
+      control = <GuessInput guessType={this.state.gameType} />;
     } else {
-      control = <NextItemButton city={this.props.city}/>;
+      control = <NextItemButton/>;
     }
 
     return (

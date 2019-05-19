@@ -4,59 +4,71 @@ var Message = require('./Message');
 var Controls = require('./Controls');
 var ProgressBar = require('./ProgressBar');
 var CitySwitcher = require('./CitySwitcher');
-var SFStateStore = require('../stores/sfState');
-var NYStateStore = require('../stores/nyState');
-var FuzzySet = require('../util/fuzzyset');
-var sfPeople = require('../data/sfPeople');
-var nyPeople = require('../data/nyPeople');
+
+var store = require('../store');
+var sfInstructors = require('../data/sfInstructors');
+var sfStudents = require('../data/sfStudents');
+var nyInstructors = require('../data/nyInstructors');
+var nyStudents = require('../data/nyStudents');
+
+var concatPeople = function(instructors, students) {
+  const people = {};
+  instructors.concat(students).forEach(person => {
+    people[`${person.occup}-${person.id}`] = person;
+  });
+  people.cohort = students.cohort;
+  return people;
+};
+
+const sfPeople = concatPeople(sfInstructors, sfStudents);
+const nyPeople = concatPeople(nyInstructors, nyStudents);
 
 var PictureGame = React.createClass({
   getInitialState: function () {
+    this.store = store;
+    store.initialize(sfPeople);
     return {
-      cityStore: SFStateStore,
       city: "SF",
       status: "guessing",
       nextPicture: false,
       people: sfPeople,
-      person: SFStateStore.currentItem(),
-      scores: SFStateStore.getScores()
+      person: store.currentItem(),
+      scores: store.getScores()
     };
   },
-  componentDidMount : function () {
-    SFStateStore.addListener(this.updateItem);
-    NYStateStore.addListener(this.updateItem);
+  componentDidMount: function () {
+    store.addListener(this.updateItem);
   },
+  // componentWillUnmount: function () {
+  //   store.removeListener(this.updateItem);
+  // },
   updateItem: function () {
     this.setState({
-      person: this.state.cityStore.currentItem(),
-      status: this.state.cityStore.status(),
+      person: store.currentItem(),
+      status: store.status(),
       nextPicture: false,
-      scores: this.state.cityStore.getScores()
+      scores: store.getScores()
     });
   },
-  switchCity: function() {
-    let newStore;
+  switchCity: function(city) {
+    if (this.state.city === city) return;
+
     let people;
-    let city;
-    if (this.state.cityStore === SFStateStore) {
-      newStore = NYStateStore;
-      people = nyPeople;
-      city = "NYC";
-    } else {
-      newStore = SFStateStore;
+    if (city === "SF") {
       people = sfPeople;
-      city = "SF";
+    } else {
+      people = nyPeople;
     }
+    store.initialize(people);
     this.setState({
-      cityStore: newStore,
-      people: people,
-      person: newStore.currentItem(),
-      scores: newStore.getScores(),
-      city: city
+      people,
+      city,
+      person: store.currentItem(),
+      scores: store.getScores()
     });
   },
   currentName: function () {
-    return this.state.person.name + " (" + this.state.cityStore.currentItem().occup + ")";
+    return this.state.person.name + " (" + store.currentItem().occup + ")";
   },
   render: function () {
     return (
@@ -72,14 +84,13 @@ var PictureGame = React.createClass({
             <Picture src={this.state.person.imageUrl} />
             <Message status={this.state.status}
               currentName={this.currentName()}
-              currentOcup={this.state.cityStore.currentItem().occup}/>
+              currentOcup={store.currentItem().occup}/>
             <Controls
-              city={this.state.city}
               status={this.state.status}
               nextPicture={this.nextPicture}/>
           </section>
-          <ProgressBar scores={this.state.scores} people={this.state.people} city={this.state.city}/>
-          <CitySwitcher switchCity={this.switchCity}/>
+          <ProgressBar scores={this.state.scores} people={this.state.people}/>
+          <CitySwitcher city={this.state.city} switchCity={this.switchCity}/>
         </div>
       </div>
     );
