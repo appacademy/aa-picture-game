@@ -695,23 +695,6 @@ div.guess-block:hover {
   cursor: pointer;
 }
 
-div.game-type-selector {
-    position: absolute;
-    left: 40%;
-    top: 79%;
-    text-align: left;
-    text-transform: uppercase;
-    font-size: 14px;
-    letter-spacing: .03em;
-    line-height: 20px;
-}
-
-div.game-type-selector:hover {
-  font-weight: bolder;
-  text-transform: uppercase;
-  font-style: italic;
-}
-
 .game-time:hover {
   opacity: .5;
 }
