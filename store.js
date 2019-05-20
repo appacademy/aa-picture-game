@@ -204,8 +204,8 @@ const scoreItem = function (guesses) {
         recentIncorrect += weight;
         break;
       case "close":
-        correct += 0.5;
-        recentIncorrect += 0.5 * weight;
+        correct += 0.3;
+        recentIncorrect += 0.7 * weight;
         break;
     }
   });
