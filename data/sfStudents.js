@@ -1,5 +1,5 @@
 /* eslint max-len:0 */
-const COHORT = '2019-05-13';
+const COHORT = '2019-06-24';
 module.exports = [
   {
     "id": 3797,
