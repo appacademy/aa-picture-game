@@ -354,49 +354,49 @@ module.exports = [
     "name": "Zhan Liang",
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/844/medium/Zhan_Lians2.jpg?1563384057",
     "occup": "student"
-  },
-  {
-    "id": 3838,
-    "name": "Zim Hang",
-    "imageUrl": "https://secure.gravatar.com/avatar/773c1d82fdc6794ed844271130dd5322?secure=true&size=300",
-    "occup": "student"
-  },
-  {
-    "id": 3794,
-    "name": "Ching-Kai (Jim) Chen",
-    "imageUrl": "https://secure.gravatar.com/avatar/05161339dc4e3e6ac89ec86a66fe0525?secure=true&size=300",
-    "occup": "student"
-  },
-  {
-    "id": 3796,
-    "name": "Jerry Dudum",
-    "imageUrl": "https://secure.gravatar.com/avatar/b492208a19eca8523a66ccbd811a069f?secure=true&size=300",
-    "occup": "student"
-  },
-  {
-    "id": 3803,
-    "name": "Julie Kim (Kim) Tran",
-    "imageUrl": "https://secure.gravatar.com/avatar/52c7dd8aa35d09fff1a6948076f54112?secure=true&size=300",
-    "occup": "student"
-  },
-  {
-    "id": 3793,
-    "name": "Steve Kleha",
-    "imageUrl": "https://secure.gravatar.com/avatar/ee8ce3fb6956a234d07c50a76510cfae?secure=true&size=300",
-    "occup": "student"
-  },
-  {
-    "id": 3805,
-    "name": "Timothy (Tim) Scatterday",
-    "imageUrl": "https://secure.gravatar.com/avatar/d0476d604ce19646c3865bcaf3163ab8?secure=true&size=300",
-    "occup": "student"
-  },
-  {
-    "id": 3781,
-    "name": "Tina Tae",
-    "imageUrl": "https://secure.gravatar.com/avatar/6fd7256940fe0bf55ef3ec7cb3e60143?secure=true&size=300",
-    "occup": "student"
   }
+//   {
+//     "id": 3838,
+//     "name": "Zim Hang",
+//     "imageUrl": "https://secure.gravatar.com/avatar/773c1d82fdc6794ed844271130dd5322?secure=true&size=300",
+//     "occup": "student"
+//   },
+//   {
+//     "id": 3794,
+//     "name": "Ching-Kai (Jim) Chen",
+//     "imageUrl": "https://secure.gravatar.com/avatar/05161339dc4e3e6ac89ec86a66fe0525?secure=true&size=300",
+//     "occup": "student"
+//   },
+//   {
+//     "id": 3796,
+//     "name": "Jerry Dudum",
+//     "imageUrl": "https://secure.gravatar.com/avatar/b492208a19eca8523a66ccbd811a069f?secure=true&size=300",
+//     "occup": "student"
+//   },
+//   {
+//     "id": 3803,
+//     "name": "Julie Kim (Kim) Tran",
+//     "imageUrl": "https://secure.gravatar.com/avatar/52c7dd8aa35d09fff1a6948076f54112?secure=true&size=300",
+//     "occup": "student"
+//   },
+//   {
+//     "id": 3793,
+//     "name": "Steve Kleha",
+//     "imageUrl": "https://secure.gravatar.com/avatar/ee8ce3fb6956a234d07c50a76510cfae?secure=true&size=300",
+//     "occup": "student"
+//   },
+//   {
+//     "id": 3805,
+//     "name": "Timothy (Tim) Scatterday",
+//     "imageUrl": "https://secure.gravatar.com/avatar/d0476d604ce19646c3865bcaf3163ab8?secure=true&size=300",
+//     "occup": "student"
+//   },
+//   {
+//     "id": 3781,
+//     "name": "Tina Tae",
+//     "imageUrl": "https://secure.gravatar.com/avatar/6fd7256940fe0bf55ef3ec7cb3e60143?secure=true&size=300",
+//     "occup": "student"
+//   }
   ];
   
 module.exports.cohort = COHORT;
