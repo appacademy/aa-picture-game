@@ -78,10 +78,22 @@ module.exports = [
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/438/medium/Carlos_Garcia.jpg?1552418945",
     "occup": "TA"
   },
+//   {
+//     "id": 193,
+//     "name": "Drew Rodrigues",
+//     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/083/medium/Andrew_Rodriguez.jpg?1546973966",
+//     "occup": "TA"
+//   }
+   {
+    "id": 198,
+    "name": "Vanessa Chen",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/344/medium/Vanessa_Chen_2.jpg?1546991395",
+    "occup": "TA"
+  },
   {
-    "id": 193,
-    "name": "Drew Rodrigues",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/083/medium/Andrew_Rodriguez.jpg?1546973966",
+    "id": 199,
+    "name": "Alissa Crane",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/508/medium/Alissa_Crane.jpg?1552418161",
     "occup": "TA"
   }
 ];
