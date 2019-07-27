@@ -68,20 +68,18 @@ GameState.__onDispatch = function (payload) {
 };
 
 const makeGuess = function(guessType, answer) {
-  var correctAnswer;
-  if (guessType === "Full Name") {
-    correctAnswer = GameState.currentItem().name.toLowerCase();
-  } else if(guessType === "First Name") {
-    correctAnswer = GameState.currentItem().name.split(" ")[0].toLowerCase();
+  answer = _normalizeStr(answer);
+  var correctAnswer = _normalizeStr(GameState.currentItem().name);
+  if (guessType === "First Name") {
+    correctAnswer = correctAnswer.split(" ")[0];
   }
-  var guess = FuzzySet([correctAnswer]).get(answer);
 
-  if (guess === null) {
-    _state.status = "incorrect";
-  } else if (guess[0][1] === answer.toLowerCase()) {
+  if (correctAnswer === answer) {
     _state.status = "correct";
-  } else {
+  } else if (FuzzySet([correctAnswer]).get(answer)) {
     _state.status = "close";
+  } else {
+    _state.status = "incorrect";
   }
 
   if (!_state.remedialGuess) {
@@ -96,6 +94,11 @@ const makeGuess = function(guessType, answer) {
 
   GameState.__emitChange();
 };
+
+const _normalizeStr = function (str) {
+  // ignore case, extra whitespace, & all non-letters except -
+  return str.toLowerCase().replace(/[^a-z-]+/g, ' ').trim();
+}
 
 GameState.currentItem = function () {
   return _people[_state.currentKey];

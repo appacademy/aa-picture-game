@@ -220,8 +220,10 @@ var FuzzySet = function(arr, useLevenshtein, gramSizeLower, gramSizeUpper) {
   };
 
   fuzzyset._normalizeStr = function(str) {
-    if (Object.prototype.toString.call(str) !== '[object String]') throw 'Must use a string as argument to FuzzySet functions'
-      return str.toLowerCase();
+    if (Object.prototype.toString.call(str) !== '[object String]') {
+      throw 'Must use a string as argument to FuzzySet functions';
+    }
+    return str;
   };
 
   // return length of items in set
