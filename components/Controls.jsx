@@ -7,7 +7,7 @@ const GUESS_TYPES = ['Full Name', 'First Name'];
 
 var Controls = React.createClass({
   getInitialState: function () {
-    return {guessTypeIndex: 0};
+    return {guessTypeIndex: 1};
   },
 
   toggleGuessType: function(e) {

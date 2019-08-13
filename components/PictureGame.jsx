@@ -26,12 +26,12 @@ const nyPeople = concatPeople(nyInstructors, nyStudents);
 var PictureGame = React.createClass({
   getInitialState: function () {
     this.store = store;
-    store.initialize(sfPeople);
+    store.initialize(nyPeople);
     return {
-      city: "SF",
+      city: "NYC",
       status: "guessing",
       nextPicture: false,
-      people: sfPeople,
+      people: nyPeople,
       person: store.currentItem(),
       scores: store.getScores()
     };

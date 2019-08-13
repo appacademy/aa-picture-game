@@ -102,4 +102,16 @@ module.exports = [
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/376/medium/DSC00450.JPG?1549372395",
     "occup": "Instructor"
   },
+  {
+    "id": 211,
+    "name": "Rosemary Gonzaga",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/529/medium/Rosemary_Gonzaga.JPG?1554842368",
+    "occup": "Instructor"
+  },
+  {
+    "id": 212,
+    "name": "Alex Liao",
+    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/697/medium/DSC00604.JPG?1560191070",
+    "occup": "Instructor"
+  },
 ];
