@@ -95,5 +95,23 @@ module.exports = [
     "name": "Alissa Crane",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/508/medium/Alissa_Crane.jpg?1552418161",
     "occup": "TA"
-  }
+  },
+  {
+    "id": 3598,
+    "name": "Walker",
+    "imageUrl": "photos/walker.jpg",
+    "occup": "TA"
+  },
+  {
+    "id": 3639,
+    "name": "Michelle Kim",
+    "imageUrl": "photos/michelle.png",
+    "occup": "TA"
+  },
+  {
+    "id": 3616,
+    "name": "Helen Yu",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/616/medium/HelenYu2.jpg?1557849006",
+    "occup": "TA"
+  },
 ];
