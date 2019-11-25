@@ -12,18 +12,6 @@ module.exports = [
     "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/991/medium/Elliot_Humphrey_1.jpg?1491341118",
     "occup": "TA"
   },
-  // {
-  //   "id": 105,
-  //   "name": "Jesse Wong",
-  //   "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/002/308/medium/Jesse_Wong_1.jpg?1502406902",
-  //   "occup": "TA"
-  // },
-  // {
-  //   "id": 124,
-  //   "name": "Andy Wynkoop",
-  //   "imageUrl": "https://s3-us-west-1.amazonaws.com/spacebook-assets/13113244_1299623806718826_1306617861_o.jpg",
-  //   "occup": "TA"
-  // },
   {
     "id": 128,
     "name": "Ryan Mapa",
@@ -42,12 +30,6 @@ module.exports = [
     "imageUrl":"https://s3-us-west-1.amazonaws.com/eventliter-prod/headshot.jpg",
     "occup": "TA"
   },
-  // {
-  //   "id": 145,
-  //   "name": "Carly Schaaf",
-  //   "imageUrl": "https://s3-us-west-1.amazonaws.com/eventliter-prod/Carly_Schaaf.jpg",
-  //   "occup": "TA"
-  // },
   {
     "id": 188,
     "name": "Dean Lacap",
@@ -78,13 +60,7 @@ module.exports = [
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/438/medium/Carlos_Garcia.jpg?1552418945",
     "occup": "TA"
   },
-//   {
-//     "id": 193,
-//     "name": "Drew Rodrigues",
-//     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/083/medium/Andrew_Rodriguez.jpg?1546973966",
-//     "occup": "TA"
-//   }
-   {
+  {
     "id": 198,
     "name": "Vanessa Chen",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/344/medium/Vanessa_Chen_2.jpg?1546991395",
