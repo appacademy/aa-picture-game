@@ -90,4 +90,28 @@ module.exports = [
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/616/medium/HelenYu2.jpg?1557849006",
     "occup": "TA"
   },
+  {
+    "id": 4616,
+    "name": "Joe Bumbaca",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/632/medium/JoeBumbaca.jpg?1557849205",
+    "occup": "TA"
+  },
+  {
+    "id": 4617,
+    "name": "Lina Kherchi",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/769/medium/Lina_Kherchi2.jpg?1563383492",
+    "occup": "TA"
+  },
+  {
+    "id": 4618,
+    "name": "Julia Wang",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/998/medium/Julia_Wang.1.jpg?1568303750",
+    "occup": "TA"
+  },
+  {
+    "id": 4619,
+    "name": "Erik Elliott",
+    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/957/medium/Erik_Elliot.1.jpg?1568303406",
+    "occup": "TA"
+  },
 ];
