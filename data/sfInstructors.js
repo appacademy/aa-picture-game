@@ -1,18 +1,6 @@
 /* eslint max-len:0 */
 module.exports = [
   {
-    "id": 26,
-    "name": "Jon Wolverton",
-    "imageUrl": "photos/jon.jpg",
-    "occup": "selection manager"
-  },
-  {
-    "id": 93,
-    "name": 'Elliot Humphrey',
-    "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/001/991/medium/Elliot_Humphrey_1.jpg?1491341118",
-    "occup": "TA"
-  },
-  {
     "id": 128,
     "name": "Ryan Mapa",
     "imageUrl":"https://s3-us-west-1.amazonaws.com/eventliter-prod/portrait.jpg",
@@ -28,12 +16,6 @@ module.exports = [
     "id": 141,
     "name": "Jennifer Kennedy",
     "imageUrl":"https://s3-us-west-1.amazonaws.com/eventliter-prod/headshot.jpg",
-    "occup": "TA"
-  },
-  {
-    "id": 188,
-    "name": "Dean Lacap",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/353/medium/Dean_Lacap.jpg?1546983954",
     "occup": "TA"
   },
   {
