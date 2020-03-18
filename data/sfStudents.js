@@ -255,7 +255,7 @@ module.exports = [
     },
     {
       "id": 4722,
-      "name": "Tj McCabe",
+      "name": "TJ McCabe",
       "imageUrl": "http://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/004/722/medium/TJ_McCabe_1.JPG?1583209966",
       "occup": "student"
     },
