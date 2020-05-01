@@ -25,18 +25,6 @@ module.exports = [
     "occup": "TA"
   },
   {
-    "id": 190,
-    "name": "Andy Minucos",
-    "imageUrl": "https://s3-us-west-1.amazonaws.com/eventliter-prod/Andy.jpg",
-    "occup": "TA"
-  },
-  {
-    "id": 197,
-    "name": "Angela Topchev",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/510/medium/Angela_Topchev_2.jpg?1552418206",
-    "occup": "TA"
-  },
-  {
     "id": 196,
     "name": "Carlos Garcia",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/438/medium/Carlos_Garcia.jpg?1552418945",
@@ -46,12 +34,6 @@ module.exports = [
     "id": 198,
     "name": "Vanessa Chen",
     "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/344/medium/Vanessa_Chen_2.jpg?1546991395",
-    "occup": "TA"
-  },
-  {
-    "id": 199,
-    "name": "Alissa Crane",
-    "imageUrl": "https://s3-us-west-2.amazonaws.com/aa-progress-tracker/students/avatars/000/003/508/medium/Alissa_Crane.jpg?1552418161",
     "occup": "TA"
   },
   {
